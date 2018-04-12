@@ -8,10 +8,13 @@ from datetime import datetime
 import re
 
 
-#%%
+#%% auxiliar
 
 def inline(txt):
     return txt.replace('\n',' // ')
+
+
+#%% FPGA classes
 
 
 class fpga_register():
@@ -42,8 +45,21 @@ class fpga_register():
         self.main_reg    = None
         self.reg_read    = False
 
+    def __repr__(self):
+        txt  = self.name + ','
+        txt += ( 'rw' if self.rw else 'ro' ) + ','
+        txt += 'val='+str(self.val) + ','
+        txt += 'min='+str(self.min) + ','
+        txt += 'max='+str(self.max) + ','
+        txt += 'nbits='+str(self.nbits) + ','
+        txt += ( 'int' if self.signed else 'uint' ) + ','
+        txt += 'group='+ self.group
+        return 'fpga_register('+txt+')'
+
     def __getitem__(self, key):
         return getattr(self,key)
+
+
 
 
 class fpga_registers():
@@ -52,6 +68,7 @@ class fpga_registers():
         self.data  = []
         self.names = []
         self.len   = 0
+
     def __getitem__(self, key):
         if type(key)==int:
             return self.data[key]
@@ -60,6 +77,13 @@ class fpga_registers():
         if type(key)==slice:
             return self.data[key]
 
+    def __repr__(self):
+        txt  = 'fpga_registers()\n'
+        for r in self.data:
+            txt += ' '*4 + r.name + '\n'
+        txt += '\n'
+        return txt
+
     def add(self, name, val=0, rw=True,  nbits=14, min_val=0, max_val=0, signed=False, desc='todo',fpga_update=True, group='mix'):
         self.data.append(fpga_register(name=name, val=val, rw=rw, nbits=nbits, group=group,
                                        min_val=min_val, max_val=max_val, signed=signed,
@@ -67,18 +91,491 @@ class fpga_registers():
         self.names.append(name)
         self.len = len(self.names)
 
+    def update_verilog_files(self,folder,AppName):
+        fpga_mod_fn = AppName+'/fpga/rtl/dummy.v'
+        if not os.path.isdir(folder):
+            raise ValueError('"folder" variable should be the source code folder path.')
+        os.chdir(folder)
+        update_verilog(fpga_mod_fn,dock=['WIREREG','FPGA MEMORY'],
+                       txt=[fpga_defs(self),fpga_reg_write(self)+fpga_reg_read(self)])
+
+    def set_py_global_config(self):
+        self.py_global_config=[]
+        self.py_global_config.append(
+                html_global_config( regex_start = ' *# *\[REGSET DOCK\] *',
+                                    regex_end   = ' *# *\[REGSET DOCK END\]',
+                                    text        = '# [REGSET DOCK]\n'+self.print_hugo(ret=True)+'# [REGSET DOCK END]\n' )
+                )
+
+    def update_python_files(self,folder):
+        if not os.path.isdir(folder):
+            raise ValueError('"folder" variable should be the source code folder path.')
+        os.chdir(folder)
+        update_py('resources/rp_cmds/py/hugo.py',self.py_global_config)
+
     def print_hugo(self,ret=False):
         txt=''
-        txt+='li = fpga_lock_in(base_addr=0x40600000,dev_file="/dev/mem")\n'
+        txt+='dm = fpga_dummy(base_addr=0x40600000,dev_file="/dev/mem")\n'
         txt+='\n'
         for r in self:
-            txt+="li.add( fpga_reg(name={:21s}, index={:3d}, rw={:5s}, nbits={:2d},signed={:5s}) )\n".format(
+            txt+="dm.add( fpga_reg(name={:21s}, index={:3d}, rw={:5s}, nbits={:2d},signed={:5s}) )\n".format(
                     "'"+r.name+"'" , r.index , str(r.rw) , r.nbits , str(r.signed) )
         if ret:
             return txt
         else:
             print(txt)
 
+
+#%% MAIN classes
+
+
+class main_register():
+    """Register for C controller module"""
+    def __init__(self, name, val=0, rw=True,  min_val=0, max_val=0, nbits=14, desc='todo',
+                 signed=False, fpga_update=True ,index=0, c_update=None , group='mix'):
+        """Initialize attributes."""
+        self.name        = name
+        self.val         = val
+        self.rw          = rw
+        self.ro          = not rw
+        self.nbits       = nbits
+        self.index       = index
+        self.i           = index
+        self.min         = min_val
+        self.max         = max_val
+        self.desc        = desc
+        self.group       = group
+        self.fpga_update = fpga_update
+        self.signed      = signed
+        self.c_update    = c_update
+        self.fpga_reg    = ''
+        self.cdef        = name.upper()
+
+    def __repr__(self):
+        txt  = self.name + ','
+        txt += 'fpga_reg='+str(self.fpga_reg) + ','
+        txt += ( 'rw' if self.rw else 'ro' ) + ','
+        txt += 'val='+str(self.val) + ','
+        txt += 'min='+str(self.min) + ','
+        txt += 'max='+str(self.max) + ','
+        txt += 'nbits='+str(self.nbits) + ','
+        txt += ( 'int' if self.signed else 'uint' ) + ','
+        txt += 'group='+ self.group
+        return 'main_register('+txt+')'
+
+
+class main_registers():
+    """Collection of registers for C controller module"""
+    def __init__(self,num_base=81):
+        self.data  = []
+        self.names = []
+        self.len   = 0
+        self.num_base=num_base
+    def __getitem__(self, key):
+        if type(key)==int:
+            return self.data[key]
+        if type(key)==str:
+            return self.data[self.names.index(key)]
+        if type(key)==slice:
+            return self.data[key]
+
+    def __repr__(self):
+        txt  = 'main_registers()\n'
+        for r in self.data:
+            txt += ' '*4 + r.name + '\n'
+        txt += '\n'
+        return txt
+
+    def renumber(self):
+        i=0
+        for r in self:
+            r.i     = i
+            r.index = r.i+self.num_base
+            i+=1
+
+    def fix_c_update(self,f):
+        for r in [ y for y in filter(lambda x: ( x.c_update==None and x.fpga_reg!=None) , self) ]:
+            r.c_update='(float)g_dummy_reg->{:20s}'.format(r.fpga_reg)
+        for r in f:
+            if r.c_update==None:
+                r.main_reg='dummy_'+r.name
+                r.c_update='(int)params[{:30s}].value'.format( self[r.main_reg].cdef )
+        return True
+
+    def insert_reg(self,pos,reg,fpga_reg=None):
+        if type(pos)==int:
+            i=pos
+        elif type(pos)==str and ( pos in self.names ):
+            i=self[pos].i
+        else:
+            return 'Bad position'
+
+        self.names.insert(i,reg.name)
+        self.data.insert(i,reg)
+
+        self.data[i].fpga_reg=fpga_reg
+        self.len = len(self.names)
+        self.renumber()
+        return True
+
+    def del_reg(self,pos):
+        if type(pos)==int:
+            i=pos
+        elif type(pos)==str and ( pos in self.names ):
+            i=self[pos].i
+        else:
+            return 'Bad position'
+        self.names.pop(i)
+        self.data.pop(i)
+        self.renumber()
+        return True
+
+    def add(self, name, val=0, rw=True, nbits=14, min_val=0, max_val=0, signed=False, desc='todo',
+            fpga_update=True, c_update=None, fpga_reg=None , group='mix'):
+        if type(name)==str:
+            self.data.append(main_register(name=name, val=val, rw=rw,  nbits=nbits, group=group,
+                                           min_val=min_val, max_val=max_val, signed=signed,
+                                           desc=desc, fpga_update=fpga_update , index=self.len,
+                                           c_update=c_update))
+            self.names.append(name)
+            self.data[-1].fpga_reg=fpga_reg
+            self.data[-1].c_update=None
+            self.len = len(self.names)
+        elif type(name)==fpga_register:
+            self.data.append(main_register(name='dummy_'+name.name, val=name.val, rw=name.rw,
+                                           min_val=name.min, max_val=name.max, signed=name.signed,
+                                           desc=name.desc, fpga_update=name.fpga_update , index=self.len ))
+            self.data[-1].fpga_reg=name.name
+            self.data[-1].c_update='(float)g_dummy_reg->{:20s}'.format(name.name)
+            self.names.append('dummy_'+name.name)
+            self.len = len(self.names)
+        self.data[-1].index=self.data[-1].i+self.num_base
+        self.data[-1].cdef=self.data[-1].name.upper()
+
+    def update_c_files(self,folder,AppName,f):
+        if not os.path.isdir(folder):
+            raise ValueError('"folder" variable should be the App folder path.')
+        os.chdir(folder)
+        if not os.path.isdir(AppName):
+            raise ValueError('"AppName" variable should be the source code folder path.')
+
+        filename=AppName+os.sep+'src'+os.sep+'dummy.c'
+        update_main(filename , dock = ['PARAMSUPDATE'      , 'FPGAUPDATE'],
+                               txt  = [main_update_params(self), main_update_fpga(f)])
+
+        filename=AppName+os.sep+'src'+os.sep+'fpga_dummy.c'
+        update_main(filename , dock = ['FPGARESET'],
+                               txt  = [main_fpga_regs_reset(f)])
+
+
+        filename=AppName+os.sep+'src'+os.sep+'fpga_dummy.h'
+
+        update_main(filename , dock = ['FPGAREG'],
+                               txt  = [main_fpga_regs_def(f)])
+
+        filename=AppName+os.sep+'src'+os.sep+'main.c'
+        update_main(filename , dock = ['MAINDEF'],
+                               txt  = [main_def(self)])
+
+        filename=AppName+os.sep+'src/main.h'
+        update_main(filename , dock = ['MAINDEFH'],
+                               txt  = [main_defh(self)])
+
+        replace_pattern(filename , pattern = ['^#define[ ]+PARAMS_NUM[ ]+[0-9]+'],
+                                   txt     = [ '#define PARAMS_NUM        {:>3d}'.format(self[-1].index+1) ])
+
+
+
+#%% HTML registers
+
+
+class html_register():
+    """Register for Web Frontend module"""
+    def __init__(self, name, val=0, rw=True,  min_val=0, max_val=0,
+                 desc='todo', signed=False, fpga_update=True ,index=0,
+                 input_type='input'):
+        """Initialize attributes."""
+        self.name        = name
+        self.val         = val
+        self.rw          = rw
+        self.ro          = not rw
+        self.index       = index
+        self.i           = index
+        self.min         = min_val
+        self.max         = max_val
+        self.desc        = desc
+        self.fpga_update = fpga_update
+        self.signed      = signed
+        self.type        = input_type
+    def __repr__(self):
+        txt  = self.name + ','
+        txt += ( 'rw' if self.rw else 'ro' ) + ','
+        txt += 'val='+str(self.val) + ','
+        txt += 'min='+str(self.min) + ','
+        txt += 'max='+str(self.max) + ','
+        txt += ( 'int' if self.signed else 'uint' ) + ','
+        txt += 'type='+ self.type
+        return 'html_register('+txt+')'
+
+class html_registers():
+    """Collection of registers for Web Frontend module"""
+    def __init__(self,num_base=81):
+        self.data  = []
+        self.names = []
+        self.len   = 0
+        self.num_base=num_base
+
+    def __getitem__(self, key):
+        if type(key)==int:
+            return self.data[key]
+        if type(key)==str:
+            return self.data[self.names.index(key)]
+        if type(key)==slice:
+            return self.data[key]
+
+    def __repr__(self):
+        txt  = 'html_registers()\n'
+        for r in self.data:
+            txt += ' '*4 + r.name + '\n'
+        txt += '\n'
+        return txt
+
+    def add(self, name, val=0, rw=True,  min_val=0, max_val=0, signed=False, desc='todo',
+            fpga_update=True, c_update=None, fpga_reg=None):
+        if type(name)==str:
+            self.data.append(html_register(name=name, val=val, rw=rw,
+                                           min_val=min_val, max_val=max_val, signed=signed,
+                                           desc=desc, fpga_update=fpga_update ,
+                                           input_type='input'))
+            self.names.append(name)
+            self.len = len(self.names)
+        elif type(name)==main_register:
+            self.data.append(html_register(name=name.name, val=name.val, rw=name.rw,
+                                           min_val=name.min, max_val=name.max, signed=name.signed,
+                                           desc=name.desc, fpga_update=name.fpga_update ,
+                                           input_type='input'))
+            self.names.append(name.name)
+            self.len = len(self.names)
+        self.data[-1].index=self.data[-1].i+self.num_base
+
+    def guess_control_type(self,filename):
+        for r in self:
+            if r.ro:
+                r.type='none'
+            else:
+                if r.name[-3:]=='_sw' or r.max==15 or r.max==7:
+                    r.type='select'
+                elif r.max==1:
+                    r.type='checkbox'
+                else:
+                    r.type='number'
+            r.control=None
+
+    def auto_set_controls(self,filename,AppName):
+        # load controls for number inputs
+        for i in [ y.name for y in filter( lambda x: x.type=='number' , self) ]:
+            self[i].control = input_number(idd=self[i])
+
+        # load controls for checkbox inputs
+        for i in [ y.name for y in filter( lambda x: x.type=='checkbox' , self) ]:
+            self[i].control = input_checkbox(idd=self[i])
+
+        # load controls for button inputs
+        for i in [ y.name for y in filter( lambda x: x.type=='button' , self) ]:
+            self[i].control = input_button(idd=self[i])
+
+        if not os.path.isfile(filename):
+            raise ValueError('filename('+filename+') does not existt')
+
+        rip_len=(len(AppName)+1)
+        # load controls for select
+        for i in [ y.name for y in filter( lambda x: x.type=='select' , self) ]:
+            if len(get_muxer(filename,i[rip_len:] ))>0:
+                self[i].control = select(idd=i , items=get_muxer(filename,i[rip_len:] ), default=self[i].val  );
+            else:
+                print(i+': select controller should be set by hand. No muxer found.')
+
+    def print_control_type(self):
+        max_len=max([ len(y) for y in self.names ])+2
+        txt="h[{:"+str(max_len)+"s}].type = '{:s}'"
+        for r in self:
+            print(txt.format("'"+r.name+"'",r.type))
+
+    def update_html_files(self,folder,AppName):
+        filename=AppName + os.sep + 'index.html'
+        if not os.path.isdir(folder):
+            raise ValueError('"folder" variable should be the source code folder path.')
+        if not os.path.isfile(filename):
+            raise ValueError('"filename" should an existing file.')
+        os.chdir(folder)
+        update_html(filename,self)
+
+    def set_global_configs(self):
+        self.html_global_configs=[]
+
+        # config_params_txts  ***********************************************
+        txt=[]
+        txt.append("config_params_txts = 'xmin,xmax,trig_mode,trig_source,trig_edge,trig_delay,trig_level,time_range,time_units,en_avg_at_dec,min_y,'+")
+        txt.append(' '*21+"'max_y,prb_att_ch1,gain_ch1,prb_att_ch2,gain_ch2,gui_xmin,gui_xmax,'+")
+        tmp=' '*21+"'"
+        for i in [ y.name for y in filter( lambda x: x.rw , self) ]:
+            tmp += i+","
+            if len(tmp)>130:
+                tmp+="'+"
+                txt.append(tmp)
+                tmp=' '*21+"'"
+        if len(tmp)>25:
+            tmp=tmp[0:-1]
+            tmp+="';"
+            txt.append(tmp)
+        else:
+            txt[-1]=txt[-1][0:-3]+"';"
+        txt=('\n'.join(txt))
+
+        self.html_global_configs.append(
+                html_global_config( regex_start = ' *config_params_txts *=',
+                                    regex_end   = '.*;.*',
+                                    text        = txt )
+                )
+
+        # input_checkboxes  *************************************************
+        txt=[]
+        tmp="var input_checkboxes = '"
+        for i in [ '#'+y.name for y in filter( lambda x: x.type=='checkbox' , self) ]:
+            tmp += i+","
+            if len(tmp)>130:
+                tmp+="'+"
+                txt.append(tmp)
+                tmp=' '*23+"'"
+        if len(tmp)>25:
+            tmp=tmp[0:-1]
+            tmp+="';"
+            txt.append(tmp)
+        else:
+            txt[-1]=txt[-1][0:-3]+"';"
+        txt=('\n'.join(txt))
+
+        self.html_global_configs.append(
+                html_global_config( regex_start = ' *var *input_checkboxes *=',
+                                    regex_end   = '.*;.*',
+                                    text        =  txt)
+                )
+
+        # input_select  *************************************************
+        txt=[]
+        tmp="var switches=["
+        for i in [ "'#"+y.name+"'" for y in filter( lambda x: x.type=='select' , self) ]:
+            tmp += i+","
+            if len(tmp)>130:
+                txt.append(tmp)
+                tmp=' '*14
+        if len(tmp)>16:
+            tmp=tmp[0:-1]
+            tmp+="];"
+            txt.append(tmp)
+        else:
+            txt[-1]=txt[-1][0:-1]+"];"
+        txt=('\n'.join(txt))
+
+        self.html_global_configs.append(
+                html_global_config( regex_start = ' *var *switches *= *\[',
+                                    regex_end   = '.*\] *;.*',
+                                    text        =  txt)
+                )
+
+        # input_buttons  *************************************************
+        txt=[]
+        tmp="var input_buttons = '"
+        for i in [ '#'+y.name for y in filter( lambda x: x.type=='button' , self) ]:
+            tmp += i+","
+            if len(tmp)>130:
+                tmp+="'+"
+                txt.append(tmp)
+                tmp=' '*20+"'"
+        if len(tmp)>22:
+            tmp=tmp[0:-1]
+            tmp+="';"
+            txt.append(tmp)
+        else:
+            txt[-1]=txt[-1][0:-3]+"';"
+        txt=('\n'.join(txt))
+
+        self.html_global_configs.append(
+                html_global_config( regex_start = ' *var *input_buttons *=',
+                                    regex_end   = '.*;.*',
+                                    text        =  txt)
+                )
+        # input_number  *************************************************
+        txt=[]
+        tmp="var input_number=["
+        for i in [ "'"+y.name+"'" for y in filter( lambda x: x.type=='number' , self) ]:
+            tmp += i+","
+            if len(tmp)>130:
+                tmp+=" "
+                txt.append(tmp)
+                tmp=' '*18
+        if len(tmp)>20:
+            tmp=tmp[0:-1]
+            tmp+="];"
+            txt.append(tmp)
+        else:
+            txt[-1]=txt[-1][0:-2]+"];"
+        txt=('\n'.join(txt))
+
+        self.html_global_configs.append(
+                html_global_config( regex_start = ' *var *input_number *= *\[',
+                                    regex_end   = '.*\] *;.*',
+                                    text        =  txt)
+                )
+
+        # LOADPARAMS  *************************************************
+        txt=[]
+
+        txt.append('// [LOLO DOCK LOADPARAMS]')
+
+        txt.append('// Checkboxes')
+        max_len=3+max([ len(y.name) for y in filter( lambda x: x.type=='checkbox' , self) ])
+        for i in [ y.name for y in filter( lambda x: x.type=='checkbox' , self) ]:
+            tmp="$({:<"+str(max_len)+"s}).prop('checked', (params.original.{:<"+str(max_len)+"s} ? true : false));"
+            txt.append( tmp.format( "'#"+i+"'" , i ) )
+        txt.append('')
+
+        txt.append('// Numbers')
+        max_len=3+max([ len(y.name) for y in filter( lambda x: x.type=='number' , self) ])
+        for i in [ y.name for y in filter( lambda x: x.type=='number' , self) ]:
+            tmp="$({:<"+str(max_len)+"s}).val(params.original.{:<"+str(max_len)+"s});"
+            txt.append( tmp.format( "'#"+i+"'" , i ) )
+        txt.append('')
+
+        txt.append('// Switches')
+        max_len=3+max([ len(y.name) for y in filter( lambda x: x.type=='select' , self) ])
+        for i in [ y.name for y in filter( lambda x: x.type=='select' , self) ]:
+            tmp="$({:<"+str(max_len)+"s}).val(params.original.{:<"+str(max_len)+"s});"
+            txt.append( tmp.format( "'#"+i+"'" , i ) )
+        txt.append('')
+
+        txt.append('// Buttons')
+        for i in [ y.name for y in filter( lambda x: x.type=='button' , self) ]:
+            txt.append( ("if (params.original."+i+"){").ljust(55)+" // "+i )
+            txt.append( "  $('#"+i+"').removeClass('btn-default').addClass('btn-primary').data('checked',true);" )
+            txt.append( "}else{" )
+            txt.append( "  $('#"+i+"').removeClass('btn-primary').addClass('btn-default').data('checked',false);" )
+            txt.append( "}" )
+        txt.append('')
+
+        txt.append('// [LOLO DOCK LOADPARAMS END]')
+
+        txt=('\n'.join(txt))
+
+        self.html_global_configs.append(
+                html_global_config( regex_start = ' *// *\[LOLO DOCK LOADPARAMS\].*',
+                                    regex_end   = '.*// *\[LOLO DOCK LOADPARAMS END\].*',
+                                    text        =  txt)
+                )
+
+
+
+#%% more auxiliar
 
 class txt_buff():
     """Buffer for text ot formating"""
@@ -281,65 +778,6 @@ def update_verilog(filename,dock,txt):
     os.rename(filename.replace('.v','_.v'),filename)
 
 
-class main_register():
-    """Register for C controller module"""
-    def __init__(self, name, val=0, rw=True,  min_val=0, max_val=0, nbits=14, desc='todo',
-                 signed=False, fpga_update=True ,index=0, c_update=None , group='mix'):
-        """Initialize attributes."""
-        self.name        = name
-        self.val         = val
-        self.rw          = rw
-        self.ro          = not rw
-        self.nbits       = nbits
-        self.index       = index
-        self.i           = index
-        self.min         = min_val
-        self.max         = max_val
-        self.desc        = desc
-        self.group       = group
-        self.fpga_update = fpga_update
-        self.signed      = signed
-        self.c_update    = c_update
-
-
-class main_registers():
-    """Collection of registers for C controller module"""
-    def __init__(self,num_base=81):
-        self.data  = []
-        self.names = []
-        self.len   = 0
-        self.num_base=num_base
-    def __getitem__(self, key):
-        if type(key)==int:
-            return self.data[key]
-        if type(key)==str:
-            return self.data[self.names.index(key)]
-        if type(key)==slice:
-            return self.data[key]
-
-    def add(self, name, val=0, rw=True, nbits=14, min_val=0, max_val=0, signed=False, desc='todo',
-            fpga_update=True, c_update=None, fpga_reg=None , group='mix'):
-        if type(name)==str:
-            self.data.append(main_register(name=name, val=val, rw=rw,  nbits=nbits, group=group,
-                                           min_val=min_val, max_val=max_val, signed=signed,
-                                           desc=desc, fpga_update=fpga_update , index=self.len,
-                                           c_update=c_update))
-            self.names.append(name)
-            self.data[-1].fpga_reg=fpga_reg
-            self.data[-1].c_update=None
-            self.len = len(self.names)
-        elif type(name)==fpga_register:
-            self.data.append(main_register(name='dummy_'+name.name, val=name.val, rw=name.rw,
-                                           min_val=name.min, max_val=name.max, signed=name.signed,
-                                           desc=name.desc, fpga_update=name.fpga_update , index=self.len ))
-            self.data[-1].fpga_reg=name.name
-            self.data[-1].c_update='(float)g_dummy_reg->{:20s}'.format(name.name)
-            self.names.append('dummy_'+name.name)
-            self.len = len(self.names)
-        self.data[-1].index=self.data[-1].i+self.num_base
-        self.data[-1].cdef=self.data[-1].name.upper()
-
-
 def main_update_params(m,indent=1):
     """Print parameters update in C controller"""
     txt=txt_buff(n=indent)
@@ -366,7 +804,7 @@ def main_update_fpga(f,indent=1):
 def main_fpga_regs_reset(f,indent=0):
     """Print parameters reset in C controller"""
     txt=txt_buff(n=indent)
-    txt.add('/** Reset all LOCK */')
+    txt.add('/** Reset all DUMMY */')
     txt.add('void reset_locks(void)')
     txt.add('{')
     txt.indent_plus()
@@ -451,7 +889,7 @@ def update_main(filename,dock,txt):
     tmp=filename.split('.')
     tmp[-2]+='_'
     fn2='.'.join(tmp)
-
+    print('Writing '+filename)
     with open(fn1, 'r') as input:
         with open(fn2, 'w') as output:
             out=''
@@ -486,7 +924,7 @@ def replace_pattern(filename,pattern,txt):
     tmp=filename.split('.')
     tmp[-2]+='_'
     fn2='.'.join(tmp)
-
+    print('Writing '+filename)
     with open(fn1, 'r') as input:
         with open(fn2, 'w') as output:
             for line in input:
@@ -509,58 +947,7 @@ def replace_pattern(filename,pattern,txt):
     os.rename(fn2,fn1)
 
 
-class html_register():
-    """Register for Web Frontend module"""
-    def __init__(self, name, val=0, rw=True,  min_val=0, max_val=0,
-                 desc='todo', signed=False, fpga_update=True ,index=0,
-                 input_type='input'):
-        """Initialize attributes."""
-        self.name        = name
-        self.val         = val
-        self.rw          = rw
-        self.ro          = not rw
-        self.index       = index
-        self.i           = index
-        self.min         = min_val
-        self.max         = max_val
-        self.desc        = desc
-        self.fpga_update = fpga_update
-        self.signed      = signed
-        self.type        = input_type
-
-
-class html_registers():
-    """Collection of registers for Web Frontend module"""
-    def __init__(self,num_base=81):
-        self.data  = []
-        self.names = []
-        self.len   = 0
-        self.num_base=num_base
-    def __getitem__(self, key):
-        if type(key)==int:
-            return self.data[key]
-        if type(key)==str:
-            return self.data[self.names.index(key)]
-        if type(key)==slice:
-            return self.data[key]
-
-    def add(self, name, val=0, rw=True,  min_val=0, max_val=0, signed=False, desc='todo',
-            fpga_update=True, c_update=None, fpga_reg=None):
-        if type(name)==str:
-            self.data.append(html_register(name=name, val=val, rw=rw,
-                                           min_val=min_val, max_val=max_val, signed=signed,
-                                           desc=desc, fpga_update=fpga_update ,
-                                           input_type='input'))
-            self.names.append(name)
-            self.len = len(self.names)
-        elif type(name)==main_register:
-            self.data.append(html_register(name=name.name, val=name.val, rw=name.rw,
-                                           min_val=name.min, max_val=name.max, signed=name.signed,
-                                           desc=name.desc, fpga_update=name.fpga_update ,
-                                           input_type='input'))
-            self.names.append(name.name)
-            self.len = len(self.names)
-        self.data[-1].index=self.data[-1].i+self.num_base
+#%% HTML controls
 
 
 class select():
@@ -571,13 +958,17 @@ class select():
         if len(vals)==0:
             vals=list(range(len(items)))
         self.vals    = vals
-        self.default = m[idd].val
+        self.default = default
         self.enable  = [True]*len(vals)
         self.hide    = []
         self.hide_group = idd+'_hid'
         for i in range(len(vals)-len(items)):
             self.items.append('-')
             self.enable[-1-i]=False
+
+    def __repr__(self):
+        return 'select('+self.id+'): ' + '.'+join(items)
+
     def __getitem__(self, key):
         if type(key)==int:
             return self.items[key]
@@ -585,6 +976,7 @@ class select():
             return self.items.index(key)
         if type(key)==slice:
             return self.items[key]
+
     def out(self,indent=1):
         txt=txt_buff(n=indent,tab=2)
         txt.add('<select id="{:s}" class="form-control">'.format(self.id))
@@ -599,8 +991,10 @@ class select():
         txt.indent_minus()
         txt.add('</select>')
         return txt.out()
+
     def regex(self):
         return '[ ]*<select.*id=[\'"]+'+self.id+'[\'"]+[^>]+>.*'
+
     def regexend(self):
         return '[ ]*</select[ ]*>'
 
@@ -620,6 +1014,10 @@ class input_number():
             self.min     = idd.min
             self.max     = idd.max
             self.step    = 1
+
+    def __repr__(self):
+        return 'input_number('+self.id+')'
+
     def out(self,indent=1):
         txt=txt_buff(n=indent,tab=2)
         txt.add('<input type="number" autocomplete="off" class="form-control" '+
@@ -646,6 +1044,10 @@ class input_checkbox():
             self.id      = idd.name
             self.val     = idd.val
             self.text    = idd.name
+
+    def __repr__(self):
+        return 'input_checkbox('+self.id+'): '+self.text
+
     def out(self,indent=1):
         txt=txt_buff(n=indent,tab=2)
         checked='' if self.val==0 else ' checked'
@@ -671,6 +1073,10 @@ class input_button():
             self.id      = idd.name
             self.val     = idd.val
             self.text    = idd.name
+
+    def __repr__(self):
+        return 'input_button('+self.id+'): '+self.text
+
     def out(self,indent=1):
         txt=txt_buff(n=indent,tab=2)
         checked='' if self.val==0 else ''
@@ -762,14 +1168,14 @@ def update_html(filename,h):
     tmp=filename.split('.')
     tmp[-2]+='_'
     fn2='.'.join(tmp)
-
+    print('Writing '+filename)
     with open(fn1, 'r') as input:
         with open(fn2, 'w') as output:
             out=''
             for line in input:
                 if out=='':
                     config_list=[ y.control for y in filter( lambda x: x.control!=None , h) ]
-                    config_list.extend(html_global_configs)
+                    config_list.extend(h.html_global_configs)
                     for c in config_list:
                         if bool(re.match(c.regex(),line)):
                             out=c.regexend()
@@ -823,5 +1229,5 @@ def update_py(filename,h):
     os.rename(fn2,fn1)
 
 
-if __name__ == '__main__' and do_py:
+if __name__ == '__main__':
     print('This is a library file, only contains class and function definitios.\n')

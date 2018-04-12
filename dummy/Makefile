@@ -38,7 +38,7 @@ $(CONTROLLERHF):
 	# Turn off DEBUG
 	sed ' s?/* *#define DEBUG 1.*?// #define DEBUG 1? ' -i src/main.h
 	# Turn on RELOAD
-	sed "s?/\\*RELOAD_DOCK_START\\*/.*/\\*RELOAD_DOCK_END\\*/?/*RELOAD_DOCK_START*/ PARAMS_LOCK_PARAMS - 1 /*RELOAD_DOCK_END*/?"  -i src/main.c
+	sed "s?/\\*RELOAD_DOCK_START\\*/.*/\\*RELOAD_DOCK_END\\*/?/*RELOAD_DOCK_START*/ PARAMS_DUMMY_PARAMS - 1 /*RELOAD_DOCK_END*/?"  -i src/main.c
 	cp src/main.c src/main_$(CONTROLLER_RLD)_.c
 	$(MAKE) -C src
 	mv $(CONTROLLERHF) $(CONTROLLER_RLD)
@@ -141,7 +141,7 @@ clean_fpga:
 	-$(RM) target -rf
 	-$(RM) target_dbg -rf
 	-$(RM) target_rld -rf
-	rm red_pitaya.bit
+	rm -f red_pitaya.bit
 	echo "BUILD_NUMBER=$$(( $BUILD_NUMBER + 1 ))" > ../_build_number
 
 clean: clean_app clean_fpga clean_target

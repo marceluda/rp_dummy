@@ -296,11 +296,11 @@ static rp_app_params_t rp_main_params[PARAMS_NUM+1] = {
         "pid_22_kd",  0, 1, 0, -8192, 8191 },
 
     /*********************************************/
-    /** LOCK Controller parameters from here on **/
+    /** DUMMY Controller parameters from here on **/
     /*********************************************/
 
     // [MAINDEF DOCK]
-
+    
     { "dummy_oscA_sw"                 ,      1, 1, 0,            0,           31 }, /** switch for muxer oscA **/
     { "dummy_oscB_sw"                 ,      2, 1, 0,            0,           31 }, /** switch for muxer oscB **/
     { "dummy_osc1_filt_off"           ,      1, 1, 0,            0,            1 }, /** oscilloscope control osc1_filt_off **/
@@ -329,7 +329,7 @@ static rp_app_params_t rp_main_params[PARAMS_NUM+1] = {
     { "dummy_read_ctrl"               ,      0, 1, 0,            0,            7 }, /** [unused,start_clk,Freeze] **/
     { "dummy_aux_A"                   ,      0, 1, 0,        -8192,         8191 }, /** auxiliar value of 14 bits **/
     { "dummy_aux_B"                   ,      0, 1, 0,        -8192,         8191 }, /** auxiliar value of 14 bits **/
-
+    
     // [MAINDEF DOCK END]
 
     { /* Must be last! */
@@ -389,7 +389,7 @@ int rp_app_init(void)
 
     TRACE("LOLO(rp_app_init): PARAMS_NUM: %d \n", PARAMS_NUM);
 
-    rp_set_params(&rp_main_params[0], /*RELOAD_DOCK_START*/ PARAMS_NUM /*RELOAD_DOCK_END*/ ); // PARAMS_LOCK_PARAMS
+    rp_set_params(&rp_main_params[0], /*RELOAD_DOCK_START*/ PARAMS_NUM /*RELOAD_DOCK_END*/ ); // PARAMS_DUMMY_PARAMS
 
     TRACE("LOLO(rp_app_init): END\n");
 
@@ -723,9 +723,9 @@ int rp_set_params(rp_app_params_t *p, int len)
                 params_change = 1;
             if ( (p_idx >= PARAMS_AWG_PARAMS) && (p_idx < PARAMS_PID_PARAMS) )
                 awg_params_change = 1;
-            if ( (p_idx >= PARAMS_PID_PARAMS) && (p_idx < PARAMS_LOCK_PARAMS ) )
+            if ( (p_idx >= PARAMS_PID_PARAMS) && (p_idx < PARAMS_DUMMY_PARAMS ) )
                 pid_params_change = 1;
-            if(p_idx >= PARAMS_LOCK_PARAMS)
+            if(p_idx >= PARAMS_DUMMY_PARAMS)
                 dummy_params_change = 1;
             if(rp_main_params[p_idx].fpga_update)
                 fpga_update = 1;

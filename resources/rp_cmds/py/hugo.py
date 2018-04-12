@@ -1,14 +1,12 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
-Module for lock-in+pid control
+Module for Oscilloscope and Dummy control
 """
-
 
 from time import sleep
 import mmap
 import sys
-
 import struct
 
 #%%
@@ -216,10 +214,10 @@ osc.add( fpga_reg(name='ChBEqFil3',index=18,rw=True,nbits=25,signed=False) )
 osc.add( fpga_reg(name='ChBEqFil4',index=19,rw=True,nbits=25,signed=False) )
 
 
-class fpga_lock_in(fpga_regs):
+class fpga_dummy(fpga_regs):
     def __init__(self, base_addr=0x40600000,dev_file="/dev/mem"):
         fpga_regs.__init__(self, base_addr)
-        self.type  = 'lock-in'
+        self.type  = 'dummy'
     def read(self):
         return self.type
 
@@ -241,120 +239,36 @@ class fpga_lock_in(fpga_regs):
 # f.print_hugo()
 
 # [REGSET DOCK]
-li = fpga_lock_in(base_addr=0x40600000,dev_file="/dev/mem")
+dm = fpga_dummy(base_addr=0x40600000,dev_file="/dev/mem")
 
-li.add( fpga_reg(name='oscA_sw'            , index=  0, rw=True , nbits= 5,signed=False) )
-li.add( fpga_reg(name='oscB_sw'            , index=  1, rw=True , nbits= 5,signed=False) )
-li.add( fpga_reg(name='osc_ctrl'           , index=  2, rw=True , nbits= 2,signed=False) )
-li.add( fpga_reg(name='trig_sw'            , index=  3, rw=True , nbits= 8,signed=False) )
-li.add( fpga_reg(name='out1_sw'            , index=  4, rw=True , nbits= 4,signed=False) )
-li.add( fpga_reg(name='out2_sw'            , index=  5, rw=True , nbits= 4,signed=False) )
-li.add( fpga_reg(name='slow_out1_sw'       , index=  6, rw=True , nbits= 4,signed=False) )
-li.add( fpga_reg(name='slow_out2_sw'       , index=  7, rw=True , nbits= 4,signed=False) )
-li.add( fpga_reg(name='slow_out3_sw'       , index=  8, rw=True , nbits= 4,signed=False) )
-li.add( fpga_reg(name='slow_out4_sw'       , index=  9, rw=True , nbits= 4,signed=False) )
-li.add( fpga_reg(name='lock_control'       , index= 10, rw=True , nbits=11,signed=False) )
-li.add( fpga_reg(name='lock_feedback'      , index= 11, rw=False, nbits=11,signed=False) )
-li.add( fpga_reg(name='lock_trig_val'      , index= 12, rw=True , nbits=14,signed=True ) )
-li.add( fpga_reg(name='lock_trig_time'     , index= 13, rw=True , nbits=32,signed=False) )
-li.add( fpga_reg(name='lock_trig_sw'       , index= 14, rw=True , nbits= 4,signed=False) )
-li.add( fpga_reg(name='rl_error_threshold' , index= 15, rw=True , nbits=13,signed=False) )
-li.add( fpga_reg(name='rl_signal_sw'       , index= 16, rw=True , nbits= 3,signed=False) )
-li.add( fpga_reg(name='rl_signal_threshold', index= 17, rw=True , nbits=14,signed=True ) )
-li.add( fpga_reg(name='rl_config'          , index= 18, rw=True , nbits= 3,signed=False) )
-li.add( fpga_reg(name='rl_state'           , index= 19, rw=False, nbits= 5,signed=False) )
-li.add( fpga_reg(name='sf_jumpA'           , index= 20, rw=True , nbits=14,signed=True ) )
-li.add( fpga_reg(name='sf_jumpB'           , index= 21, rw=True , nbits=14,signed=True ) )
-li.add( fpga_reg(name='sf_config'          , index= 22, rw=True , nbits= 5,signed=False) )
-li.add( fpga_reg(name='signal_sw'          , index= 23, rw=True , nbits= 4,signed=False) )
-li.add( fpga_reg(name='signal_i'           , index= 24, rw=False, nbits=14,signed=True ) )
-li.add( fpga_reg(name='sg_amp1'            , index= 25, rw=True , nbits= 4,signed=False) )
-li.add( fpga_reg(name='sg_amp2'            , index= 26, rw=True , nbits= 4,signed=False) )
-li.add( fpga_reg(name='sg_amp3'            , index= 27, rw=True , nbits= 4,signed=False) )
-li.add( fpga_reg(name='sg_amp_sq'          , index= 28, rw=True , nbits= 4,signed=False) )
-li.add( fpga_reg(name='lpf_F1'             , index= 29, rw=True , nbits= 6,signed=False) )
-li.add( fpga_reg(name='lpf_F2'             , index= 30, rw=True , nbits= 6,signed=False) )
-li.add( fpga_reg(name='lpf_F3'             , index= 31, rw=True , nbits= 6,signed=False) )
-li.add( fpga_reg(name='lpf_sq'             , index= 32, rw=True , nbits= 6,signed=False) )
-li.add( fpga_reg(name='error_sw'           , index= 33, rw=True , nbits= 3,signed=False) )
-li.add( fpga_reg(name='error_offset'       , index= 34, rw=True , nbits=14,signed=True ) )
-li.add( fpga_reg(name='error'              , index= 35, rw=False, nbits=14,signed=True ) )
-li.add( fpga_reg(name='error_mean'         , index= 36, rw=False, nbits=32,signed=True ) )
-li.add( fpga_reg(name='error_std'          , index= 37, rw=False, nbits=32,signed=True ) )
-li.add( fpga_reg(name='gen_mod_phase'      , index= 38, rw=True , nbits=12,signed=False) )
-li.add( fpga_reg(name='gen_mod_phase_sq'   , index= 39, rw=True , nbits=32,signed=False) )
-li.add( fpga_reg(name='gen_mod_hp'         , index= 40, rw=True , nbits=14,signed=False) )
-li.add( fpga_reg(name='gen_mod_sqp'        , index= 41, rw=True , nbits=32,signed=False) )
-li.add( fpga_reg(name='ramp_A'             , index= 42, rw=False, nbits=14,signed=True ) )
-li.add( fpga_reg(name='ramp_B'             , index= 43, rw=False, nbits=14,signed=True ) )
-li.add( fpga_reg(name='ramp_step'          , index= 44, rw=True , nbits=32,signed=False) )
-li.add( fpga_reg(name='ramp_low_lim'       , index= 45, rw=True , nbits=14,signed=True ) )
-li.add( fpga_reg(name='ramp_hig_lim'       , index= 46, rw=True , nbits=14,signed=True ) )
-li.add( fpga_reg(name='ramp_reset'         , index= 47, rw=True , nbits= 1,signed=False) )
-li.add( fpga_reg(name='ramp_enable'        , index= 48, rw=True , nbits= 1,signed=False) )
-li.add( fpga_reg(name='ramp_direction'     , index= 49, rw=True , nbits= 1,signed=False) )
-li.add( fpga_reg(name='ramp_B_factor'      , index= 50, rw=True , nbits=14,signed=True ) )
-li.add( fpga_reg(name='sin_ref'            , index= 51, rw=False, nbits=14,signed=True ) )
-li.add( fpga_reg(name='cos_ref'            , index= 52, rw=False, nbits=14,signed=True ) )
-li.add( fpga_reg(name='cos_1f'             , index= 53, rw=False, nbits=14,signed=True ) )
-li.add( fpga_reg(name='cos_2f'             , index= 54, rw=False, nbits=14,signed=True ) )
-li.add( fpga_reg(name='cos_3f'             , index= 55, rw=False, nbits=14,signed=True ) )
-li.add( fpga_reg(name='sq_ref_b'           , index= 56, rw=False, nbits= 1,signed=False) )
-li.add( fpga_reg(name='sq_quad_b'          , index= 57, rw=False, nbits= 1,signed=False) )
-li.add( fpga_reg(name='sq_phas_b'          , index= 58, rw=False, nbits= 1,signed=False) )
-li.add( fpga_reg(name='sq_ref'             , index= 59, rw=False, nbits=14,signed=True ) )
-li.add( fpga_reg(name='sq_quad'            , index= 60, rw=False, nbits=14,signed=True ) )
-li.add( fpga_reg(name='sq_phas'            , index= 61, rw=False, nbits=14,signed=True ) )
-li.add( fpga_reg(name='in1'                , index= 62, rw=False, nbits=14,signed=True ) )
-li.add( fpga_reg(name='in2'                , index= 63, rw=False, nbits=14,signed=True ) )
-li.add( fpga_reg(name='out1'               , index= 64, rw=False, nbits=14,signed=True ) )
-li.add( fpga_reg(name='out2'               , index= 65, rw=False, nbits=14,signed=True ) )
-li.add( fpga_reg(name='slow_out1'          , index= 66, rw=False, nbits=12,signed=False) )
-li.add( fpga_reg(name='slow_out2'          , index= 67, rw=False, nbits=12,signed=False) )
-li.add( fpga_reg(name='slow_out3'          , index= 68, rw=False, nbits=12,signed=False) )
-li.add( fpga_reg(name='slow_out4'          , index= 69, rw=False, nbits=12,signed=False) )
-li.add( fpga_reg(name='oscA'               , index= 70, rw=False, nbits=14,signed=True ) )
-li.add( fpga_reg(name='oscB'               , index= 71, rw=False, nbits=14,signed=True ) )
-li.add( fpga_reg(name='X_28'               , index= 72, rw=False, nbits=28,signed=True ) )
-li.add( fpga_reg(name='Y_28'               , index= 73, rw=False, nbits=28,signed=True ) )
-li.add( fpga_reg(name='F1_28'              , index= 74, rw=False, nbits=28,signed=True ) )
-li.add( fpga_reg(name='F2_28'              , index= 75, rw=False, nbits=28,signed=True ) )
-li.add( fpga_reg(name='F3_28'              , index= 76, rw=False, nbits=28,signed=True ) )
-li.add( fpga_reg(name='sqX_28'             , index= 77, rw=False, nbits=28,signed=True ) )
-li.add( fpga_reg(name='sqY_28'             , index= 78, rw=False, nbits=28,signed=True ) )
-li.add( fpga_reg(name='sqF_28'             , index= 79, rw=False, nbits=28,signed=True ) )
-li.add( fpga_reg(name='cnt_clk'            , index= 80, rw=False, nbits=32,signed=False) )
-li.add( fpga_reg(name='cnt_clk2'           , index= 81, rw=False, nbits=32,signed=False) )
-li.add( fpga_reg(name='read_ctrl'          , index= 82, rw=True , nbits= 3,signed=False) )
-li.add( fpga_reg(name='pidA_sw'            , index= 83, rw=True , nbits= 5,signed=False) )
-li.add( fpga_reg(name='pidA_PSR'           , index= 84, rw=True , nbits= 3,signed=False) )
-li.add( fpga_reg(name='pidA_ISR'           , index= 85, rw=True , nbits= 4,signed=False) )
-li.add( fpga_reg(name='pidA_DSR'           , index= 86, rw=True , nbits= 3,signed=False) )
-li.add( fpga_reg(name='pidA_SAT'           , index= 87, rw=True , nbits=14,signed=False) )
-li.add( fpga_reg(name='pidA_sp'            , index= 88, rw=True , nbits=14,signed=True ) )
-li.add( fpga_reg(name='pidA_kp'            , index= 89, rw=True , nbits=14,signed=True ) )
-li.add( fpga_reg(name='pidA_ki'            , index= 90, rw=True , nbits=14,signed=True ) )
-li.add( fpga_reg(name='pidA_kd'            , index= 91, rw=True , nbits=14,signed=True ) )
-li.add( fpga_reg(name='pidA_in'            , index= 92, rw=False, nbits=14,signed=True ) )
-li.add( fpga_reg(name='pidA_out'           , index= 93, rw=False, nbits=14,signed=True ) )
-li.add( fpga_reg(name='pidA_ctrl'          , index= 94, rw=True , nbits= 3,signed=False) )
-li.add( fpga_reg(name='ctrl_A'             , index= 95, rw=False, nbits=14,signed=True ) )
-li.add( fpga_reg(name='pidB_sw'            , index= 96, rw=True , nbits= 5,signed=False) )
-li.add( fpga_reg(name='pidB_PSR'           , index= 97, rw=True , nbits= 3,signed=False) )
-li.add( fpga_reg(name='pidB_ISR'           , index= 98, rw=True , nbits= 4,signed=False) )
-li.add( fpga_reg(name='pidB_DSR'           , index= 99, rw=True , nbits= 3,signed=False) )
-li.add( fpga_reg(name='pidB_SAT'           , index=100, rw=True , nbits=14,signed=False) )
-li.add( fpga_reg(name='pidB_sp'            , index=101, rw=True , nbits=14,signed=True ) )
-li.add( fpga_reg(name='pidB_kp'            , index=102, rw=True , nbits=14,signed=True ) )
-li.add( fpga_reg(name='pidB_ki'            , index=103, rw=True , nbits=14,signed=True ) )
-li.add( fpga_reg(name='pidB_kd'            , index=104, rw=True , nbits=14,signed=True ) )
-li.add( fpga_reg(name='pidB_in'            , index=105, rw=False, nbits=14,signed=True ) )
-li.add( fpga_reg(name='pidB_out'           , index=106, rw=False, nbits=14,signed=True ) )
-li.add( fpga_reg(name='pidB_ctrl'          , index=107, rw=True , nbits= 3,signed=False) )
-li.add( fpga_reg(name='ctrl_B'             , index=108, rw=False, nbits=14,signed=True ) )
-li.add( fpga_reg(name='aux_A'              , index=109, rw=True , nbits=14,signed=True ) )
-li.add( fpga_reg(name='aux_B'              , index=110, rw=True , nbits=14,signed=True ) )
+dm.add( fpga_reg(name='oscA_sw'            , index=  0, rw=True , nbits= 5,signed=False) )
+dm.add( fpga_reg(name='oscB_sw'            , index=  1, rw=True , nbits= 5,signed=False) )
+dm.add( fpga_reg(name='osc_ctrl'           , index=  2, rw=True , nbits= 2,signed=False) )
+dm.add( fpga_reg(name='trig_sw'            , index=  3, rw=True , nbits= 8,signed=False) )
+dm.add( fpga_reg(name='out1_sw'            , index=  4, rw=True , nbits= 4,signed=False) )
+dm.add( fpga_reg(name='out2_sw'            , index=  5, rw=True , nbits= 4,signed=False) )
+dm.add( fpga_reg(name='slow_out1_sw'       , index=  6, rw=True , nbits= 4,signed=False) )
+dm.add( fpga_reg(name='slow_out2_sw'       , index=  7, rw=True , nbits= 4,signed=False) )
+dm.add( fpga_reg(name='slow_out3_sw'       , index=  8, rw=True , nbits= 4,signed=False) )
+dm.add( fpga_reg(name='slow_out4_sw'       , index=  9, rw=True , nbits= 4,signed=False) )
+dm.add( fpga_reg(name='in1'                , index= 10, rw=False, nbits=14,signed=True ) )
+dm.add( fpga_reg(name='in2'                , index= 11, rw=False, nbits=14,signed=True ) )
+dm.add( fpga_reg(name='out1'               , index= 12, rw=False, nbits=14,signed=True ) )
+dm.add( fpga_reg(name='out2'               , index= 13, rw=False, nbits=14,signed=True ) )
+dm.add( fpga_reg(name='slow_out1'          , index= 14, rw=False, nbits=12,signed=False) )
+dm.add( fpga_reg(name='slow_out2'          , index= 15, rw=False, nbits=12,signed=False) )
+dm.add( fpga_reg(name='slow_out3'          , index= 16, rw=False, nbits=12,signed=False) )
+dm.add( fpga_reg(name='slow_out4'          , index= 17, rw=False, nbits=12,signed=False) )
+dm.add( fpga_reg(name='oscA'               , index= 18, rw=False, nbits=14,signed=True ) )
+dm.add( fpga_reg(name='oscB'               , index= 19, rw=False, nbits=14,signed=True ) )
+dm.add( fpga_reg(name='cnt_clk'            , index= 20, rw=False, nbits=32,signed=False) )
+dm.add( fpga_reg(name='cnt_clk2'           , index= 21, rw=False, nbits=32,signed=False) )
+dm.add( fpga_reg(name='read_ctrl'          , index= 22, rw=True , nbits= 3,signed=False) )
+dm.add( fpga_reg(name='aux_A'              , index= 23, rw=True , nbits=14,signed=True ) )
+dm.add( fpga_reg(name='aux_B'              , index= 24, rw=True , nbits=14,signed=True ) )
 # [REGSET DOCK END]
+
+
 
 
 

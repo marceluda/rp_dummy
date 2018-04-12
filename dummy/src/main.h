@@ -179,7 +179,7 @@ typedef struct rp_osc_meas_res_s {
 
 /* Defines from which parameters on are LOCK parameters (used in set_param() to
  * trigger update only on needed part - either Oscilloscope, AWG or PID */
-#define PARAMS_LOCK_PARAMS 81
+#define PARAMS_DUMMY_PARAMS 81
 
 
 

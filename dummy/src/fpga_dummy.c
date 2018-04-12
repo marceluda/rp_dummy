@@ -73,7 +73,7 @@ int __dummy_cleanup_mem(void)
 }
 
 // [FPGARESET DOCK]
-/** Reset all LOCK */
+/** Reset all DUMMY */
 void reset_locks(void)
 {
     if (g_dummy_reg) {

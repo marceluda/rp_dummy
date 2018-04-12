@@ -1108,7 +1108,7 @@
       $('#btn_set_trig').prop('disabled', true);
       if( $('#btn_set_trig_auto_zoom').is(':checked') ){
         user_editing = true;
-        var max_time_val = 2*(params.local.lock_ramp_hig_lim-params.local.lock_ramp_low_lim)*(params.local.lock_ramp_step+1) ;
+        var max_time_val = 2*(params.local.dummy_ramp_hig_lim-params.local.dummy_ramp_low_lim)*(params.local.dummy_ramp_step+1) ;
         max_time_val = params.local.time_units == 0 ? max_time_val * 8 / 1000       :
                        params.local.time_units == 1 ? max_time_val * 8 / 1000000    :
                                                       max_time_val * 8 / 1000000000 ;
@@ -1116,7 +1116,7 @@
 
         params.local.trig_source=2 ;
         params.local.trig_mode=1 ;
-        params.local.lock_trig_sw=2
+        params.local.dummy_trig_sw=2
 
         opt=plot.getOptions();
         opt.xaxes[0].min=0-max_time_val*0.1;
@@ -1220,32 +1220,6 @@
 
 
 
-    // on change functions
-    $('#lock_lock_trig_time_val,#lock_lock_trig_val').on('input', function() {
-        lock_ctrl_update();
-        //$(this).blur();
-    });
-    $('#lock_gen_mod_phase,#lock_gen_mod_hp,#lock_gen_mod_sqp').on('input', function() {
-        lock_modulation_update();
-        //$(this).blur();
-    });
-
-    $('#lock_pidA_sp,#lock_pidA_kp,#lock_pidA_ki,#lock_pidA_kd').on('input', function() {
-        lock_pidA_update();
-        //$(this).blur();
-    });
-    $('#lock_pidB_sp,#lock_pidB_kp,#lock_pidB_ki,#lock_pidB_kd').on('input', function() {
-        lock_pidB_update();
-        //$(this).blur();
-    });
-    $('#lock_ramp_step,#lock_ramp_low_lim,#lock_ramp_hig_lim,#lock_ramp_B_factor').on('input', function() {
-        lock_ramp_step_update();
-        //$(this).blur();
-    });
-    /*$('#lock_aux_A,#lock_aux_B,#lock_osc_ctrl').on('change', function() {
-        $(this).blur();
-    });*/
-
 
     // Switches
     var switches=['#dummy_oscA_sw','#dummy_oscB_sw','#dummy_trig_sw','#dummy_out1_sw','#dummy_out2_sw','#dummy_slow_out1_sw','#dummy_slow_out2_sw',
@@ -1273,15 +1247,15 @@
 
 
     // More Switches
-    $('#lock_ctrl_aux_trig_type').on('change', function() { onDropdownChange($(this), 'lock_ctrl_aux_trig_type'); });
+    $('#dummy_ctrl_aux_trig_type').on('change', function() { onDropdownChange($(this), 'lock_ctrl_aux_trig_type'); });
 
-    $('#lock_mod_sq_on').on('click', function() {
-            $('#lock_mod_sq_on').toggleClass('btn-default btn-primary');
+    $('#dummy_mod_sq_on').on('click', function() {
+            $('#dummy_mod_sq_on').toggleClass('btn-default btn-primary');
             $("div[data-tag='SquareParams']").toggleClass('in collapse') ;
         });
 
-    $('#lock_mod_harmonic_on').on('click', function() {
-            $('#lock_mod_harmonic_on').toggleClass('btn-default btn-primary');
+    $('#dummy_mod_harmonic_on').on('click', function() {
+            $('#dummy_mod_harmonic_on').toggleClass('btn-default btn-primary');
             $("div[data-tag='HarmonicParams']").toggleClass('in collapse') ;
         });
 
@@ -1419,22 +1393,22 @@
             var level_raw=pos.y;
 
             var time_val  = Math.round(  time_raw  *( 10**( (params.local.time_units-2)*3 ) )/8e-9) ;
-            var level_val = params.local.lock_osc_raw_mode==0 ? Math.round(level_raw*8192) : level_raw ;
+            var level_val = params.local.dummy_osc_raw_mode==0 ? Math.round(level_raw*8192) : level_raw ;
 
-            var max_time_val = 2*(params.local.lock_ramp_hig_lim-params.local.lock_ramp_low_lim)*(params.local.lock_ramp_step+1) ;
+            var max_time_val = 2*(params.local.dummy_ramp_hig_lim-params.local.dummy_ramp_low_lim)*(params.local.dummy_ramp_step+1) ;
             time_val         = time_val % max_time_val;
 
             if(time_val<0) time_val = time_val + max_time_val;
 
             user_editing=false;
             trigger_just_set=true;
-            $('#lock_lock_trig_time_val').val(time_val);
-            params.local.lock_lock_trig_time_val=time_val;
+            $('#dummy_lock_trig_time_val').val(time_val);
+            params.local.dummy_lock_trig_time_val=time_val;
 
-            $('#lock_lock_trig_val').val(level_val);
-            params.local.lock_lock_trig_val=level_val;
+            $('#dummy_lock_trig_val').val(level_val);
+            params.local.dummy_lock_trig_val=level_val;
 
-            $('#lock_lock_trig_val').blur();
+            $('#dummy_lock_trig_val').blur();
 
 
             $('#btn_set_trig').prop('disabled', false);
@@ -1443,12 +1417,15 @@
     });
 
 
+    // dummy_update();
+    /* ERASE LOLO
     lock_ramp_step_update();
     lock_modulation_update();
     lock_ctrl_update();
     lock_pidA_update();
     lock_pidB_update();
     lpf_update();
+    */
 
     $('[data-toggle="tooltip"]').tooltip({container: 'body'});
 
@@ -1473,7 +1450,7 @@
     $('#btn_set_trig').prop('disabled', false);
     $('#btn_disp_sq').data('checked', false);
 
-    $('label[for="lock_ramp_step"]').on('click', function() {
+    $('label[for="dummy_ramp_step"]').on('click', function() {
       showModalHelp("<p>Ramp period param sets the number of clock ticks the ramp control waits before jumping the next ramp value.</p>"+
                     "<p>The ramp signals goes one <tt>int</tt> up/down after <tt>ramp_step</tt> clock ticks. The name of this control"+
                     "is just to remember that it sets up the total period of the ramp function. The total period will depend on "+
@@ -1503,10 +1480,10 @@
 
   function lock_ramp_step_update() {
 
-    ramp_step_arr          = $("#lock_ramp_step"    ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
-    lock_ramp_low_lim_arr  = $("#lock_ramp_low_lim" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
-    lock_ramp_hig_lim_arr  = $("#lock_ramp_hig_lim" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
-    lock_ramp_B_factor_arr = $("#lock_ramp_B_factor").val().trim().split(' ').filter( function(n,i){ return n!=="" } );
+    ramp_step_arr          = $("#dummy_ramp_step"    ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
+    lock_ramp_low_lim_arr  = $("#dummy_ramp_low_lim" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
+    lock_ramp_hig_lim_arr  = $("#dummy_ramp_hig_lim" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
+    lock_ramp_B_factor_arr = $("#dummy_ramp_B_factor").val().trim().split(' ').filter( function(n,i){ return n!=="" } );
 
     if( !$.isNumeric(ramp_step_arr[0]) ||
         !$.isNumeric(lock_ramp_low_lim_arr[0]) ||
@@ -1533,7 +1510,7 @@
         lock_ramp_low_lim = Math.round( lock_ramp_low_lim * 8192 /1000 );
       lock_ramp_low_lim = Math.min(  8191 , lock_ramp_low_lim  ) ;
       lock_ramp_low_lim = Math.max( -8192 , lock_ramp_low_lim  ) ;
-      $("#lock_ramp_low_lim").val(""+lock_ramp_low_lim);
+      $("#dummy_ramp_low_lim").val(""+lock_ramp_low_lim);
     }
 
     if( lock_ramp_hig_lim_arr.length === 2) {
@@ -1543,12 +1520,12 @@
         lock_ramp_hig_lim = Math.round( lock_ramp_hig_lim * 8192 /1000 );
       lock_ramp_hig_lim = Math.min(  8191 , lock_ramp_hig_lim  ) ;
       lock_ramp_hig_lim = Math.max( -8192 , lock_ramp_hig_lim  ) ;
-      $("#lock_ramp_hig_lim").val(""+lock_ramp_hig_lim);
+      $("#dummy_ramp_hig_lim").val(""+lock_ramp_hig_lim);
     }
 
     if ( lock_ramp_low_lim > lock_ramp_hig_lim ) {
       lock_ramp_low_lim = lock_ramp_hig_lim;
-      $("#lock_ramp_low_lim").val(""+lock_ramp_low_lim);
+      $("#dummy_ramp_low_lim").val(""+lock_ramp_low_lim);
     }
 
     if( ramp_step_arr.length === 2) {
@@ -1556,7 +1533,7 @@
         ramp_step = ramp_step / 8e-9 / Math.abs(lock_ramp_hig_lim - lock_ramp_low_lim) ;
       if ( ramp_step_arr[1].toLowerCase()=="ms" )
         ramp_step = Math.round( ramp_step / 8e-9 / 1000 / Math.abs(lock_ramp_hig_lim - lock_ramp_low_lim) );
-      $("#lock_ramp_step").val(""+ramp_step);
+      $("#dummy_ramp_step").val(""+ramp_step);
     }
 
 
@@ -1574,17 +1551,17 @@
       txt += " <br> <b>f&nbsp;=&nbsp;" + val.toFixed(2) + "&nbsp;" + units[oom.toString()] + "Hz</b></small>";
     }
 
-    $('#lock_ramp_step_text').html( txt   );
+    $('#dummy_ramp_step_text').html( txt   );
 
-    $('#lock_ramp_low_lim_text').html( "<small><b>" + (lock_ramp_low_lim/8192*1000).toFixed(0) + "&nbsp;mV</b></small>" );
-    $('#lock_ramp_hig_lim_text').html( "<small><b>" + (lock_ramp_hig_lim/8192*1000).toFixed(0) + "&nbsp;mV</b></small>" );
+    $('#dummy_ramp_low_lim_text').html( "<small><b>" + (lock_ramp_low_lim/8192*1000).toFixed(0) + "&nbsp;mV</b></small>" );
+    $('#dummy_ramp_hig_lim_text').html( "<small><b>" + (lock_ramp_hig_lim/8192*1000).toFixed(0) + "&nbsp;mV</b></small>" );
 
     txt  =  "<p><b>" + ( (lock_ramp_hig_lim - lock_ramp_low_lim)/8192*1000 ).toFixed(0) + "&nbsp;mVpp</b>" ;
     txt +=  " <br> " ;
     txt +=  "<b>" + ( (lock_ramp_hig_lim + lock_ramp_low_lim)/2/8192*1000 ).toFixed(1) + "&nbsp;mVdc</b></p>" ;
-    $('#lock_ramp_text').html( txt );
+    $('#dummy_ramp_text').html( txt );
 
-    $('#lock_ramp_B_factor_text').html( "<small><b>" + (lock_ramp_B_factor/4096).toFixed(5) + "</b></small>" );
+    $('#dummy_ramp_B_factor_text').html( "<small><b>" + (lock_ramp_B_factor/4096).toFixed(5) + "</b></small>" );
   }
 
   function lpf_update(){
@@ -1609,10 +1586,10 @@
 
   function lock_pidA_update(){
     // Get inputs text values
-    lock_pidA_sp_arr = $("#lock_pidA_sp" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
-    lock_pidA_kp_arr = $("#lock_pidA_kp" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
-    lock_pidA_ki_arr = $("#lock_pidA_ki" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
-    lock_pidA_kd_arr = $("#lock_pidA_kd" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
+    lock_pidA_sp_arr = $("#dummy_pidA_sp" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
+    lock_pidA_kp_arr = $("#dummy_pidA_kp" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
+    lock_pidA_ki_arr = $("#dummy_pidA_ki" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
+    lock_pidA_kd_arr = $("#dummy_pidA_kd" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
 
     // Check if inputs are numbers
     if( !$.isNumeric(lock_pidA_sp_arr[0]) ||
@@ -1627,10 +1604,10 @@
         parseInt(lock_pidA_kp_arr[0])         == pidA_kp &&
         parseInt(lock_pidA_ki_arr[0])         == pidA_ki &&
         parseInt(lock_pidA_kd_arr[0])         == pidA_kd &&
-        parseInt(params.local.lock_pidA_PSR ) == parseInt($("#lock_pidA_PSR" ).val()) &&
-        parseInt(params.local.lock_pidA_ISR ) == parseInt($("#lock_pidA_ISR" ).val()) &&
-        parseInt(params.local.lock_pidA_DSR ) == parseInt($("#lock_pidA_DSR" ).val()) &&
-        parseInt(params.local.lock_pidA_SAT ) == parseInt($("#lock_pidA_SAT" ).val())
+        parseInt(params.local.dummy_pidA_PSR ) == parseInt($("#dummy_pidA_PSR" ).val()) &&
+        parseInt(params.local.dummy_pidA_ISR ) == parseInt($("#dummy_pidA_ISR" ).val()) &&
+        parseInt(params.local.dummy_pidA_DSR ) == parseInt($("#dummy_pidA_DSR" ).val()) &&
+        parseInt(params.local.dummy_pidA_SAT ) == parseInt($("#dummy_pidA_SAT" ).val())
         ) return -1 ;
 
     // Get number values
@@ -1647,7 +1624,7 @@
         pidA_sp = Math.round( pidA_sp * 8192 /1000 );
       pidA_sp = Math.min(  8191 , pidA_sp  ) ;
       pidA_sp = Math.max( -8192 , pidA_sp  ) ;
-      $("#lock_pidA_sp").val(""+pidA_sp);
+      $("#dummy_pidA_sp").val(""+pidA_sp);
     }
 
     // Update text labels with correct info values
@@ -1656,7 +1633,7 @@
     var psrval=[0,3,6,10,12];
 
     // Integration part
-    tau=8e-9 * 2**isrval[parseInt($('#lock_pidA_ISR').val())] / Math.abs( pidA_ki )  ;
+    tau=8e-9 * 2**isrval[parseInt($('#dummy_pidA_ISR').val())] / Math.abs( pidA_ki )  ;
     if ( pidA_ki === 0 ){
       txt='<div class="col-xs-12" ><small><b>OFF</b></small></div>';
     }else{
@@ -1669,10 +1646,10 @@
       //txt += '<br class="visible-xs visible-sm">';
       txt += '<div class="col-xs-12 col-md-6" ><small><b>f&nbsp;=&nbsp;' + val.toPrecision(3) + '&nbsp;' + units[oom.toString()] + 'Hz</b></small></div>';
     }
-    $('#lock_pidA_ki_text').html( txt   );
+    $('#dummy_pidA_ki_text').html( txt   );
 
     // Derivative part
-    tau=8e-9 * 2**(parseInt($('#lock_pidA_DSR').val())-6) * Math.abs(pidA_kd*60) ;
+    tau=8e-9 * 2**(parseInt($('#dummy_pidA_DSR').val())-6) * Math.abs(pidA_kd*60) ;
     if ( pidA_kd === 0 ){
       txt='<div class="col-xs-12" ><small><b>OFF</b></small></div>';
     }else{
@@ -1685,10 +1662,10 @@
       //txt += '<br class="visible-xs visible-sm">';
       txt += '<div class="col-xs-12 col-md-6" ><small><b>f&nbsp;=&nbsp;' + val.toPrecision(3) + '&nbsp;' + units[oom.toString()] + 'Hz</b></small></div>';
     }
-    $('#lock_pidA_kd_text').html( txt   );
+    $('#dummy_pidA_kd_text').html( txt   );
 
     // Proportional part
-    mult= Math.abs(pidA_kp) / ( 2**psrval[parseInt($('#lock_pidA_PSR').val())] ) ;
+    mult= Math.abs(pidA_kp) / ( 2**psrval[parseInt($('#dummy_pidA_PSR').val())] ) ;
     if ( pidA_kp === 0 ){
       txt="0";
     }else{
@@ -1697,20 +1674,20 @@
       txt = "&nbsp;" + val.toFixed(3) + "&nbsp;" + magni[oom.toString()] ;
     }
 
-    $('#lock_pidA_kp_text').html( '<div class="col-xs-12" ><small><b>'+txt+'</b></small></div>'   );
+    $('#dummy_pidA_kp_text').html( '<div class="col-xs-12" ><small><b>'+txt+'</b></small></div>'   );
 
     // set - point
     setpoint=Math.round(pidA_sp / 8191*1000*100 )/100 ;
-    $('#lock_pidA_sp_text').html( "<small><b>"+setpoint.toFixed(2)+"&nbsp;mV</b></small>"   );
+    $('#dummy_pidA_sp_text').html( "<small><b>"+setpoint.toFixed(2)+"&nbsp;mV</b></small>"   );
 
   }
 
   function lock_pidB_update(){
     // Get inputs text values
-    lock_pidB_sp_arr = $("#lock_pidB_sp" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
-    lock_pidB_kp_arr = $("#lock_pidB_kp" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
-    lock_pidB_ki_arr = $("#lock_pidB_ki" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
-    lock_pidB_kd_arr = $("#lock_pidB_kd" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
+    lock_pidB_sp_arr = $("#dummy_pidB_sp" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
+    lock_pidB_kp_arr = $("#dummy_pidB_kp" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
+    lock_pidB_ki_arr = $("#dummy_pidB_ki" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
+    lock_pidB_kd_arr = $("#dummy_pidB_kd" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
 
     // Check if inputs are numbers
     if( !$.isNumeric(lock_pidB_sp_arr[0]) ||
@@ -1725,10 +1702,10 @@
         parseInt(lock_pidB_kp_arr[0])         == pidB_kp &&
         parseInt(lock_pidB_ki_arr[0])         == pidB_ki &&
         parseInt(lock_pidB_kd_arr[0])         == pidB_kd &&
-        parseInt(params.local.lock_pidB_PSR ) == parseInt($("#lock_pidB_PSR" ).val()) &&
-        parseInt(params.local.lock_pidB_ISR ) == parseInt($("#lock_pidB_ISR" ).val()) &&
-        parseInt(params.local.lock_pidB_DSR ) == parseInt($("#lock_pidB_DSR" ).val()) &&
-        parseInt(params.local.lock_pidB_SAT ) == parseInt($("#lock_pidB_SAT" ).val())
+        parseInt(params.local.dummy_pidB_PSR ) == parseInt($("#dummy_pidB_PSR" ).val()) &&
+        parseInt(params.local.dummy_pidB_ISR ) == parseInt($("#dummy_pidB_ISR" ).val()) &&
+        parseInt(params.local.dummy_pidB_DSR ) == parseInt($("#dummy_pidB_DSR" ).val()) &&
+        parseInt(params.local.dummy_pidB_SAT ) == parseInt($("#dummy_pidB_SAT" ).val())
         ) return -1 ;
 
     // Get number values
@@ -1745,7 +1722,7 @@
         pidB_sp = Math.round( pidB_sp * 8192 /1000 );
       pidB_sp = Math.min(  8191 , pidB_sp  ) ;
       pidB_sp = Math.max( -8192 , pidB_sp  ) ;
-      $("#lock_pidB_sp").val(""+pidB_sp);
+      $("#dummy_pidB_sp").val(""+pidB_sp);
     }
 
     // Update text labels with correct info values
@@ -1754,7 +1731,7 @@
     var psrval=[0,3,6,10,12];
 
     // Integration part
-    tau=8e-9 * 2**isrval[parseInt($('#lock_pidB_ISR').val())] / Math.abs( pidB_ki )  ;
+    tau=8e-9 * 2**isrval[parseInt($('#dummy_pidB_ISR').val())] / Math.abs( pidB_ki )  ;
     if ( pidB_ki === 0 ){
       txt='<div class="col-xs-12" ><small><b>OFF</b></small></div>';
     }else{
@@ -1767,10 +1744,10 @@
       //txt += '<br class="visible-xs visible-sm">';
       txt += '<div class="col-xs-12 col-md-6" ><small><b>f&nbsp;=&nbsp;' + val.toPrecision(3) + '&nbsp;' + units[oom.toString()] + 'Hz</b></small></div>';
     }
-    $('#lock_pidB_ki_text').html( txt   );
+    $('#dummy_pidB_ki_text').html( txt   );
 
     // Derivative part
-    tau=8e-9 * 2**(parseInt($('#lock_pidB_DSR').val())-6) * Math.abs(pidA_kd*60) ;
+    tau=8e-9 * 2**(parseInt($('#dummy_pidB_DSR').val())-6) * Math.abs(pidA_kd*60) ;
     if ( pidB_kd === 0 ){
       txt='<div class="col-xs-12" ><small><b>OFF</b></small></div>';
     }else{
@@ -1783,10 +1760,10 @@
       //txt += '<br class="visible-xs visible-sm">';
       txt += '<div class="col-xs-12 col-md-6" ><small><b>f&nbsp;=&nbsp;' + val.toPrecision(3) + '&nbsp;' + units[oom.toString()] + 'Hz</b></small></div>';
     }
-    $('#lock_pidB_kd_text').html( txt   );
+    $('#dummy_pidB_kd_text').html( txt   );
 
     // Proportional part
-    mult= Math.abs(pidB_kp) / ( 2**psrval[parseInt($('#lock_pidB_PSR').val())] ) ;
+    mult= Math.abs(pidB_kp) / ( 2**psrval[parseInt($('#dummy_pidB_PSR').val())] ) ;
     if ( pidB_kp === 0 ){
       txt="0";
     }else{
@@ -1795,19 +1772,19 @@
       txt = "&nbsp;" + val.toFixed(3) + "&nbsp;" + magni[oom.toString()] ;
     }
 
-    $('#lock_pidB_kp_text').html( '<div class="col-xs-12" ><small><b>'+txt+'</b></small></div>'   );
+    $('#dummy_pidB_kp_text').html( '<div class="col-xs-12" ><small><b>'+txt+'</b></small></div>'   );
 
     // set - point
     setpoint=Math.round(pidB_sp / 8191*1000*100 )/100 ;
-    $('#lock_pidB_sp_text').html( "<small><b>"+setpoint.toFixed(2)+"&nbsp;mV</b></small>"   );
+    $('#dummy_pidB_sp_text').html( "<small><b>"+setpoint.toFixed(2)+"&nbsp;mV</b></small>"   );
 
   }
 
   function lock_modulation_update() {
-    lock_gen_mod_phase_arr    = $("#lock_gen_mod_phase"    ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
-    lock_gen_mod_phase_sq_arr = $("#lock_gen_mod_phase_sq" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
-    lock_gen_mod_hp_arr       = $("#lock_gen_mod_hp"       ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
-    lock_gen_mod_sqp_arr      = $("#lock_gen_mod_sqp"      ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
+    lock_gen_mod_phase_arr    = $("#dummy_gen_mod_phase"    ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
+    lock_gen_mod_phase_sq_arr = $("#dummy_gen_mod_phase_sq" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
+    lock_gen_mod_hp_arr       = $("#dummy_gen_mod_hp"       ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
+    lock_gen_mod_sqp_arr      = $("#dummy_gen_mod_sqp"      ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
 
 
 
@@ -1838,7 +1815,7 @@
         mod_phase = Math.round( mod_phase / 2  * 2520 );
       mod_phase = Math.min(  2520 , mod_phase  ) ;
       mod_phase = Math.max(     0 , mod_phase  ) ;
-      $("#lock_gen_mod_phase").val(""+mod_phase);
+      $("#dummy_gen_mod_phase").val(""+mod_phase);
     }
 
     if( lock_gen_mod_hp_arr.length === 2) {
@@ -1850,7 +1827,7 @@
         mod_hp = Math.round( mod_hp / (2520*8e-9*1000*1000) )-1;
       mod_hp = Math.min(  819100 , mod_hp  ) ;
       mod_hp = Math.max(       0 , mod_hp  ) ;
-      $("#lock_gen_mod_hp").val(""+mod_hp);
+      $("#dummy_gen_mod_hp").val(""+mod_hp);
     }
 
     if( lock_gen_mod_sqp_arr.length === 2) {
@@ -1864,11 +1841,11 @@
         mod_sqp = Math.round( mod_sqp / 8  ) ;
       mod_sqp = Math.min(  819100 , mod_sqp  ) ;
       mod_sqp = Math.max(       0 , mod_sqp  ) ;
-      $("#lock_gen_mod_sqp").val(""+mod_sqp);
+      $("#dummy_gen_mod_sqp").val(""+mod_sqp);
     }
 
 
-    $('#lock_gen_mod_phase_text'   ).html( "<small><b>" + (mod_phase   /2520*360).toFixed(1) + "&nbsp;deg&nbsp;|&nbsp;" +   (mod_phase   /2520*2).toFixed(1) + "&nbsp;п&nbsp;rad</b></small>");
+    $('#dummy_gen_mod_phase_text'   ).html( "<small><b>" + (mod_phase   /2520*360).toFixed(1) + "&nbsp;deg&nbsp;|&nbsp;" +   (mod_phase   /2520*2).toFixed(1) + "&nbsp;п&nbsp;rad</b></small>");
 
     hp_period=(mod_hp+1)*2520*8e-9;
     if ( hp_period === 0 ){
@@ -1883,7 +1860,7 @@
       txt += " <br> <b>f&nbsp;=&nbsp;" + val.toFixed(3) + "&nbsp;" + units[oom.toString()] + "Hz</b></small>";
     }
 
-    $('#lock_gen_mod_hp_text').html( txt   );
+    $('#dummy_gen_mod_hp_text').html( txt   );
 
     sqp_period=(mod_sqp+1)*8e-9*2;
     if ( mod_sqp > 0 ){
@@ -1896,17 +1873,17 @@
       txt += " <br> <b>f&nbsp;=&nbsp;" + val.toFixed(3) + "&nbsp;" + units[oom.toString()] + "Hz</b></small>";
     }
 
-    $('#lock_gen_mod_sqp_text').html( txt   );
+    $('#dummy_gen_mod_sqp_text').html( txt   );
 
     sqp_num = ( mod_sqp > 0 ) ? (mod_sqp-1)*2+4 : 2520 ;
-    $('#lock_gen_mod_phase_sq_text').html( "<small><b>" + (mod_phase_sq/sqp_num*360).toFixed(1) + "&nbsp;deg&nbsp;|&nbsp;" +   (mod_phase_sq/sqp_num*2).toFixed(1) + "&nbsp;п&nbsp;rad</b></small>");
+    $('#dummy_gen_mod_phase_sq_text').html( "<small><b>" + (mod_phase_sq/sqp_num*360).toFixed(1) + "&nbsp;deg&nbsp;|&nbsp;" +   (mod_phase_sq/sqp_num*2).toFixed(1) + "&nbsp;п&nbsp;rad</b></small>");
   }
 
 
   function lock_ctrl_update() {
-    lock_lock_trig_time_val_arr = $("#lock_lock_trig_time_val" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
-    lock_lock_trig_val_arr      = $("#lock_lock_trig_val" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
-    lock_ctrl_aux_trig_type     = parseInt($("#lock_ctrl_aux_trig_type" ).val());
+    lock_lock_trig_time_val_arr = $("#dummy_lock_trig_time_val" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
+    lock_lock_trig_val_arr      = $("#dummy_lock_trig_val" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
+    lock_ctrl_aux_trig_type     = parseInt($("#dummy_ctrl_aux_trig_type" ).val());
 
     if( !$.isNumeric(lock_lock_trig_time_val_arr[0]) || !$.isNumeric(lock_lock_trig_val_arr[0])  ) return -1 ;
 
@@ -1929,7 +1906,7 @@
         trig_time = Math.round( trig_time / 8e-3 );
       trig_time = Math.min( 500000000 , trig_time  ) ;
       trig_time = Math.max(         0 , trig_time  ) ;
-      $("#lock_lock_trig_time_val").val(""+trig_time);
+      $("#dummy_lock_trig_time_val").val(""+trig_time);
     }
 
     if( lock_lock_trig_val_arr.length === 2) {
@@ -1939,7 +1916,7 @@
         trig_val = Math.round( trig_val * 8192 /1000 );
       trig_val = Math.min(  8191 , trig_val  ) ;
       trig_val = Math.max( -8192 , trig_val  ) ;
-      $("#lock_lock_trig_val").val(""+trig_val);
+      $("#dummy_lock_trig_val").val(""+trig_val);
     }
 
     timeval = trig_time*8e-9;
@@ -1951,9 +1928,9 @@
       txt = "<b>T&nbsp;=&nbsp;" + val.toFixed(3) + "&nbsp;" + units[oom.toString()] + "s</b>";
     }
 
-    $('#lock_lock_trig_time_val_text').html( txt   );
+    $('#dummy_lock_trig_time_val_text').html( txt   );
 
-    $('#lock_lock_trig_val_text').html( "<small><b>V<sub>trg</sub>&nbsp;=&nbsp;" + (trig_val/8192*1000).toFixed(0) + "&nbsp;mV</b></small>" ) ;
+    $('#dummy_lock_trig_val_text').html( "<small><b>V<sub>trg</sub>&nbsp;=&nbsp;" + (trig_val/8192*1000).toFixed(0) + "&nbsp;mV</b></small>" ) ;
 
 
     switch(lock_ctrl_aux_trig_type) {
@@ -2024,7 +2001,7 @@
 
   function display_update() {
     if(!params.local) return 0;
-    var set_raw  =  $('#lock_osc_raw_mode').data('checked');
+    var set_raw  =  $('#dummy_osc_raw_mode').data('checked');
 
     var disp_slow = $('#slow_lock_in_display').hasClass('in') ;
     var disp_fast = $('#fast_lock_in_display').hasClass('in') ;
@@ -2033,11 +2010,11 @@
     if(set_raw) scl = 1/2048;
 
     if(disp_slow){
-      var X = params.local.lock_X  *scl ;
-      var Y = params.local.lock_Y  *scl ;
-      var F1= params.local.lock_F1 *scl ;
-      var F2= params.local.lock_F2 *scl ;
-      var F3= params.local.lock_F3 *scl ;
+      var X = params.local.dummy_X  *scl ;
+      var Y = params.local.dummy_Y  *scl ;
+      var F1= params.local.dummy_F1 *scl ;
+      var F2= params.local.dummy_F2 *scl ;
+      var F3= params.local.dummy_F3 *scl ;
       var R = Math.sqrt(X**2+Y**2) ;
       var Fi= Math.atan2(Y,X)*180/Math.PI ;
 
@@ -2051,10 +2028,10 @@
         $('#disp_F2').html(  F2.toFixed(fixn));
         $('#disp_F3').html(  F3.toFixed(fixn));
       }else{
-        var fv0 = Math.max( params.local.lock_X.toString().length , params.local.lock_Y.toString().length )  ;
-        var fv1 = params.local.lock_F1.toString().length ;
-        var fv2 = params.local.lock_F2.toString().length ;
-        var fv3 = params.local.lock_F3.toString().length ;
+        var fv0 = Math.max( params.local.dummy_X.toString().length , params.local.dummy_Y.toString().length )  ;
+        var fv1 = params.local.dummy_F1.toString().length ;
+        var fv2 = params.local.dummy_F2.toString().length ;
+        var fv3 = params.local.dummy_F3.toString().length ;
 
         $('#disp_x' ).html( format_oom(X ,'V',fv0) );
         $('#disp_y' ).html( format_oom(Y ,'V',fv0));
@@ -2076,8 +2053,8 @@
     }
 
     if (disp_fast) {
-      var sqX = params.local.lock_sqX *scl;
-      var sqY = params.local.lock_sqY *scl;
+      var sqX = params.local.dummy_sqX *scl;
+      var sqY = params.local.dummy_sqY *scl;
       var sqR = Math.sqrt(sqX**2+sqY**2) ;
       var sqFi= Math.atan2(sqY,sqX)*180/Math.PI ;
       if(set_raw){
@@ -2087,7 +2064,7 @@
         $('#disp_sqr' ).html( sqR.toFixed(fixn)    );
         $('#disp_sqfi').html( sqFi.toFixed(2+fixn) );
       }else{
-        var fvsq = Math.max( params.local.lock_sqX.toString().length , params.local.lock_sqY.toString().length )  ;
+        var fvsq = Math.max( params.local.dummy_sqX.toString().length , params.local.dummy_sqY.toString().length )  ;
         $('#disp_sqx' ).html( format_oom(sqX ,'V',fvsq) );
         $('#disp_sqy' ).html( format_oom(sqY ,'V',fvsq) );
         $('#disp_sqr' ).html( format_oom(sqR ,'V',fvsq) );
@@ -2101,12 +2078,12 @@
 
     }
 
-    var error_mean = params.local.lock_error_mean;
+    var error_mean = params.local.dummy_error_mean;
 
-    if(isNaN(params.local.lock_error_std))
+    if(isNaN(params.local.dummy_error_std))
       var error_std  = 0;
     else
-      var error_std  = params.local.lock_error_std;
+      var error_std  = params.local.dummy_error_std;
 
     if (set_raw) {
       if (!last_disp_units) {
@@ -2649,13 +2626,13 @@
       }
       // LOLO
       if(trigger_just_set) {
-        orig_params.lock_lock_trig_val      = params.local.lock_lock_trig_val      ;
-        orig_params.lock_lock_trig_time_val = params.local.lock_lock_trig_time_val ;
-        //orig_params.lock_ctrl_aux_lock_trig_rise     = params.local.lock_ctrl_aux_lock_trig_rise     ;
+        orig_params.dummy_lock_trig_val      = params.local.dummy_lock_trig_val      ;
+        orig_params.dummy_lock_trig_time_val = params.local.dummy_lock_trig_time_val ;
+        //orig_params.dummy_ctrl_aux_lock_trig_rise     = params.local.dummy_ctrl_aux_lock_trig_rise     ;
         trigger_just_set=false;
       }
-      if(orig_params.lock_lock_control!=orig_params.lock_lock_feedback)
-        orig_params.lock_lock_control=orig_params.lock_lock_feedback;
+      if(orig_params.dummy_lock_control!=orig_params.dummy_lock_feedback)
+        orig_params.dummy_lock_control=orig_params.dummy_lock_feedback;
     }
 
 
@@ -2756,58 +2733,58 @@
 
 
     /*
-    $('#lock_lpf_F1_tau').val( params.original.lock_lpf_F1 % 16 );
-    $('#lock_lpf_F2_tau').val( params.original.lock_lpf_F2 % 16 );
-    $('#lock_lpf_F3_tau').val( params.original.lock_lpf_F3 % 16 );
-    $('#lock_lpf_sq_tau').val( params.original.lock_lpf_sq % 16 );
+    $('#dummy_lpf_F1_tau').val( params.original.dummy_lpf_F1 % 16 );
+    $('#dummy_lpf_F2_tau').val( params.original.dummy_lpf_F2 % 16 );
+    $('#dummy_lpf_F3_tau').val( params.original.dummy_lpf_F3 % 16 );
+    $('#dummy_lpf_sq_tau').val( params.original.dummy_lpf_sq % 16 );
 
-    $('#lock_lpf_F1_order').val( params.original.lock_lpf_F1_order % 4 );
-    $('#lock_lpf_F2_order').val( params.original.lock_lpf_F2_order % 4 );
-    $('#lock_lpf_F3_order').val( params.original.lock_lpf_F3_order % 4 );
-    $('#lock_lpf_sq_order').val( params.original.lock_lpf_sq_order % 4 );
+    $('#dummy_lpf_F1_order').val( params.original.dummy_lpf_F1_order % 4 );
+    $('#dummy_lpf_F2_order').val( params.original.dummy_lpf_F2_order % 4 );
+    $('#dummy_lpf_F3_order').val( params.original.dummy_lpf_F3_order % 4 );
+    $('#dummy_lpf_sq_order').val( params.original.dummy_lpf_sq_order % 4 );
 
 
-    $('#lock_ctrl_aux_set_pidA_enable').prop('checked', (params.original.lock_ctrl_aux_set_pidA_enable ? true : false));
-    $('#lock_ctrl_aux_set_pidB_enable').prop('checked', (params.original.lock_ctrl_aux_set_pidB_enable ? true : false));
-    $('#lock_ctrl_aux_set_ramp_enable').prop('checked', (params.original.lock_ctrl_aux_set_ramp_enable ? true : false));
+    $('#dummy_ctrl_aux_set_pidA_enable').prop('checked', (params.original.dummy_ctrl_aux_set_pidA_enable ? true : false));
+    $('#dummy_ctrl_aux_set_pidB_enable').prop('checked', (params.original.dummy_ctrl_aux_set_pidB_enable ? true : false));
+    $('#dummy_ctrl_aux_set_ramp_enable').prop('checked', (params.original.dummy_ctrl_aux_set_ramp_enable ? true : false));
 
-    if (params.original.lock_ctrl_aux_ramp_enable_ctrl)
-      $('#lock_ctrl_aux_ramp_enable_ctrl').removeClass('btn-default').addClass('btn-primary');
+    if (params.original.dummy_ctrl_aux_ramp_enable_ctrl)
+      $('#dummy_ctrl_aux_ramp_enable_ctrl').removeClass('btn-default').addClass('btn-primary');
     else
-      $('#lock_ctrl_aux_ramp_enable_ctrl').removeClass('btn-primary').addClass('btn-default');
+      $('#dummy_ctrl_aux_ramp_enable_ctrl').removeClass('btn-primary').addClass('btn-default');
 
-    if (params.original.lock_ctrl_aux_pidA_enable_ctrl)
-      $('#lock_ctrl_aux_pidA_enable_ctrl').removeClass('btn-default').addClass('btn-primary');
+    if (params.original.dummy_ctrl_aux_pidA_enable_ctrl)
+      $('#dummy_ctrl_aux_pidA_enable_ctrl').removeClass('btn-default').addClass('btn-primary');
     else
-      $('#lock_ctrl_aux_pidA_enable_ctrl').removeClass('btn-primary').addClass('btn-default');
+      $('#dummy_ctrl_aux_pidA_enable_ctrl').removeClass('btn-primary').addClass('btn-default');
 
-    if (params.original.lock_ctrl_aux_pidB_enable_ctrl)
-      $('#lock_ctrl_aux_pidB_enable_ctrl').removeClass('btn-default').addClass('btn-primary');
+    if (params.original.dummy_ctrl_aux_pidB_enable_ctrl)
+      $('#dummy_ctrl_aux_pidB_enable_ctrl').removeClass('btn-default').addClass('btn-primary');
     else
-      $('#lock_ctrl_aux_pidB_enable_ctrl').removeClass('btn-primary').addClass('btn-default');
+      $('#dummy_ctrl_aux_pidB_enable_ctrl').removeClass('btn-primary').addClass('btn-default');
 
-    if (params.original.lock_ctrl_aux_lock_now)
-      $('#lock_ctrl_aux_lock_now').removeClass('btn-default').addClass('btn-primary');
+    if (params.original.dummy_ctrl_aux_lock_now)
+      $('#dummy_ctrl_aux_lock_now').removeClass('btn-default').addClass('btn-primary');
     else
-      $('#lock_ctrl_aux_lock_now').removeClass('btn-primary').addClass('btn-default');
+      $('#dummy_ctrl_aux_lock_now').removeClass('btn-primary').addClass('btn-default');
 
-    if (params.original.lock_ctrl_aux_launch_lock_trig)
-      $('#lock_ctrl_aux_launch_lock_trig').removeClass('btn-default').addClass('btn-primary');
+    if (params.original.dummy_ctrl_aux_launch_lock_trig)
+      $('#dummy_ctrl_aux_launch_lock_trig').removeClass('btn-default').addClass('btn-primary');
     else
-      $('#lock_ctrl_aux_launch_lock_trig').removeClass('btn-primary').addClass('btn-default');
+      $('#dummy_ctrl_aux_launch_lock_trig').removeClass('btn-primary').addClass('btn-default');
 
-    $('#lock_ctrl_aux_trig_type').val(params.original.lock_ctrl_aux_trig_type);
+    $('#dummy_ctrl_aux_trig_type').val(params.original.dummy_ctrl_aux_trig_type);
     */
 
     // [LOLO DOCK LOADPARAMS]
     // Checkboxes
     $('#dummy_osc1_filt_off').prop('checked', (params.original.dummy_osc1_filt_off    ? true : false));
     $('#dummy_osc2_filt_off').prop('checked', (params.original.dummy_osc2_filt_off    ? true : false));
-
+    
     // Numbers
     $('#dummy_aux_A').val(params.original.dummy_aux_A   );
     $('#dummy_aux_B').val(params.original.dummy_aux_B   );
-
+    
     // Switches
     $('#dummy_oscA_sw'     ).val(params.original.dummy_oscA_sw        );
     $('#dummy_oscB_sw'     ).val(params.original.dummy_oscB_sw        );
@@ -2819,7 +2796,7 @@
     $('#dummy_slow_out3_sw').val(params.original.dummy_slow_out3_sw   );
     $('#dummy_slow_out4_sw').val(params.original.dummy_slow_out4_sw   );
     $('#dummy_read_ctrl'   ).val(params.original.dummy_read_ctrl      );
-
+    
     // Buttons
     if (params.original.dummy_osc_raw_mode){                // dummy_osc_raw_mode
       $('#dummy_osc_raw_mode').removeClass('btn-default').addClass('btn-primary').data('checked',true);
@@ -2831,10 +2808,10 @@
     }else{
       $('#dummy_osc_lockin_mode').removeClass('btn-primary').addClass('btn-default').data('checked',false);
     }
-
+    
     // [LOLO DOCK LOADPARAMS END]
 
-
+    /* ERASE LOLO
     lock_ramp_step_update();
     lock_modulation_update();
     lock_ctrl_update();
@@ -2842,6 +2819,7 @@
     lock_pidB_update();
     lpf_update();
     display_update();
+    */
 
     updateTimeUnits(orig_params);
     $('#ytitle').show();
@@ -4006,7 +3984,7 @@
         <button id="btn_stop" class="btn btn-primary btn-lg" >Stop</button>
         <button id="btn_save" class="btn btn-primary btn-lg" onclick="showModalSave();">Save Data</button>
         <button id="btn_save" class="btn btn-primary btn-lg" onclick="showModalConfig();">Config</button>
-        <button id="lock_osc_raw_mode" class="btn btn-primary btn-lg" data-checked="true" disabled>Raw&nbsp;Mode</button>
+        <button id="dummy_osc_raw_mode" class="btn btn-primary btn-lg" data-checked="true" disabled>Raw&nbsp;Mode</button>
         <button id="btn_auto" class="btn btn-primary btn-lg" onclick="serverAutoScale()">AUTO</button>
         <button id="btn_avg" class="btn btn-default btn-lg" onclick="setAvgAtDec()">Averaging</button>
       </div>
@@ -4032,39 +4010,39 @@
                   <div class="panel-group col-xs-12 col-sm-12 col-md-12">
                     <form class="form-horizontal" role="form" onsubmit="return false;">
                       <div class="form-group">
-                        <label for="lock_oscA_sw" class="col-xs-4 control-label">OscA:</label>
+                        <label for="dummy_oscA_sw" class="col-xs-4 control-label">OscA:</label>
                         <div class="col-xs-8">
-                          <select id="lock_oscA_sw" class="form-control">
+                          <select id="dummy_oscA_sw" class="form-control">
                             <option  value="0">0</option>
                             <option  value="1" selected="selected">in1</option>
                             <option  value="2">in2</option>
-                            <option  value="3">error</option>
-                            <option  value="4">ctrl_A</option>
-                            <option  value="5">ctrl_B</option>
-                            <option  value="6">Ramp A</option>
-                            <option  value="7">Ramp B</option>
-                            <option  value="8">pidA_in</option>
-                            <option  value="9">pidB_in</option>
-                            <option  value="10">PID A out</option>
-                            <option  value="11">PID B out</option>
-                            <option  value="12">sin_ref</option>
-                            <option  value="13">cos_ref</option>
-                            <option  value="14">cos_1f</option>
-                            <option  value="15">cos_2f</option>
-                            <option  value="16">cos_3f</option>
-                            <option  value="17">sq_ref</option>
-                            <option  value="18">sq_quad</option>
-                            <option  value="19">sq_phas</option>
-                            <option  value="20">square ref (bin)</option>
-                            <option  value="21">signal_i</option>
-                            <option  value="22">Xo</option>
-                            <option  value="23">Yo</option>
-                            <option  value="24">F1o</option>
-                            <option  value="25">F2o</option>
-                            <option  value="26">F3o</option>
-                            <option  value="27">sqXo</option>
-                            <option  value="28">sqYo</option>
-                            <option  value="29">sqFo</option>
+                            <option  value="3">0</option>
+                            <option  value="4">0</option>
+                            <option  value="5">0</option>
+                            <option  value="6">0</option>
+                            <option  value="7">0</option>
+                            <option  value="8">0</option>
+                            <option  value="9">0</option>
+                            <option  value="10">0</option>
+                            <option  value="11">0</option>
+                            <option  value="12">0</option>
+                            <option  value="13">0</option>
+                            <option  value="14">0</option>
+                            <option  value="15">0</option>
+                            <option  value="16">0</option>
+                            <option  value="17">0</option>
+                            <option  value="18">0</option>
+                            <option  value="19">0</option>
+                            <option  value="20">0</option>
+                            <option  value="21">0</option>
+                            <option  value="22">0</option>
+                            <option  value="23">0</option>
+                            <option  value="24">0</option>
+                            <option  value="25">0</option>
+                            <option  value="26">0</option>
+                            <option  value="27">0</option>
+                            <option  value="28">0</option>
+                            <option  value="29">0</option>
                             <!--option value="30">0</option-->
                             <!--option value="31">0</option-->
                           </select>
@@ -4075,39 +4053,39 @@
                   <div class="panel-group col-xs-12 col-sm-12 col-md-12">
                     <form class="form-horizontal" role="form" onsubmit="return false;">
                       <div class="form-group">
-                        <label for="lock_oscB_sw" class="col-xs-4 control-label">OscB:</label>
+                        <label for="dummy_oscB_sw" class="col-xs-4 control-label">OscB:</label>
                         <div class="col-xs-8">
-                          <select id="lock_oscB_sw" class="form-control">
+                          <select id="dummy_oscB_sw" class="form-control">
                             <option  value="0">0</option>
                             <option  value="1">in1</option>
                             <option  value="2" selected="selected">in2</option>
-                            <option  value="3">error</option>
-                            <option  value="4">ctrl_A</option>
-                            <option  value="5">ctrl_B</option>
-                            <option  value="6">Ramp A</option>
-                            <option  value="7">Ramp B</option>
-                            <option  value="8">pidA_in</option>
-                            <option  value="9">pidB_in</option>
-                            <option  value="10">PID A out</option>
-                            <option  value="11">PID B out</option>
-                            <option  value="12">sin_ref</option>
-                            <option  value="13">cos_ref</option>
-                            <option  value="14">cos_1f</option>
-                            <option  value="15">cos_2f</option>
-                            <option  value="16">cos_3f</option>
-                            <option  value="17">sq_ref</option>
-                            <option  value="18">sq_quad</option>
-                            <option  value="19">sq_phas</option>
-                            <option  value="20">square ref (bin)</option>
-                            <option  value="21">signal_i</option>
-                            <option  value="22">Xo</option>
-                            <option  value="23">Yo</option>
-                            <option  value="24">F1o</option>
-                            <option  value="25">F2o</option>
-                            <option  value="26">F3o</option>
-                            <option  value="27">sqXo</option>
-                            <option  value="28">sqYo</option>
-                            <option  value="29">sqFo</option>
+                            <option  value="3">0</option>
+                            <option  value="4">0</option>
+                            <option  value="5">0</option>
+                            <option  value="6">0</option>
+                            <option  value="7">0</option>
+                            <option  value="8">0</option>
+                            <option  value="9">0</option>
+                            <option  value="10">0</option>
+                            <option  value="11">0</option>
+                            <option  value="12">0</option>
+                            <option  value="13">0</option>
+                            <option  value="14">0</option>
+                            <option  value="15">0</option>
+                            <option  value="16">0</option>
+                            <option  value="17">0</option>
+                            <option  value="18">0</option>
+                            <option  value="19">0</option>
+                            <option  value="20">0</option>
+                            <option  value="21">0</option>
+                            <option  value="22">0</option>
+                            <option  value="23">0</option>
+                            <option  value="24">0</option>
+                            <option  value="25">0</option>
+                            <option  value="26">0</option>
+                            <option  value="27">0</option>
+                            <option  value="28">0</option>
+                            <option  value="29">0</option>
                             <!--option value="30">0</option-->
                             <!--option value="31">0</option-->
                           </select>
@@ -4121,9 +4099,9 @@
                   <div class="panel-group col-xs-12 col-sm-12 col-md-12">
                     <form class="form-horizontal" role="form" onsubmit="return false;">
                       <div class="form-group">
-                        <label for="lock_trig_sw" class="col-xs-4 control-label">Ext Trig:</label>
+                        <label for="dummy_trig_sw" class="col-xs-4 control-label">Ext Trig:</label>
                         <div class="col-xs-8">
-                          <select id="lock_trig_sw" class="form-control">
+                          <select id="dummy_trig_sw" class="form-control">
                             <option  value="0" selected="selected">None</option>
                             <option  value="1">Pin</option>
                             <option  value="2">Ramp floor</option>
@@ -4154,7 +4132,7 @@
                       <div class="panel-group col-xs-12">
                         <form class="form-horizontal" role="form" onsubmit="return false;">
                           <div class="form-group text-center">
-                            <button id="lock_osc_lockin_mode" class="btn btn-primary btn-lg" data-checked="true" disabled>R|Phase&nbsp;Mode</button>
+                            <button id="dummy_osc_lockin_mode" class="btn btn-primary btn-lg" data-checked="true" disabled>R|Phase&nbsp;Mode</button>
                           </div>
                         </form>
                       </div>
@@ -4166,7 +4144,7 @@
                         <form class="form-horizontal" role="form" onsubmit="return false;">
                           <div class="checkbox" style="padding-bottom: 12px;">
                             <label class="group-label">
-                              <input type="checkbox" id="lock_osc1_filt_off" checked>Ch1
+                              <input type="checkbox" id="dummy_osc1_filt_off" checked>Ch1
                             </label>
                           </div>
                         </form>
@@ -4175,7 +4153,7 @@
                         <form class="form-horizontal" role="form" onsubmit="return false;">
                           <div class="checkbox" style="padding-bottom: 12px;">
                             <label class="group-label">
-                              <input type="checkbox" id="lock_osc2_filt_off" checked>Ch2
+                              <input type="checkbox" id="dummy_osc2_filt_off" checked>Ch2
                             </label>
                           </div>
                         </form>
@@ -4205,25 +4183,25 @@
                   <div class="panel-group col-xs-12 col-sm-12 col-md-12">
                     <form class="form-horizontal" role="form" onsubmit="return false;">
                       <div class="form-group">
-                        <label for="lock_out1_sw" class="col-xs-4 control-label">Out1:</label>
+                        <label for="dummy_out1_sw" class="col-xs-4 control-label">Out1:</label>
                         <div class="col-xs-8">
-                          <select id="lock_out1_sw" class="form-control">
+                          <select id="dummy_out1_sw" class="form-control">
                             <option  value="0" selected="selected">0</option>
                             <option  value="1">in1</option>
                             <option  value="2">in2</option>
-                            <option  value="3">in1-in2</option>
-                            <option  value="4">sin_ref</option>
-                            <option  value="5">cos_1f</option>
-                            <option  value="6">cos_2f</option>
-                            <option  value="7">cos_3f</option>
-                            <option  value="8">sq_ref</option>
-                            <option  value="9">sq_quad</option>
-                            <option  value="10">sq_phas</option>
-                            <option  value="11">PID A out</option>
-                            <option  value="12">ctrl_A</option>
-                            <option  value="13">ctrl_B</option>
-                            <option  value="14">error</option>
-                            <option  value="15">aux_A</option>
+                            <option  value="3">0</option>
+                            <option  value="4">0</option>
+                            <option  value="5">0</option>
+                            <option  value="6">0</option>
+                            <option  value="7">0</option>
+                            <option  value="8">0</option>
+                            <option  value="9">0</option>
+                            <option  value="10">0</option>
+                            <option  value="11">0</option>
+                            <option  value="12">0</option>
+                            <option  value="13">0</option>
+                            <option  value="14">0</option>
+                            <option  value="15">0</option>
                           </select>
                         </div>
                       </div>
@@ -4232,25 +4210,25 @@
                   <div class="panel-group col-xs-12 col-sm-12 col-md-12">
                     <form class="form-horizontal" role="form" onsubmit="return false;">
                       <div class="form-group">
-                        <label for="lock_out2_sw" class="col-xs-4 control-label">Out2:</label>
+                        <label for="dummy_out2_sw" class="col-xs-4 control-label">Out2:</label>
                         <div class="col-xs-8">
-                          <select id="lock_out2_sw" class="form-control">
+                          <select id="dummy_out2_sw" class="form-control">
                             <option  value="0" selected="selected">0</option>
                             <option  value="1">in1</option>
                             <option  value="2">in2</option>
-                            <option  value="3">in1-in2</option>
-                            <option  value="4">cos_ref</option>
-                            <option  value="5">cos_1f</option>
-                            <option  value="6">cos_2f</option>
-                            <option  value="7">cos_3f</option>
-                            <option  value="8">sq_ref</option>
-                            <option  value="9">sq_quad</option>
-                            <option  value="10">sq_phas</option>
-                            <option  value="11">PID B out</option>
-                            <option  value="12">ctrl_A</option>
-                            <option  value="13">ctrl_B</option>
-                            <option  value="14">error</option>
-                            <option  value="15">aux_B</option>
+                            <option  value="3">0</option>
+                            <option  value="4">0</option>
+                            <option  value="5">0</option>
+                            <option  value="6">0</option>
+                            <option  value="7">0</option>
+                            <option  value="8">0</option>
+                            <option  value="9">0</option>
+                            <option  value="10">0</option>
+                            <option  value="11">0</option>
+                            <option  value="12">0</option>
+                            <option  value="13">0</option>
+                            <option  value="14">0</option>
+                            <option  value="15">0</option>
                           </select>
                         </div>
                       </div>
@@ -4272,9 +4250,9 @@
                       <div class="panel-group col-xs-12 col-sm-12 col-md-12">
                         <form class="form-horizontal" role="form" onsubmit="return false;">
                           <div class="form-group">
-                            <label for="lock_slow_out1_sw" class="col-xs-4 control-label">Slow out1:</label>
+                            <label for="dummy_slow_out1_sw" class="col-xs-4 control-label">Slow out1:</label>
                             <div class="col-xs-8">
-                              <select id="lock_slow_out1_sw" class="form-control">
+                              <select id="dummy_slow_out1_sw" class="form-control">
                                 <option  value="0" selected="selected">0</option>
                                 <option  value="1">in1</option>
                                 <option  value="2">in2</option>
@@ -4299,9 +4277,9 @@
                       <div class="panel-group col-xs-12 col-sm-12 col-md-12">
                         <form class="form-horizontal" role="form" onsubmit="return false;">
                           <div class="form-group">
-                            <label for="lock_slow_out2_sw" class="col-xs-4 control-label">Slow out2:</label>
+                            <label for="dummy_slow_out2_sw" class="col-xs-4 control-label">Slow out2:</label>
                             <div class="col-xs-8">
-                              <select id="lock_slow_out2_sw" class="form-control">
+                              <select id="dummy_slow_out2_sw" class="form-control">
                                 <option  value="0" selected="selected">0</option>
                                 <option  value="1">in1</option>
                                 <option  value="2">in2</option>
@@ -4326,1675 +4304,60 @@
                       <div class="panel-group col-xs-12 col-sm-12 col-md-12">
                         <form class="form-horizontal" role="form" onsubmit="return false;">
                           <div class="form-group">
-                            <label for="lock_slow_out3_sw" class="col-xs-4 control-label">Slow out3:</label>
+                            <label for="dummy_slow_out3_sw" class="col-xs-4 control-label">Slow out3:</label>
                             <div class="col-xs-8">
-                              <select id="lock_slow_out3_sw" class="form-control">
+                              <select id="dummy_slow_out3_sw" class="form-control">
                                 <option  value="0" selected="selected">0</option>
                                 <option  value="1">in1</option>
                                 <option  value="2">in2</option>
-                                <option  value="3">in1-in2</option>
-                                <option  value="4">sin_ref</option>
-                                <option  value="5">cos_1f</option>
-                                <option  value="6">cos_2f</option>
-                                <option  value="7">cos_3f</option>
-                                <option  value="8">sq_ref</option>
-                                <option  value="9">sq_phas</option>
-                                <option  value="10">Ramp A</option>
-                                <option  value="11">PID A out</option>
-                                <option  value="12">ctrl_A</option>
-                                <option  value="13">ctrl_B</option>
-                                <option  value="14">error</option>
-                                <option  value="15">aux_A</option>
-                              </select>
-                            </div>
-                          </div>
-                        </form>
-                      </div>
-                      <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                        <form class="form-horizontal" role="form" onsubmit="return false;">
-                          <div class="form-group">
-                            <label for="lock_slow_out4_sw" class="col-xs-4 control-label">Slow out4:</label>
-                            <div class="col-xs-8">
-                              <select id="lock_slow_out4_sw" class="form-control">
-                                <option  value="0" selected="selected">0</option>
-                                <option  value="1">in1</option>
-                                <option  value="2">in2</option>
-                                <option  value="3">in1-in2</option>
-                                <option  value="4">cos_ref</option>
-                                <option  value="5">cos_1f</option>
-                                <option  value="6">cos_2f</option>
-                                <option  value="7">cos_3f</option>
-                                <option  value="8">sq_quad</option>
-                                <option  value="9">sq_phas</option>
-                                <option  value="10">Ramp B</option>
-                                <option  value="11">PID A out</option>
-                                <option  value="12">ctrl_A</option>
-                                <option  value="13">ctrl_B</option>
-                                <option  value="14">error</option>
-                                <option  value="15">aux_B</option>
-                              </select>
-                            </div>
-                          </div>
-                        </form>
-                      </div>
-                    </div>
-                  </div>
-
-
-                </div>
-
-              </div>
-            </div>
-          </div>
-        </div>
-
-
-
-        <!-- Lock-in controls ---------------------------------------------------->
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" href="#lock-in-module">
-                Lock-in modules
-              </a>
-            </h4>
-          </div>
-          <div id="lock-in-module" class="panel-collapse collapse">
-            <div class="panel-body">
-              <!-- Input ---------------------------------------------------->
-              <div class="row">
-                <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                  <form class="form-horizontal" role="form" onsubmit="return false;">
-                    <div class="form-group">
-                      <label for="lock_signal_sw" class="col-xs-4 control-label">Lock-in input:</label>
-                      <div class="col-xs-8">
-                        <select id="lock_signal_sw" class="form-control">
-                          <option  value="0" selected="selected">in1</option>
-                          <option  value="1">in2</option>
-                          <option  value="2">in1-in2</option>
-                          <option  value="3">sin_ref</option>
-                          <option  value="4">cos_1f</option>
-                          <option  value="5">sq_ref</option>
-                          <option  value="6">sq_phas</option>
-                          <option  value="7">Ramp A</option>
-                          <option  value="8">square ref (bin)</option>
-                          <option  value="9">square phas (bin)</option>
-                          <option  value="10">aux_A</option>
-                          <option  value="11">aux_B</option>
-                          <!--option value="12">0</option-->
-                          <!--option value="13">0</option-->
-                          <!--option value="14">0</option-->
-                          <!--option value="15">0</option-->
-                        </select>
-                      </div>
-                    </div>
-                  </form>
-                </div>
-              </div>
-
-              <hr style="margin: 7px 7px">
-              <!-- Slow harmonic lock-in ------------------------------------>
-              <div class="row">
-                <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                  <p class="text-center">
-                    <a data-toggle="collapse" href="#slow_lock_in_hide" aria-expanded="true" aria-controls="slow_lock_in_hide">
-                      <strong>Slow harmonic lock-in</strong>
-                    </a>
-                  </p>
-                </div>
-
-                <div class="panel-group col-xs-12 col-sm-12 col-md-12 collapse" id="slow_lock_in_hide">
-                  <div class="row" data-tag="HarmonicParams">
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                      <p><strong>Harmonic oscilator</strong></p>
-                    </div>
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="form-group">
-                          <label for="lock_gen_mod_hp" class="col-xs-4 control-label">Period:</label>
-                          <div class="col-xs-4 col-sm-8">
-                            <input type="number" autocomplete="off" class="form-control" value="0" id="lock_gen_mod_hp" step="1" min="0" max="16383">
-                            <span style="display: none;" class="input-group-btn" id="lock_gen_mod_hp_apply">
-                              <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                            </span>
-                          </div>
-                          <div class="col-xs-12 col-sm-12  text-center">
-                            <div style="padding: 7px 0 0;" class="col-xs-8" id="lock_gen_mod_hp_text">lock_gen_mod_hp</div>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-
-                    <hr style="margin: 7px 7px">
-
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="form-group">
-                          <label for="lock_gen_mod_phase" class="col-xs-4 control-label">Phase:</label>
-                          <div class="col-xs-4 col-sm-8">
-                            <input type="number" autocomplete="off" class="form-control" value="0" id="lock_gen_mod_phase" step="1" min="0" max="2519">
-                            <span style="display: none;" class="input-group-btn" id="lock_gen_mod_phase_apply">
-                              <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                            </span>
-                          </div>
-                          <div class="col-xs-12 col-sm-12 text-center">
-                            <div style="padding: 7px 0 0;" class="col-xs-8" id="lock_gen_mod_phase_text">lock_gen_mod_phase</div>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                  <div class="row" style="background-color: #F2F2F2;">
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                      <p><strong>Demodulation</strong></p>
-                    </div>
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12" id='Fnavtabs'>
-                      <ul class="nav nav-tabs">
-                        <li id="tab_F1_head" class="active"><a href="#!">X, Y & F1</a></li>
-                        <li id="tab_F2_head"><a href="#!">F2</a></li>
-                        <li id="tab_F3_head"><a href="#!">F3</a></li>
-                      </ul>
-                    </div>
-                  </div>
-                  <div class="row" id="tab_F1_body" style="background-color: #F2F2F2;">
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12 text-center">
-                      <p>Low Pass Filter</p>
-                    </div>
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="form-group">
-                          <div class="col-xs-8"> cut
-                            <select id="lock_lpf_F1_tau" class="form-control">
-                              <option  value="0" selected="selected">131us |  7.6kHz</option>
-                              <option  value="1">262us |  3.8kHz</option>
-                              <option  value="2">524us |  1.9kHz</option>
-                              <option  value="3">  1ms | 953.7 Hz</option>
-                              <option  value="4">  2ms | 476.8 Hz</option>
-                              <option  value="5">  4ms | 238.4 Hz</option>
-                              <option  value="6">  8ms | 119.2 Hz</option>
-                              <option  value="7"> 17ms | 59.6 Hz</option>
-                              <option  value="8"> 34ms | 29.8 Hz</option>
-                              <option  value="9"> 67ms | 14.9 Hz</option>
-                              <option  value="10">134ms |  7.5 Hz</option>
-                              <option  value="11">268ms |  3.7 Hz</option>
-                              <option  value="12">537ms |  1.9 Hz</option>
-                              <option  value="13">  1 s | 931.3mHz</option>
-                              <option  value="14">  2 s | 465.7mHz</option>
-                              <option  value="15">  4 s | 232.8mHz</option>
-                            </select>
-                          </div>
-                          <div class="col-xs-4"> order
-                            <select id="lock_lpf_F1_order" class="form-control">
-                              <option  value="0">OFF</option>
-                              <option  value="1">1</option>
-                              <option  value="2" selected="selected">2</option>
-                            </select>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="form-group">
-                          <label for="lock_sg_amp1" class="col-xs-6 control-label">Amplification</label>
-                          <div class="col-xs-6">
-                            <select id="lock_sg_amp1" class="form-control">
-                              <option  value="0" selected="selected">x1</option>
-                              <option  value="1">x2</option>
-                              <option  value="2">x4</option>
-                              <option  value="3">x8</option>
-                              <option  value="4">x16</option>
-                              <option  value="5">x32</option>
-                              <option  value="6">x64</option>
-                              <option  value="7">x128</option>
-                              <option  value="8">x256</option>
-                              <option  value="9">x512</option>
-                            </select>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-
-                  <div class="row" id="tab_F2_body" style="background-color: #F2F2F2; display: none;">
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12 text-center">
-                      <p>Low Pass Filter</p>
-                    </div>
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="form-group">
-                          <div class="col-xs-8"> cut
-                            <select id="lock_lpf_F2_tau" class="form-control">
-                              <option  value="0" selected="selected">131us |  7.6kHz</option>
-                              <option  value="1">262us |  3.8kHz</option>
-                              <option  value="2">524us |  1.9kHz</option>
-                              <option  value="3">  1ms | 953.7 Hz</option>
-                              <option  value="4">  2ms | 476.8 Hz</option>
-                              <option  value="5">  4ms | 238.4 Hz</option>
-                              <option  value="6">  8ms | 119.2 Hz</option>
-                              <option  value="7"> 17ms | 59.6 Hz</option>
-                              <option  value="8"> 34ms | 29.8 Hz</option>
-                              <option  value="9"> 67ms | 14.9 Hz</option>
-                              <option  value="10">134ms |  7.5 Hz</option>
-                              <option  value="11">268ms |  3.7 Hz</option>
-                              <option  value="12">537ms |  1.9 Hz</option>
-                              <option  value="13">  1 s | 931.3mHz</option>
-                              <option  value="14">  2 s | 465.7mHz</option>
-                              <option  value="15">  4 s | 232.8mHz</option>
-                            </select>
-                          </div>
-                          <div class="col-xs-4"> order
-                            <select id="lock_lpf_F2_order" class="form-control">
-                              <option  value="0">OFF</option>
-                              <option  value="1">1</option>
-                              <option  value="2" selected="selected">2</option>
-                            </select>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="form-group">
-                          <label for="lock_sg_amp2" class="col-xs-6 control-label">Amplification</label>
-                          <div class="col-xs-6">
-                            <select id="lock_sg_amp2" class="form-control">
-                              <option  value="0" selected="selected">x1</option>
-                              <option  value="1">x2</option>
-                              <option  value="2">x4</option>
-                              <option  value="3">x8</option>
-                              <option  value="4">x16</option>
-                              <option  value="5">x32</option>
-                              <option  value="6">x64</option>
-                              <option  value="7">x128</option>
-                              <option  value="8">x256</option>
-                              <option  value="9">x512</option>
-                            </select>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-
-                  <div class="row" id="tab_F3_body" style="background-color: #F2F2F2; display: none;">
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12 text-center">
-                      <p>Low Pass Filter</p>
-                    </div>
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="form-group">
-                          <div class="col-xs-8"> cut
-                            <select id="lock_lpf_F3_tau" class="form-control">
-                              <option  value="0" selected="selected">131us |  7.6kHz</option>
-                              <option  value="1">262us |  3.8kHz</option>
-                              <option  value="2">524us |  1.9kHz</option>
-                              <option  value="3">  1ms | 953.7 Hz</option>
-                              <option  value="4">  2ms | 476.8 Hz</option>
-                              <option  value="5">  4ms | 238.4 Hz</option>
-                              <option  value="6">  8ms | 119.2 Hz</option>
-                              <option  value="7"> 17ms | 59.6 Hz</option>
-                              <option  value="8"> 34ms | 29.8 Hz</option>
-                              <option  value="9"> 67ms | 14.9 Hz</option>
-                              <option  value="10">134ms |  7.5 Hz</option>
-                              <option  value="11">268ms |  3.7 Hz</option>
-                              <option  value="12">537ms |  1.9 Hz</option>
-                              <option  value="13">  1 s | 931.3mHz</option>
-                              <option  value="14">  2 s | 465.7mHz</option>
-                              <option  value="15">  4 s | 232.8mHz</option>
-                            </select>
-                          </div>
-                          <div class="col-xs-4"> order
-                            <select id="lock_lpf_F3_order" class="form-control">
-                              <option  value="0">OFF</option>
-                              <option  value="1">1</option>
-                              <option  value="2" selected="selected">2</option>
-                            </select>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="form-group">
-                          <label for="lock_sg_amp3" class="col-xs-6 control-label">Amplification</label>
-                          <div class="col-xs-6">
-                            <select id="lock_sg_amp3" class="form-control">
-                              <option  value="0" selected="selected">x1</option>
-                              <option  value="1">x2</option>
-                              <option  value="2">x4</option>
-                              <option  value="3">x8</option>
-                              <option  value="4">x16</option>
-                              <option  value="5">x32</option>
-                              <option  value="6">x64</option>
-                              <option  value="7">x128</option>
-                              <option  value="8">x256</option>
-                              <option  value="9">x512</option>
-                            </select>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-
-              <hr style="margin: 7px 7px">
-
-              <!-- Fast square lock-in -------------------------------------->
-              <div class="row">
-                <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                  <p class="text-center">
-                    <a data-toggle="collapse" href="#fast_lock_in_hide" aria-expanded="true" aria-controls="fast_lock_in_hide">
-                      <strong>Fast square lock-in</strong>
-                    </a>
-                  </p>
-                </div>
-
-                <div class="panel-group col-xs-12 col-sm-12 col-md-12 collapse" id="fast_lock_in_hide">
-                  <div class="row"  data-tag="SquareParams">
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                      <p><strong>Square oscilator</strong></p>
-                    </div>
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="form-group">
-                          <label for="lock_gen_mod_sqp" class="col-xs-4 control-label">Period:</label>
-                          <div class="col-xs-4 col-sm-8">
-                            <input type="number" autocomplete="off" class="form-control" value="0" id="lock_gen_mod_sqp" step="1" min="0" max="4294967295">
-                            <span style="display: none;" class="input-group-btn" id="lock_gen_mod_sqp_apply">
-                              <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                            </span>
-                          </div>
-                          <div class="col-xs-12 col-sm-12 text-center">
-                            <div style="padding: 7px 0 0;" class="col-xs-8" id="lock_gen_mod_sqp_text">lock_gen_mod_sqp</div>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="form-group">
-                          <label for="lock_gen_mod_phase_sq" class="col-xs-4 control-label">Phase:</label>
-                          <div class="col-xs-4 col-sm-8">
-                            <input type="number" autocomplete="off" class="form-control" value="0" id="lock_gen_mod_phase_sq" step="1" min="0" max="4294967295">
-                            <span style="display: none;" class="input-group-btn" id="lock_gen_mod_phase_sq_apply">
-                              <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                            </span>
-                          </div>
-                          <div class="col-xs-12 col-sm-12 text-center">
-                            <div style="padding: 7px 0 0;" class="col-xs-8" id="lock_gen_mod_phase_sq_text">lock_gen_mod_phase_sq</div>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                  <div class="row" style="background-color: #F2F2F2;">
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                      <p><strong>Demodulation</strong></p>
-                    </div>
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12 text-center">
-                      <p>Low Pass Filter</p>
-                    </div>
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="form-group">
-                          <div class="col-xs-8"> cut
-                            <select id="lock_lpf_sq_tau" class="form-control">
-                              <option  value="0" selected="selected">512ns |  2.0MHz</option>
-                              <option  value="1">  1us | 976.6kHz</option>
-                              <option  value="2">  2us | 488.3kHz</option>
-                              <option  value="3">  4us | 244.1kHz</option>
-                              <option  value="4">  8us | 122.1kHz</option>
-                              <option  value="5"> 16us | 61.0kHz</option>
-                              <option  value="6"> 33us | 30.5kHz</option>
-                              <option  value="7"> 66us | 15.3kHz</option>
-                              <option  value="8">131us |  7.6kHz</option>
-                              <option  value="9">262us |  3.8kHz</option>
-                              <option  value="10">524us |  1.9kHz</option>
-                              <option  value="11">  1ms | 953.7 Hz</option>
-                              <option  value="12">  2ms | 476.8 Hz</option>
-                              <option  value="13">  4ms | 238.4 Hz</option>
-                              <option  value="14">  8ms | 119.2 Hz</option>
-                              <option  value="15"> 17ms | 59.6 Hz</option>
-                            </select>
-                          </div>
-                          <div class="col-xs-4"> order
-                            <select id="lock_lpf_sq_order" class="form-control">
-                              <option  value="0">OFF</option>
-                              <option  value="1">1</option>
-                              <option  value="2" selected="selected">2</option>
-                            </select>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="form-group">
-                          <label for="lock_sg_amp_sq" class="col-xs-6 control-label">Amplification</label>
-                          <div class="col-xs-6">
-                            <select id="lock_sg_amp_sq" class="form-control">
-                              <option  value="0" selected="selected">x1</option>
-                              <option  value="1">x2</option>
-                              <option  value="2">x4</option>
-                              <option  value="3">x8</option>
-                              <option  value="4">x16</option>
-                              <option  value="5">x32</option>
-                              <option  value="6">x64</option>
-                              <option  value="7">x128</option>
-                              <option  value="8">x256</option>
-                              <option  value="9">x512</option>
-                            </select>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-
-              <hr style="margin: 7px 7px">
-
-              <!-- Aux ---------------------------------------------------->
-              <div class="row">
-                <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                  <p class="text-center">
-                    <a data-toggle="collapse" href="#aux_lock_in_hide" aria-expanded="true" aria-controls="aux_lock_in_hide">
-                      <strong>Auxiliar</strong>
-                    </a>
-                  </p>
-                </div>
-                <div class="panel-group col-xs-12 col-sm-12 col-md-12 collapse" id="aux_lock_in_hide">
-                  <div class="row">
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="form-group">
-                          <label for="lock_aux_A" class="col-xs-4 control-label">Aux A:</label>
-                          <div class="col-xs-4 col-sm-8">
-                            <input type="number" autocomplete="off" class="form-control" value="0" id="lock_aux_A" step="1" min="-8192" max="8191">
-                            <span style="display: none;" class="input-group-btn" id="lock_aux_A_apply">
-                              <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                            </span>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="form-group">
-                          <label for="lock_aux_B" class="col-xs-4 control-label">Aux B:</label>
-                          <div class="col-xs-4 col-sm-8">
-                            <input type="number" autocomplete="off" class="form-control" value="0" id="lock_aux_B" step="1" min="-8192" max="8191">
-                            <span style="display: none;" class="input-group-btn" id="lock_aux_B_apply">
-                              <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                            </span>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div> <!-- Lock-in collapse end -->
-        </div>
-
-        <!-- Ramp ----------------------------------------------------->
-
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" href="#gen_ramp">
-                Ramp Controller
-              </a>
-            </h4>
-          </div>
-          <div id="gen_ramp" class="panel-collapse collapse">
-            <div class="panel-body">
-              <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-
-                <div class="row">
-                  <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                    <form class="form-horizontal" role="form" onsubmit="return false;">
-                      <div class="form-group">
-                        <label for="lock_ramp_step" class="col-xs-4 control-label"
-                          data-toggle="tooltip" data-placement="right" title="Sets Ramp Period in a way I should tell you"> Ramp period: </label>
-                        <div class="col-xs-4 col-sm-8">
-                          <input type="number" autocomplete="off" class="form-control" value="0" id="lock_ramp_step" step="1" min="0" max="4294967295">
-                          <span style="display: none;" class="input-group-btn" id="lock_ramp_step_apply">
-                            <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                          </span>
-                        </div>
-                        <div class="col-xs-12 col-sm-12 text-center">
-                          <div style="padding: 7px 0 0;" class="col-xs-8" id="lock_ramp_step_text">lock_ramp_step</div>
-                        </div>
-                      </div>
-                    </form>
-                  </div>
-
-                  <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                    <form class="form-horizontal" role="form" onsubmit="return false;">
-                      <div class="form-group">
-                        <label for="lock_ramp_hig_lim" class="col-xs-4 control-label">Ramp hig&nbsp;lim:</label>
-                        <div class="col-xs-4 col-sm-8">
-                          <input type="number" autocomplete="off" class="form-control" value="5000" id="lock_ramp_hig_lim" step="1" min="-8192" max="8191">
-                          <span style="display: none;" class="input-group-btn" id="lock_ramp_hig_lim_apply">
-                            <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                          </span>
-                        </div>
-                        <div class="col-xs-12 col-sm-12 text-center">
-                          <div style="padding: 7px 0 0;" class="col-xs-8" id="lock_ramp_hig_lim_text">lock_ramp_hig_lim</div>
-                        </div>
-                      </div>
-                    </form>
-                  </div>
-
-                  <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                    <form class="form-horizontal" role="form" onsubmit="return false;">
-                      <div class="form-group">
-                        <label for="lock_ramp_low_lim" class="col-xs-4 control-label">Ramp low&nbsp;lim:</label>
-                        <div class="col-xs-4 col-sm-8">
-                          <input type="number" autocomplete="off" class="form-control" value="-5000" id="lock_ramp_low_lim" step="1" min="-8192" max="8191">
-                          <span style="display: none;" class="input-group-btn" id="lock_ramp_low_lim_apply">
-                            <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                          </span>
-                        </div>
-                        <div class="col-xs-12 col-sm-12 text-center">
-                          <div style="padding: 7px 0 0;" class="col-xs-8" id="lock_ramp_low_lim_text">lock_ramp_low_lim</div>
-                        </div>
-                      </div>
-                    </form>
-                  </div>
-
-                  <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                    <form class="form-horizontal" role="form" onsubmit="return false;">
-                      <div class="form-group">
-                        <label for="lock_ramp_B_factor" class="col-xs-4 control-label">Ramp B&nbsp;factor:</label>
-                        <div class="col-xs-4 col-sm-8">
-                          <input type="number" autocomplete="off" class="form-control" value="4096" id="lock_ramp_B_factor" step="1" min="-4096" max="4096">
-                          <span style="display: none;" class="input-group-btn" id="lock_ramp_B_factor_apply">
-                            <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                          </span>
-                        </div>
-                        <div class="col-xs-12 col-sm-12 text-center">
-                          <div style="padding: 7px 0 0;" class="col-xs-8" id="lock_ramp_B_factor_text">ramp_B_factor</div>
-                        </div>
-                      </div>
-                    </form>
-                  </div>
-
-                  <hr>
-
-                  <div class="panel-group col-xs-12 col-sm-12 col-md-12 text-center">
-                    <div class="col-xs-12 col-sm-12">
-                      <div style="padding: 7px 0 0;" class="col-xs-12" id="lock_ramp_text">lock_ramp_text</div>
-                    </div>
-                  </div>
-
-                  <hr>
-
-                  <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                    <form class="form-horizontal" role="form" onsubmit="return false;">
-                      <div class="checkbox" style="padding-bottom: 12px;">
-                        <label class="group-label">
-                          <input type="checkbox" id="lock_ramp_reset">Ramp reset
-                        </label>
-                      </div>
-                    </form>
-                  </div>
-                  <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                    <form class="form-horizontal" role="form" onsubmit="return false;">
-                      <div class="checkbox" style="padding-bottom: 12px;">
-                        <label class="group-label">
-                          <input type="checkbox" id="lock_ramp_enable">Ramp enable
-                        </label>
-                      </div>
-                    </form>
-                  </div>
-                  <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                    <form class="form-horizontal" role="form" onsubmit="return false;">
-                      <div class="checkbox" style="padding-bottom: 12px;">
-                        <label class="group-label">
-                          <input type="checkbox" id="lock_ramp_direction">Ramp direction
-                        </label>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- PIDs controls ---------------------------------------------------->
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" href="#lock_pids">
-                PIDs modules
-              </a>
-            </h4>
-          </div>
-          <div id="lock_pids" class="panel-collapse collapse">
-            <div class="panel-body">
-              <!-- Error ---------------------------------------------------->
-              <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                <p class="text-center">
-                  <a data-toggle="collapse" href="#error_hide" aria-expanded="true" aria-controls="error_hide">
-                    <strong>Error signal selector</strong>
-                  </a>
-                </p>
-              </div>
-              <hr style="margin: 7px 7px">
-              <div class="panel-group col-xs-12 col-sm-12 col-md-12 in" id="error_hide">
-
-                <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                  <form class="form-horizontal" role="form" onsubmit="return false;">
-                    <div class="form-group">
-                      <label for="lock_error_sw" class="col-xs-4 control-label">Error signal:</label>
-                      <div class="col-xs-8">
-                        <select id="lock_error_sw" class="form-control">
-                          <option  value="0" selected="selected">0</option>
-                          <option  value="1">in1</option>
-                          <option  value="2">Xo</option>
-                          <option  value="3">F1o</option>
-                          <option  value="4">F3o</option>
-                          <option  value="5">sqXo</option>
-                          <option  value="6">sqYo</option>
-                          <option  value="7">sqFo</option>
-                        </select>
-                      </div>
-                    </div>
-                  </form>
-                </div>
-
-                <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                  <form class="form-horizontal" role="form" onsubmit="return false;">
-                    <div class="form-group">
-                      <label for="lock_error_offset" class="col-xs-4 control-label">offset for error signal:</label>
-                      <div class="col-xs-4 col-sm-8">
-                        <input type="number" autocomplete="off" class="form-control" value="0" id="lock_error_offset" step="1" min="-8192" max="8191">
-                        <span style="display: none;" class="input-group-btn" id="lock_error_offset_apply">
-                          <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                        </span>
-                      </div>
-                    </div>
-                  </form>
-                </div>
-
-              </div>
-
-              <!-- PID A ---------------------------------------------------->
-              <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                <p class="text-center">
-                  <a data-toggle="collapse" href="#lock_pidA" aria-expanded="true" aria-controls="lock_pidA">
-                    <strong>PID A</strong>
-                  </a>
-                </p>
-              </div>
-              <hr style="margin: 7px 7px">
-              <div id="lock_pidA" class="collapse">
-                <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                  <div class="row">  <!-- label + reset -->
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="form-group">
-                          <label for="lock_pidA_sw" class="col-xs-4 control-label">input:</label>
-                          <div class="col-xs-8">
-                            <select id="lock_pidA_sw" class="form-control">
-                              <option  value="0" selected="selected">error</option>
-                              <option data-tag="pidA_more" value="1">Xo</option>
-                              <option data-tag="pidA_more" value="2">Yo</option>
-                              <option data-tag="pidA_more" value="3">F1o</option>
-                              <option data-tag="pidA_more" value="4">F2o</option>
-                              <option data-tag="pidA_more" value="5">F3o</option>
-                              <option data-tag="pidA_more" value="6">sqXo</option>
-                              <option data-tag="pidA_more" value="7">sqYo</option>
-                              <option data-tag="pidA_more" value="8">sqFo</option>
-                              <option  value="9">signal_i</option>
-                              <option data-tag="pidA_more" value="10">Ramp A</option>
-                              <option data-tag="pidA_more" value="11">sin_ref</option>
-                              <option data-tag="pidA_more" value="12">cos_ref</option>
-                              <option data-tag="pidA_more" value="13">cos_1f</option>
-                              <option data-tag="pidA_more" value="14">cos_2f</option>
-                              <option data-tag="pidA_more" value="15">cos_3f</option>
-                              <option data-tag="pidA_more" value="16">sq_ref</option>
-                              <option data-tag="pidA_more" value="17">sq_quad</option>
-                              <option data-tag="pidA_more" value="18">sq_phas</option>
-                              <option data-tag="pidA_more" value="19">aux_A</option>
-                              <option data-tag="pidA_more" value="20">aux_B</option>
-                              <option data-tag="pidA_more" value="21">test14</option>
-                              <option  value="22">in1</option>
-                              <option  value="23">in2</option>
-                              <option  value="24">in1-in2</option>
-                              <!--option value="25">0</option-->
-                              <!--option value="26">0</option-->
-                              <!--option value="27">0</option-->
-                              <!--option value="28">0</option-->
-                              <!--option value="29">0</option-->
-                              <!--option value="30">0</option-->
-                              <!--option value="31">0</option-->
-                            </select>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                    <div class="panel-group col-xs-12 col-sm-4 col-md-4">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="checkbox" style="padding-bottom: 12px;">
-                          <label class="group-label">
-                            <input type="checkbox" id="lock_pidA_irst">reset integral
-                          </label>
-                        </div>
-                      </form>
-                    </div>
-                    <div class="panel-group col-xs-12 col-sm-4 col-md-4">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="checkbox" style="padding-bottom: 12px;">
-                          <label class="group-label">
-                            <input type="checkbox" id="lock_pidA_freeze">freeze out
-                          </label>
-                        </div>
-                      </form>
-                    </div>
-                    <div class="panel-group col-xs-12 col-sm-4 col-md-4">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="checkbox" style="padding-bottom: 12px;">
-                          <label class="group-label">
-                            <input type="checkbox" id="lock_pidA_ifreeze">freeze integral
-                          </label>
-                        </div>
-                      </form>
-                    </div>
-
-                  </div>
-                  <hr style="margin: 7px 7px">
-
-                  <div class="row">
-                    <div class="row collapse" data-tag="PidAOptions"> <!-- sp control -->
-                      <div class="panel-group col-xs-12 col-sm-5 col-md-5">
-                        <form class="form-horizontal" role="form" onsubmit="return false;">
-                          <div class="form-group">
-                            <div class="col-xs-12 col-sm-12">
-                              <input type="number" autocomplete="off" class="form-control" value="0" id="lock_pidA_sp" step="1" min="-8192" max="8191">
-                              <span style="display: none;" class="input-group-btn" id="lock_pidA_sp_apply">
-                                <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                              </span>
-                            </div>
-
-                          </div>
-                        </form>
-                      </div>
-                      <div class="panel-group col-xs-12 col-sm-2 col-md-2">
-                        <div style="padding: 7px 0 0;" class="col-xs-12"><small><b>sp:</b></small></div>
-                      </div>
-                      <div class="panel-group col-xs-12 col-sm-5 col-md-5 text-center">
-                        <div style="padding: 7px 0 0;" class="col-xs-12" id="lock_pidA_sp_text">lock_pidA_sp</div>
-                      </div>
-                    </div>
-
-                    <!--hr style="margin: 7px 7px"-->
-
-                    <div style="border-style: solid; border-color: #FF9999;">
-                      <div class="row"> <!-- kp control -->
-                        <div class="panel-group col-xs-12 col-sm-12 col-md-12" data-tag="PidActrl">
-                          <form class="form-horizontal" role="form" onsubmit="return false;">
-                            <div class="form-group">
-                              <div class="col-xs-12 col-sm-12">
-                                <input type="number" autocomplete="off" class="form-control" value="0" id="lock_pidA_kp" step="1" min="-8192" max="8191">
-                                <span style="display: none;" class="input-group-btn" id="lock_pidA_kp_apply">
-                                  <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                                </span>
-                              </div>
-
-                            </div>
-                          </form>
-                        </div>
-                        <div class="panel-group col-xs-12 col-sm-7 col-md-7 collapse" data-tag="PidAOptions">
-                          <form class="form-horizontal" role="form" onsubmit="return false;">
-                            <div class="form-group">
-                              <div class="col-xs-12">
-                                <select id="lock_pidA_PSR" class="form-control">
-                                  <option  value="0">/1</option>
-                                  <option  value="1">/8</option>
-                                  <option  value="2">/64</option>
-                                  <option  value="3" selected="selected">/1024</option>
-                                  <option  value="4">/4096</option>
-                                </select>
-                              </div>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="panel-group col-xs-12 col-sm-2 col-md-2 text-center">
-                          <div style="padding: 7px 0 10px;" class="col-xs-12">kp:</div>
-                        </div>
-                        <div class="panel-group col-xs-12 col-sm-9 col-md-9 text-center">
-                          <div style="padding: 7px 0 10px;" class="row" id="lock_pidA_kp_text">lock_pidA_kp</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div style="border-style: solid; border-color: #99FF99;">
-                      <div class="row"> <!-- ki control -->
-                        <div class="panel-group col-xs-12 col-sm-12 col-md-12"  data-tag="PidActrl">
-                          <form class="form-horizontal" role="form" onsubmit="return false;">
-                            <div class="form-group">
-                              <div class="col-xs-12 col-sm-12">
-                                <input type="number" autocomplete="off" class="form-control" value="0" id="lock_pidA_ki" step="1" min="-8192" max="8191">
-                                <span style="display: none;" class="input-group-btn" id="lock_pidA_ki_apply">
-                                  <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                                </span>
-                              </div>
-
-                            </div>
-                          </form>
-                        </div>
-                        <div class="panel-group col-xs-12 col-sm-7 col-md-7 collapse" data-tag="PidAOptions">
-                          <form class="form-horizontal" role="form" onsubmit="return false;">
-                            <div class="form-group">
-                              <div class="col-xs-12">
-                                <select id="lock_pidA_ISR" class="form-control">
-                                  <option  value="0">8 ns</option>
-                                  <option  value="1">64 ns</option>
-                                  <option  value="2">512 ns</option>
-                                  <option  value="3">8 us</option>
-                                  <option  value="4">6 us</option>
-                                  <option  value="5">524 us</option>
-                                  <option  value="6">8 ms</option>
-                                  <option  value="7">67 ms</option>
-                                  <option  value="8" selected="selected">537 ms</option>
-                                  <option  value="9">9 s</option>
-                                </select>
-                              </div>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="panel-group col-xs-12 col-sm-2 col-md-2 text-center">
-                          <div style="padding: 7px 0 10px;" class="col-xs-12">ki:</div>
-                        </div>
-                        <div class="panel-group col-xs-12 col-sm-9 col-md-9 text-center">
-                          <div style="padding: 7px 0 10px;" class="row" id="lock_pidA_ki_text">lock_pidA_ki</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div style="border-style: solid; border-color: #9999FF;">
-                      <div class="row"> <!-- kd control -->
-                        <div class="panel-group col-xs-12 col-sm-12 col-md-12" data-tag="PidActrl">
-                          <form class="form-horizontal" role="form" onsubmit="return false;">
-                            <div class="form-group">
-                              <div class="col-xs-12 col-sm-12">
-                                <input type="number" autocomplete="off" class="form-control" value="0" id="lock_pidA_kd" step="1" min="-8192" max="8191">
-                                <span style="display: none;" class="input-group-btn" id="lock_pidA_kd_apply">
-                                  <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                                </span>
-                              </div>
-
-                            </div>
-                          </form>
-                        </div>
-                        <div class="panel-group col-xs-12 col-sm-7 col-md-7 collapse" data-tag="PidAOptions">
-                          <form class="form-horizontal" role="form" onsubmit="return false;">
-                            <div class="form-group">
-                              <div class="col-xs-12">
-                                <select id="lock_pidA_DSR" class="form-control">
-                                  <option  value="0" selected="selected"> 0</option>
-                                  <option  value="1"> 3</option>
-                                  <option  value="2"> 6</option>
-                                  <option  value="3">10</option>
-                                  <option  value="4">13</option>
-                                  <option  value="5">16</option>
-                                </select>
-                              </div>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="panel-group col-xs-12 col-sm-2 col-md-2 text-center">
-                          <div style="padding: 7px 0 10px;" class="col-xs-12">kd:</div>
-                        </div>
-                        <div class="panel-group col-xs-12 col-sm-9 col-md-9 text-center">
-                          <div style="padding: 7px 0 10px;" class="row" id="lock_pidA_kd_text">lock_pidA_kd</div>
-                         </div>
-                      </div>
-                    </div>
-
-                  </div>
-                  <hr style="margin: 7px 7px">
-                  <div class="row">
-                    <div data-tag="PidAOptions" class="collapse">
-                      <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                        <form class="form-horizontal" role="form" onsubmit="return false;">
-                          <div class="form-group">
-                            <label for="lock_pidA_SAT" class="col-xs-4 control-label">SAT&nbsp;lim:</label>
-                            <div class="col-xs-8">
-                              <select id="lock_pidA_SAT" class="form-control">
-                                <option  value="0">&plusmn;122uV</option>
-                                <option  value="1">&plusmn;244uV</option>
-                                <option  value="2">&plusmn;488uV</option>
-                                <option  value="3">&plusmn;977uV</option>
-                                <option  value="4">&plusmn;2mV</option>
-                                <option  value="5">&plusmn;4mV</option>
-                                <option  value="6">&plusmn;8mV</option>
-                                <option  value="7">&plusmn;16mV</option>
-                                <option  value="8">&plusmn;31mV</option>
-                                <option  value="9">&plusmn;62mV</option>
-                                <option  value="10">&plusmn;125mV</option>
-                                <option  value="11">&plusmn;250mV</option>
-                                <option  value="12">&plusmn;500mV</option>
-                                <option  value="13" selected="selected">&plusmn;1 V</option>
-                              </select>
-                            </div>
-                          </div>
-                        </form>
-                      </div>
-                    </div>
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                      <p class="text-center">
-                        <button id="btn_PidAOptions" class="btn btn-default btn-lg" data-autozoom="false" onclick="$('#btn_PidAOptions').toggleClass('btn-default btn-primary');$('div[data-tag=PidAOptions]').toggleClass('in collapse') ; $('div[data-tag=PidActrl]').toggleClass('col-md-5 col-md-12').toggleClass('col-sm-5 col-sm-12') ; $('option[data-tag=pidA_more]').toggle() ; ">
-                          More Options
-                        </button>
-                      </p>
-                    </div>
-                  </div>
-
-                </div>
-
-              </div><!-- PID A end -->
-
-              <!-- PID B ---------------------------------------------------->
-              <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                <p class="text-center">
-                  <a data-toggle="collapse" href="#lock_pidB" aria-expanded="true" aria-controls="lock_pidB">
-                    <strong>PID B</strong>
-                  </a>
-                </p>
-              </div>
-              <hr style="margin: 7px 7px">
-              <div id="lock_pidB" class="collapse">
-                <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                  <div class="row">  <!-- label + reset -->
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="form-group">
-                          <label for="lock_pidB_sw" class="col-xs-4 control-label">input:</label>
-                          <div class="col-xs-8">
-                            <select id="lock_pidB_sw" class="form-control">
-                              <option  value="0" selected="selected">error</option>
-                              <option data-tag="pidB_more" value="1">Xo</option>
-                              <option data-tag="pidB_more" value="2">Yo</option>
-                              <option data-tag="pidB_more" value="3">F1o</option>
-                              <option data-tag="pidB_more" value="4">F2o</option>
-                              <option data-tag="pidB_more" value="5">F3o</option>
-                              <option data-tag="pidB_more" value="6">sqXo</option>
-                              <option data-tag="pidB_more" value="7">sqYo</option>
-                              <option data-tag="pidB_more" value="8">sqFo</option>
-                              <option  value="9">signal_i</option>
-                              <option data-tag="pidB_more" value="10">Ramp A</option>
-                              <option data-tag="pidB_more" value="11">sin_ref</option>
-                              <option data-tag="pidB_more" value="12">cos_ref</option>
-                              <option data-tag="pidB_more" value="13">cos_1f</option>
-                              <option data-tag="pidB_more" value="14">cos_2f</option>
-                              <option data-tag="pidB_more" value="15">cos_3f</option>
-                              <option data-tag="pidB_more" value="16">sq_ref</option>
-                              <option data-tag="pidB_more" value="17">sq_quad</option>
-                              <option data-tag="pidB_more" value="18">sq_phas</option>
-                              <option data-tag="pidB_more" value="19">aux_A</option>
-                              <option data-tag="pidB_more" value="20">aux_B</option>
-                              <option data-tag="pidB_more" value="21">test14</option>
-                              <option  value="22">in1</option>
-                              <option  value="23">in2</option>
-                              <option  value="24">in1-in2</option>
-                              <!--option value="25">0</option-->
-                              <!--option value="26">0</option-->
-                              <!--option value="27">0</option-->
-                              <!--option value="28">0</option-->
-                              <!--option value="29">0</option-->
-                              <!--option value="30">0</option-->
-                              <!--option value="31">0</option-->
-                            </select>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                    <div class="panel-group col-xs-12 col-sm-4 col-md-4">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="checkbox" style="padding-bottom: 12px;">
-                          <label class="group-label">
-                            <input type="checkbox" id="lock_pidB_irst">reset integral
-                          </label>
-                        </div>
-                      </form>
-                    </div>
-                    <div class="panel-group col-xs-12 col-sm-4 col-md-4">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="checkbox" style="padding-bottom: 12px;">
-                          <label class="group-label">
-                            <input type="checkbox" id="lock_pidB_freeze">freeze out
-                          </label>
-                        </div>
-                      </form>
-                    </div>
-                    <div class="panel-group col-xs-12 col-sm-4 col-md-4">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="checkbox" style="padding-bottom: 12px;">
-                          <label class="group-label">
-                            <input type="checkbox" id="lock_pidB_ifreeze">freeze integral
-                          </label>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                  <hr style="margin: 7px 7px">
-
-                  <div class="row">
-                    <div class="row collapse"  data-tag="PidBOptions"> <!-- sp control -->
-                      <div class="panel-group col-xs-12 col-sm-5 col-md-5">
-                        <form class="form-horizontal" role="form" onsubmit="return false;">
-                          <div class="form-group">
-                            <div class="col-xs-12 col-sm-12">
-                              <input type="number" autocomplete="off" class="form-control" value="0" id="lock_pidB_sp" step="1" min="-8192" max="8191">
-                              <span style="display: none;" class="input-group-btn" id="lock_pidB_sp_apply">
-                                <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                              </span>
-                            </div>
-
-                          </div>
-                        </form>
-                      </div>
-                      <div class="panel-group col-xs-12 col-sm-2 col-md-2">
-                        <div style="padding: 7px 0 0;" class="col-xs-12"><small><b>sp:</b></small></div>
-                      </div>
-                      <div class="panel-group col-xs-12 col-sm-5 col-md-5 text-center">
-                        <div style="padding: 7px 0 0;" class="col-xs-12" id="lock_pidB_sp_text">lock_pidB_sp</div>
-                      </div>
-                    </div>
-
-                    <!--hr style="margin: 7px 7px"-->
-
-                    <div style="border-style: solid; border-color: #FF9999;">
-                      <div class="row"> <!-- kp control -->
-                        <div class="panel-group col-xs-12 col-sm-12 col-md-12" data-tag="PidBctrl">
-                          <form class="form-horizontal" role="form" onsubmit="return false;">
-                            <div class="form-group">
-                              <div class="col-xs-12 col-sm-12">
-                                <input type="number" autocomplete="off" class="form-control" value="0" id="lock_pidB_kp" step="1" min="-8192" max="8191">
-                                <span style="display: none;" class="input-group-btn" id="lock_pidB_kp_apply">
-                                  <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                                </span>
-                              </div>
-
-                            </div>
-                          </form>
-                        </div>
-                        <div class="panel-group col-xs-12 col-sm-7 col-md-7 collapse" data-tag="PidBOptions">
-                          <form class="form-horizontal" role="form" onsubmit="return false;">
-                            <div class="form-group">
-                              <div class="col-xs-12">
-                                <select id="lock_pidB_PSR" class="form-control">
-                                  <option  value="0">/1</option>
-                                  <option  value="1">/8</option>
-                                  <option  value="2">/64</option>
-                                  <option  value="3" selected="selected">/1024</option>
-                                  <option  value="4">/4096</option>
-                                </select>
-                              </div>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="panel-group col-xs-12 col-sm-2 col-md-2 text-center">
-                          <div style="padding: 7px 0 10px;" class="col-xs-12">kp:</div>
-                        </div>
-                        <div class="panel-group col-xs-12 col-sm-9 col-md-9 text-center">
-                          <div style="padding: 7px 0 10px;" class="row" id="lock_pidB_kp_text">lock_pidB_kp</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div style="border-style: solid; border-color: #99FF99;">
-                      <div class="row"> <!-- ki control -->
-                        <div class="panel-group col-xs-12 col-sm-12 col-md-12"  data-tag="PidBctrl">
-                          <form class="form-horizontal" role="form" onsubmit="return false;">
-                            <div class="form-group">
-                              <div class="col-xs-12 col-sm-12">
-                                <input type="number" autocomplete="off" class="form-control" value="0" id="lock_pidB_ki" step="1" min="-8192" max="8191">
-                                <span style="display: none;" class="input-group-btn" id="lock_pidB_ki_apply">
-                                  <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                                </span>
-                              </div>
-
-                            </div>
-                          </form>
-                        </div>
-                        <div class="panel-group col-xs-12 col-sm-7 col-md-7 collapse" data-tag="PidBOptions">
-                          <form class="form-horizontal" role="form" onsubmit="return false;">
-                            <div class="form-group">
-                              <div class="col-xs-12">
-                                <select id="lock_pidB_ISR" class="form-control">
-                                  <option  value="0">8 ns</option>
-                                  <option  value="1">64 ns</option>
-                                  <option  value="2">512 ns</option>
-                                  <option  value="3">8 us</option>
-                                  <option  value="4">6 us</option>
-                                  <option  value="5">524 us</option>
-                                  <option  value="6">8 ms</option>
-                                  <option  value="7">67 ms</option>
-                                  <option  value="8" selected="selected">537 ms</option>
-                                  <option  value="9">9 s</option>
-                                </select>
-                              </div>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="panel-group col-xs-12 col-sm-2 col-md-2 text-center">
-                          <div style="padding: 7px 0 10px;" class="col-xs-12">ki:</div>
-                        </div>
-                        <div class="panel-group col-xs-12 col-sm-9 col-md-9 text-center">
-                          <div style="padding: 7px 0 10px;" class="row" id="lock_pidB_ki_text">lock_pidB_ki</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div style="border-style: solid; border-color: #9999FF;">
-                      <div class="row"> <!-- kd control -->
-                        <div class="panel-group col-xs-12 col-sm-12 col-md-12" data-tag="PidBctrl">
-                          <form class="form-horizontal" role="form" onsubmit="return false;">
-                            <div class="form-group">
-                              <div class="col-xs-12 col-sm-12">
-                                <input type="number" autocomplete="off" class="form-control" value="0" id="lock_pidB_kd" step="1" min="-8192" max="8191">
-                                <span style="display: none;" class="input-group-btn" id="lock_pidB_kd_apply">
-                                  <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                                </span>
-                              </div>
-
-                            </div>
-                          </form>
-                        </div>
-                        <div class="panel-group col-xs-12 col-sm-7 col-md-7 collapse" data-tag="PidBOptions">
-                          <form class="form-horizontal" role="form" onsubmit="return false;">
-                            <div class="form-group">
-                              <div class="col-xs-12">
-                                <select id="lock_pidB_DSR" class="form-control">
-                                  <option  value="0" selected="selected"> 0</option>
-                                  <option  value="1"> 3</option>
-                                  <option  value="2"> 6</option>
-                                  <option  value="3">10</option>
-                                  <option  value="4">13</option>
-                                  <option  value="5">16</option>
-                                </select>
-                              </div>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="panel-group col-xs-12 col-sm-2 col-md-2 text-center">
-                          <div style="padding: 7px 0 10px;" class="col-xs-12">kd:</div>
-                        </div>
-                        <div class="panel-group col-xs-12 col-sm-9 col-md-9 text-center">
-                          <div style="padding: 7px 0 10px;" class="row" id="lock_pidB_kd_text">lock_pidB_kd</div>
-                         </div>
-                      </div>
-                    </div>
-
-                  </div>
-                  <hr style="margin: 7px 7px">
-                  <div class="row">
-                    <div data-tag="PidBOptions" class="collapse">
-                      <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                        <form class="form-horizontal" role="form" onsubmit="return false;">
-                          <div class="form-group">
-                            <label for="lock_pidB_SAT" class="col-xs-4 control-label">SAT&nbsp;lim:</label>
-                            <div class="col-xs-8">
-                              <select id="lock_pidB_SAT" class="form-control">
-                                <option  value="0">&plusmn;122uV</option>
-                                <option  value="1">&plusmn;244uV</option>
-                                <option  value="2">&plusmn;488uV</option>
-                                <option  value="3">&plusmn;977uV</option>
-                                <option  value="4">&plusmn;2mV</option>
-                                <option  value="5">&plusmn;4mV</option>
-                                <option  value="6">&plusmn;8mV</option>
-                                <option  value="7">&plusmn;16mV</option>
-                                <option  value="8">&plusmn;31mV</option>
-                                <option  value="9">&plusmn;62mV</option>
-                                <option  value="10">&plusmn;125mV</option>
-                                <option  value="11">&plusmn;250mV</option>
-                                <option  value="12">&plusmn;500mV</option>
-                                <option  value="13" selected="selected">&plusmn;1 V</option>
-                              </select>
-                            </div>
-                          </div>
-                        </form>
-                      </div>
-                    </div>
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                      <p class="text-center">
-                        <button id="btn_PidBOptions" class="btn btn-default btn-lg" data-autozoom="false" onclick="$('#btn_PidBOptions').toggleClass('btn-default btn-primary');$('div[data-tag=PidBOptions]').toggleClass('in collapse') ; $('div[data-tag=PidBctrl]').toggleClass('col-md-5 col-md-12').toggleClass('col-sm-5 col-sm-12') ; $('option[data-tag=pidB_more]').toggle() ;">
-                          More Options
-                        </button>
-                      </p>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-
-            </div>
-          </div> <!-- PIDs collapse end -->
-        </div>
-
-
-        <!-- Lock Control --------------------------------------------->
-
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" href="#lock_ctrl">
-                Lock Control
-              </a>
-            </h4>
-          </div>
-          <div id="lock_ctrl" class="panel-collapse collapse">
-            <div class="panel-body">
-              <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-
-                <div class="row">
-
-                  <!---------------------------------------------------------------------->
-                  <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                    <p class="text-center">
-                      <a data-toggle="collapse" href="#RelockControl" aria-expanded="true" aria-controls="RelockControl">
-                        Re-lock system
-                      </a>
-                    </p>
-                  </div>
-                  <div class="panel-group col-xs-12 col-sm-12 col-md-12 collapse" id="RelockControl">
-                    <div class="row">
-
-                      <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                        <form class="form-horizontal" role="form" onsubmit="return false;">
-                          <div class="checkbox" style="padding-bottom: 12px;">
-                            <label class="group-label">
-                              <input type="checkbox" id="lock_rl_error_enable">Error Enable
-                            </label>
-                          </div>
-                        </form>
-                      </div>
-
-                      <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                        <form class="form-horizontal" role="form" onsubmit="return false;">
-                          <div class="form-group">
-                            <label for="lock_rl_error_threshold" class="col-xs-4 control-label">|error|&nbsp;&gt;</label>
-                            <div class="col-xs-6 col-sm-6">
-                              <input type="number" autocomplete="off" class="form-control" value="0" id="lock_rl_error_threshold" step="1" min="0" max="8191">
-                              <span style="display: none;" class="input-group-btn" id="lock_rl_error_threshold_apply">
-                                <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                              </span>
-                            </div>
-                          </div>
-                        </form>
-                      </div>
-
-                      <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                        <form class="form-horizontal" role="form" onsubmit="return false;">
-                          <div class="checkbox" style="padding-bottom: 12px;">
-                            <label class="group-label">
-                              <input type="checkbox" id="lock_rl_signal_enable">Signal Enable
-                            </label>
-                          </div>
-                        </form>
-                      </div>
-
-                      <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                        <form class="form-horizontal" role="form" onsubmit="return false;">
-                          <div class="form-group">
-                            <!--label for="lock_rl_signal_sw" class="col-xs-4 control-label">Signal:</label-->
-                            <div class="col-xs-5">
-                              <select id="lock_rl_signal_sw" class="form-control">
-                                <option  value="0" selected="selected">in1</option>
-                                <option  value="1">in2</option>
-                                <option  value="2">in1-in2</option>
-                                <option  value="3">aux_A</option>
-                                <option  value="4">aux_B</option>
+                                <option  value="3">0</option>
+                                <option  value="4">0</option>
                                 <option  value="5">0</option>
                                 <option  value="6">0</option>
                                 <option  value="7">0</option>
+                                <option  value="8">0</option>
+                                <option  value="9">0</option>
+                                <option  value="10">0</option>
+                                <option  value="11">0</option>
+                                <option  value="12">0</option>
+                                <option  value="13">0</option>
+                                <option  value="14">0</option>
+                                <option  value="15">0</option>
                               </select>
                             </div>
-                            <div class="col-xs-1">
-                              &lt;
-                            </div>
-                            <div class="col-xs-5">
-                              <input type="number" autocomplete="off" class="form-control" value="0" id="lock_rl_signal_threshold" step="1" min="-8192" max="8191">
-                            </div>
-
                           </div>
                         </form>
                       </div>
-
                       <div class="panel-group col-xs-12 col-sm-12 col-md-12">
                         <form class="form-horizontal" role="form" onsubmit="return false;">
-                          <div class="checkbox" style="padding-bottom: 12px;">
-                            <label class="group-label">
-                              <input type="checkbox" id="lock_rl_reset">RL reset
-                            </label>
-                          </div>
-                        </form>
-                      </div>
-
-                    </div>
-                  </div>
-
-                  <hr style="margin: 7px 7px"> <!---------------------------------------------------------------------->
-
-                  <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                    <p class="text-center">
-                      <a data-toggle="collapse" href="#StepResponceControl" aria-expanded="true" aria-controls="StepResponceControl">
-                        Step Responce Measurement
-                      </a>
-                    </p>
-                  </div>
-
-                  <div class="panel-group col-xs-12 col-sm-12 col-md-12 collapse" id="StepResponceControl">
-                    <div class="row">
-
-                      <div class="row">
-                        <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                          <form class="form-horizontal" role="form" onsubmit="return false;">
-                            <div class="form-group">
-                              <label for="lock_sf_jumpA" class="col-xs-4 control-label">Jump ctrl_A</label>
-                              <div class="col-xs-6 col-sm-6">
-                                <input type="number" autocomplete="off" class="form-control" value="0" id="lock_sf_jumpA" step="1" min="-8192" max="8191">
-                                <span style="display: none;" class="input-group-btn" id="lock_sf_jumpA_apply">
-                                  <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                                </span>
-                              </div>
+                          <div class="form-group">
+                            <label for="dummy_slow_out4_sw" class="col-xs-4 control-label">Slow out4:</label>
+                            <div class="col-xs-8">
+                              <select id="dummy_slow_out4_sw" class="form-control">
+                                <option  value="0" selected="selected">0</option>
+                                <option  value="1">in1</option>
+                                <option  value="2">in2</option>
+                                <option  value="3">0</option>
+                                <option  value="4">0</option>
+                                <option  value="5">0</option>
+                                <option  value="6">0</option>
+                                <option  value="7">0</option>
+                                <option  value="8">0</option>
+                                <option  value="9">0</option>
+                                <option  value="10">0</option>
+                                <option  value="11">0</option>
+                                <option  value="12">0</option>
+                                <option  value="13">0</option>
+                                <option  value="14">0</option>
+                                <option  value="15">0</option>
+                              </select>
                             </div>
-                          </form>
-                        </div>
-                        <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                          <form class="form-horizontal" role="form" onsubmit="return false;">
-                            <div class="form-group">
-                              <label for="lock_sf_jumpB" class="col-xs-4 control-label">Jump ctrl_B</label>
-                              <div class="col-xs-6 col-sm-6">
-                                <input type="number" autocomplete="off" class="form-control" value="0" id="lock_sf_jumpA" step="1" min="-8192" max="8191">
-                                <span style="display: none;" class="input-group-btn" id="lock_sf_jumpB_apply">
-                                  <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                                </span>
-                              </div>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-
-                      <div class="row">
-                        <div class="panel-group col-xs-12 col-sm-12 col-md-12 text-center">
-                          <b>Freeze during step</b>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="panel-group col-xs-12 col-sm-6 col-md-6">
-                          <form class="form-horizontal" role="form" onsubmit="return false;">
-                            <div class="checkbox" style="padding-bottom: 12px;">
-                              <label class="group-label">
-                                <input type="checkbox" id="lock_sf_AfrzO">A out
-                              </label>
-                            </div>
-                          </form>
-                        </div>
-                        <div class="panel-group col-xs-12 col-sm-6 col-md-6">
-                          <form class="form-horizontal" role="form" onsubmit="return false;">
-                            <div class="checkbox" style="padding-bottom: 12px;">
-                              <label class="group-label">
-                                <input type="checkbox" id="lock_sf_AfrzI">A int
-                              </label>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-
-                      <div class="row">
-                        <div class="panel-group col-xs-12 col-sm-6 col-md-6">
-                          <form class="form-horizontal" role="form" onsubmit="return false;">
-                            <div class="checkbox" style="padding-bottom: 12px;">
-                              <label class="group-label">
-                                <input type="checkbox" id="lock_sf_BfrzO">B out
-                              </label>
-                            </div>
-                          </form>
-                        </div>
-                        <div class="panel-group col-xs-12 col-sm-6 col-md-6">
-                          <form class="form-horizontal" role="form" onsubmit="return false;">
-                            <div class="checkbox" style="padding-bottom: 12px;">
-                              <label class="group-label">
-                                <input type="checkbox" id="lock_sf_BfrzI">B int
-                              </label>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-
-                      <div class="row">
-                        <div class="panel-group col-xs-12">
-                          <form class="form-horizontal" role="form" onsubmit="return false;">
-                            <div class="form-group text-center">
-                              <button id="lock_sf_start" class="btn btn-primary btn-lg" data-checked="true" disabled>Start Step Responce</button>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-
-                    </div>
-                  </div>
-
-                  <hr style="margin: 7px 7px"> <!---------------------------------------------------------------------->
-
-                  <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-
-                    <div class="row">
-                      <div class="panel-group col-xs-12">
-                        <form class="form-horizontal" role="form" onsubmit="return false;">
-                          <div class="form-group text-center">
-                            <button id="lock_ctrl_aux_ramp_enable_ctrl" class="btn btn-primary btn-lg" data-checked="true" disabled>Ramp enable</button>
                           </div>
                         </form>
                       </div>
                     </div>
-
-                    <div class="row">
-                      <div class="panel-group col-xs-12">
-                        <form class="form-horizontal" role="form" onsubmit="return false;">
-                          <div class="form-group text-center">
-                            <button id="lock_ctrl_aux_pidA_enable_ctrl" class="btn btn-primary btn-lg" data-checked="true" disabled>PID&nbsp;A enable</button>
-                          </div>
-                        </form>
-                      </div>
-                    </div>
-
-                    <div class="row">
-                      <div class="panel-group col-xs-12">
-                        <form class="form-horizontal" role="form" onsubmit="return false;">
-                          <div class="form-group text-center">
-                            <button id="lock_ctrl_aux_pidB_enable_ctrl" class="btn btn-primary btn-lg" data-checked="true" disabled>PID&nbsp;B enable</button>
-                          </div>
-                        </form>
-                      </div>
-                    </div>
-
-                    <div class="row">
-                      <div class="panel-group col-xs-6">
-                        <form class="form-horizontal" role="form" onsubmit="return false;">
-                          <div class="form-group text-center">
-                            <button id="lock_ctrl_aux_launch_lock_trig" class="btn btn-primary btn-lg" data-checked="true" disabled>Trigger<br>Lock</button>
-                          </div>
-                        </form>
-                      </div>
-                      <div class="panel-group col-xs-6">
-                        <form class="form-horizontal" role="form" onsubmit="return false;">
-                          <div class="form-group text-center">
-                            <button id="lock_ctrl_aux_lock_now" class="btn btn-primary btn-lg" data-checked="true" disabled>Lock<br>Now</button>
-                          </div>
-                        </form>
-                      </div>
-                    </div>
-
                   </div>
 
-                  <hr style="margin: 7px 7px"> <!---------------------------------------------------------------------->
-
-                  <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                    <p class="text-center">
-                      <a data-toggle="collapse" href="#LockConfig" aria-expanded="true" aria-controls="LockConfig">
-                        config
-                      </a>
-                    </p>
-                  </div>
-
-                  <div id="LockConfig" class="collapse">
-
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="checkbox" style="padding-bottom: 12px;">
-                          <label class="group-label">
-                            <input type="checkbox" id="lock_ctrl_aux_set_ramp_enable">Ramp enable
-                          </label>
-                        </div>
-                      </form>
-                    </div>
-
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="checkbox" style="padding-bottom: 12px;">
-                          <label class="group-label">
-                            <input type="checkbox" id="lock_ctrl_aux_set_pidA_enable"checked>PID A enable
-                          </label>
-                        </div>
-                      </form>
-                    </div>
-
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="checkbox" style="padding-bottom: 12px;">
-                          <label class="group-label">
-                            <input type="checkbox" id="lock_ctrl_aux_set_pidB_enable"checked>PID B enable
-                          </label>
-                        </div>
-                      </form>
-                    </div>
-
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="form-group">
-                          <label for="lock_ctrl_aux_trig_type" class="col-xs-4 control-label">Trigger type:</label>
-                          <div class="col-xs-8">
-                            <select id="lock_ctrl_aux_trig_type" class="form-control">
-                              <option  value="0" selected="selected">OFF</option>
-                              <option  value="1">Time trigger</option>
-                              <option  value="2">Level Trigger</option>
-                              <option  value="3">Level+time Trigger</option>
-                            </select>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12" id="container_lock_lock_trig_sw">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="form-group">
-                          <label for="lock_lock_trig_sw" class="col-xs-4 control-label">Signal for trigger:</label>
-                          <div class="col-xs-8">
-                            <select id="lock_lock_trig_sw" class="form-control">
-                              <option  value="0" selected="selected">error</option>
-                              <option  value="1">Xo</option>
-                              <option  value="2">Yo</option>
-                              <option  value="3">F1o</option>
-                              <option  value="4">F2o</option>
-                              <option  value="5">F3o</option>
-                              <option  value="6">sqXo</option>
-                              <option  value="7">sqYo</option>
-                              <option  value="8">sqFo</option>
-                              <option  value="9">signal_i</option>
-                              <option  value="10">Ramp A</option>
-                              <option  value="11">aux_A</option>
-                              <option  value="12">in1</option>
-                              <option  value="13">in2</option>
-                              <option  value="14">in1-in2</option>
-                              <option  value="15">PID A out</option>
-                            </select>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12" id="container_lock_lock_trig_time_val">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="form-group">
-                          <label for="lock_lock_trig_time_val" class="col-xs-4 control-label">Time trigger:</label>
-                          <div class="col-xs-4 col-sm-8">
-                            <input type="number" autocomplete="off" class="form-control" value="0" id="lock_lock_trig_time_val" step="1" min="0" max="4294967295">
-                            <span style="display: none;" class="input-group-btn" id="lock_lock_trig_time_val_apply">
-                              <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                            </span>
-                          </div>
-                          <div class="col-xs-12 col-sm-12 text-center">
-                            <div style="padding: 7px 0 0;" class="col-xs-8" id="lock_lock_trig_time_val_text">lock_lock_trig_time_val</div>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12" id="container_lock_lock_trig_val">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="form-group">
-                          <label for="lock_lock_trig_val" class="col-xs-4 control-label">Level trigger:</label>
-                          <div class="col-xs-4 col-sm-8">
-                            <input type="number" autocomplete="off" class="form-control" value="0" id="lock_lock_trig_val" step="1" min="-8192" max="8191">
-                            <span style="display: none;" class="input-group-btn" id="lock_lock_trig_val_apply">
-                              <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>
-                            </span>
-                          </div>
-                          <div class="col-xs-12 col-sm-12 text-center">
-                            <div style="padding: 7px 0 0;" class="col-xs-8" id="lock_lock_trig_val_text">lock_lock_trig_val</div>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12" id="container_lock_ctrl_aux_lock_trig_rise">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="checkbox" style="padding-bottom: 12px;">
-                          <label class="group-label">
-                            <input type="checkbox" id="lock_ctrl_aux_lock_trig_rise">trig upward?
-                          </label>
-                        </div>
-                      </form>
-                    </div>
-
-                    <div class="panel-group col-xs-12 col-sm-12 col-md-12" id="container_btn_set_trig">
-                      <form class="form-horizontal" role="form" onsubmit="return false;">
-                        <div class="form-group text-center">
-                          <button id="btn_set_trig" class="btn btn-primary btn-lg" data-checked="true" disabled>Choose from graph</button>
-                          <br>
-                          <input type="checkbox" id="btn_set_trig_auto_zoom" checked>Auto-zoom
-                        </div>
-                      </form>
-                    </div>
-
-
-                  </div>
 
                 </div>
 

@@ -17,24 +17,23 @@ def is_int(s):
     except ValueError:
         return False
 
-from hugo import osc,li
+from hugo import osc,dm
 
-if __name__ == '__main__':    
+if __name__ == '__main__':
     # Memory sectors to send
-    
+
     if len(sys.argv)<2:
-        li.show()
+        dm.show()
     elif len(sys.argv)==2:
-        if sys.argv[1] in li.names():
-            li.show(sys.argv[1])
+        if sys.argv[1] in dm.names():
+            dm.show(sys.argv[1])
         else:
             print('reg not found')
     elif len(sys.argv)==3:
-        if sys.argv[1] in li.names() and is_int(sys.argv[2]):
+        if sys.argv[1] in dm.names() and is_int(sys.argv[2]):
             li[sys.argv[1]].val(int(sys.argv[2]))
-            li.show(sys.argv[1])
+            dm.show(sys.argv[1])
     else:
         for i in sys.argv[1:]:
-            if i in li.names():
-                li.show(i)
-
+            if i in dm.names():
+                dm.show(i)
