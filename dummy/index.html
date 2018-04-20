@@ -2484,7 +2484,8 @@
     })
     .fail(function(jqXHR, textStatus, errorThrown) {
       if(last_get_failed) {
-        showModalError('Data receiving failed.<br>Error status: ' + textStatus, true, true);
+        if(window.location.href[0]!='f')
+          showModalError('Data receiving failed.<br>Error status: ' + textStatus, true, true);
         last_get_failed = false;
       }
       else {
@@ -2780,11 +2781,11 @@
     // Checkboxes
     $('#dummy_osc1_filt_off').prop('checked', (params.original.dummy_osc1_filt_off    ? true : false));
     $('#dummy_osc2_filt_off').prop('checked', (params.original.dummy_osc2_filt_off    ? true : false));
-    
+
     // Numbers
     $('#dummy_aux_A').val(params.original.dummy_aux_A   );
     $('#dummy_aux_B').val(params.original.dummy_aux_B   );
-    
+
     // Switches
     $('#dummy_oscA_sw'     ).val(params.original.dummy_oscA_sw        );
     $('#dummy_oscB_sw'     ).val(params.original.dummy_oscB_sw        );
@@ -2796,7 +2797,7 @@
     $('#dummy_slow_out3_sw').val(params.original.dummy_slow_out3_sw   );
     $('#dummy_slow_out4_sw').val(params.original.dummy_slow_out4_sw   );
     $('#dummy_read_ctrl'   ).val(params.original.dummy_read_ctrl      );
-    
+
     // Buttons
     if (params.original.dummy_osc_raw_mode){                // dummy_osc_raw_mode
       $('#dummy_osc_raw_mode').removeClass('btn-default').addClass('btn-primary').data('checked',true);
@@ -2808,7 +2809,7 @@
     }else{
       $('#dummy_osc_lockin_mode').removeClass('btn-primary').addClass('btn-default').data('checked',false);
     }
-    
+
     // [LOLO DOCK LOADPARAMS END]
 
     /* ERASE LOLO
@@ -4366,6 +4367,31 @@
           </div>
         </div>
 
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" href="#dummy_panel">
+                Dummy
+              </a>
+            </h4>
+          </div>
+          <div id="dummy_panel" class="panel-collapse collapse">
+            <div class="panel-body">
+              <div class="panel-group col-xs-12 col-sm-12 col-md-12">
+                <div class="row">
+
+                  <!-- Dummy panel controls DOCK -->
+
+                  <!-- Dummy panel controls DOCK END -->
+
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+
         <!-- END left panel -->
       </div>
       <!-- Central column -->
@@ -4395,12 +4421,12 @@
             <div class="panel panel-default">
               <div class="panel-heading">
                 <h4 class="panel-title">
-                  <a data-toggle="collapse" href="#slow_lock_in_display">
-                    Harmonic Lock-in
+                  <a data-toggle="collapse" href="#monitor_panel">
+                    Monitor
                   </a>
                 </h4>
               </div>
-              <div id="slow_lock_in_display" class="panel-collapse collapse">
+              <div id="monitor_panel" class="panel-collapse collapse">
                 <div class="panel-body">
                   <!-- div class="panel-group col-xs-12 col-sm-12 col-md-12" -->
 
@@ -4454,49 +4480,6 @@
                       <div class="progress" style="height: 5px;">
                         <div id="disp_F3_bar" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%; height: 5px;"></div>
                       </div>
-                    </div>
-                  </div>
-                </div>
-
-
-              </div>
-            </div>
-            <div class="panel panel-default">
-              <div class="panel-heading">
-                <h4 class="panel-title">
-                  <a data-toggle="collapse" href="#fast_lock_in_display">
-                    Square Lock-in
-                  </a>
-                </h4>
-              </div>
-              <div id="fast_lock_in_display" class="panel-collapse collapse">
-                <div class="panel-body">
-                  <div class="row text-center">
-                    <div class="panel-group col-xs-12 col-sm-6 col-md-6">
-                      <h2><label class="group-label" for="disp_sqx">X</label></h2>
-                      <h2><span class="label label-info" style="display:block;" id="disp_sqx">Valor</span></h2>
-                      <div class="progress" style="height: 5px;">
-                        <div id="disp_sqx_bar" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%; height: 5px;" ></div>
-                      </div>
-                    </div>
-
-                    <div class="panel-group col-xs-12 col-sm-6 col-md-6">
-                      <h2><label class="group-label" for="disp_sqy">Y</label></h2>
-                      <h2><span class="label label-info" style="display:block;" id="disp_sqy">Valor</span></h2>
-                      <div class="progress" style="height: 5px;">
-                        <div id="disp_sqy_bar" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%; height: 5px;"></div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="row text-center">
-                    <div class="panel-group col-xs-12 col-sm-6 col-md-6">
-                      <h2><label class="group-label" for="disp_sqr">R</label></h2>
-                      <h2><span class="label label-info" style="display:block;" id="disp_sqr">Valor</span></h2>
-                    </div>
-                    <div class="panel-group col-xs-12 col-sm-6 col-md-6">
-                      <h2><label class="group-label" for="disp_sqfi">ϕ</label></h2>
-                      <h2><span class="label label-info" style="display:block;" id="disp_sqfi">Valor</span></h2>
                     </div>
                   </div>
                 </div>

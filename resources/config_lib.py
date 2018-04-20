@@ -1140,7 +1140,7 @@ def get_muxer(filename,name):
 
 
 class html_global_config():
-    """Collection fo HTML configurations for replacement"""
+    """Collection for HTML configurations for replacement"""
     def __init__(self,regex_start,regex_end,text):
         self.regex_start   = regex_start
         self.regex_end     = regex_end
@@ -1227,6 +1227,113 @@ def update_py(filename,h):
 
     os.rename(fn1,fn3)
     os.rename(fn2,fn1)
+
+
+def update_html_controls(filename,dock,txt):
+    """Update automatic parts in file DOCK place"""
+    if type(dock)==str:
+        dock=[dock]
+    if type(txt)==str:
+        txt=[txt]
+    with open(filename, 'r') as input:
+        with open(filename.replace('.html','_.html'), 'w') as output:
+            out=''
+            for line in input:
+                for i,d in enumerate(dock):
+                    if '<!-- {:s} DOCK -->'.format(d) in line:
+                        out=d
+                        indent=line.find('<!--')
+                        txt[i]= indent*' '+txt[i]
+                        txt[i]= txt[i].replace('\n', '\n'+indent*' ')
+                        output.write(line)
+                        output.write(txt[i])
+                        if not txt[i][-1]=='\n':
+                            output.write('\n')
+                    if '<!-- {:s} DOCK END -->'.format(d) in line and out==d:
+                        out=''
+                if out=='':
+                    output.write(line)
+    tnow=datetime.now().strftime("%Y%m%d_%H%M%S")
+    os.rename(filename,filename.replace('.v','_'+tnow+'.v'))
+    os.rename(filename.replace('.html','_.html'),filename)
+
+
+
+def print_html_combo(idd,label,nbits):
+    txt='\n'.join([
+        '<div class="panel-group col-xs-12 col-sm-12 col-md-12">',
+        '  <form class="form-horizontal" role="form" onsubmit="return false;">',
+        '    <div class="form-group">\n'
+    ])
+    txt+='      <label for="dummy_'+idd+'" class="col-xs-4 control-label">'+label+'</label>\n'
+    txt+='      <div class="col-xs-8">\n'
+    txt+='        <select id="dummy_'+idd+'" class="form-control">\n'
+    txt+='          <option  value="0" selected="selected">opt0</option>\n'
+    for i in range(1,2**nbits):
+        txt+='          <option  value="{:d}" >opt{:d}</option>\n'.format(i,i)
+    txt+='\n'.join([
+            '        </select>',
+            '      </div>',
+            '    </div>',
+            '  </form>',
+            '</div>'
+            ])
+    return txt
+
+
+def print_html_number(idd,label,nbits,signed=True):
+
+    txt = '\n'.join([
+        '<div class="panel-group col-xs-12 col-sm-12 col-md-12">',
+        '  <form class="form-horizontal" role="form" onsubmit="return false;">',
+        '    <div class="form-group">\n'
+    ])
+    txt+='      <label for="dummy_'+idd+'" class="col-xs-4 control-label">'+label+'</label>\n'
+    txt+='      <div class="col-xs-4 col-sm-8">\n'
+    txt+='        <input type="number" autocomplete="off" class="form-control" value="0" id="dummy_'+idd
+    txt+='" step="1" min="'+ ( str(-2**(nbits-1)) if signed else '0' )+'" max="'+ ( str(2**(nbits-1)-1) if signed else str(2**nbits-1)) +'">\n'
+    txt+='        <span style="display: none;" class="input-group-btn" id="dummy_'+idd+'_apply">\n'
+    txt+= '\n'.join([
+        '          <button type="button" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-ok-circle"></span></button>',
+        '        </span>',
+        '      </div>',
+        '    </div>',
+        '  </form>',
+        '</div>\n'
+    ])
+    return txt
+
+
+
+def print_html_checkbox(idd,label):
+    txt = '\n'.join([
+        '<div class="panel-group col-xs-12 col-sm-12 col-md-12">',
+        '  <form class="form-horizontal" role="form" onsubmit="return false;">',
+        '    <div class="checkbox" style="padding-bottom: 12px;">',
+        '      <label class="group-label">\n'
+    ])
+    txt+='        <input type="checkbox" id="dummy_'+idd+'" checked>'+label+'\n'
+    txt+= '\n'.join([
+        '      </label>',
+        '    </div>',
+        '  </form>',
+        '</div>'
+    ])
+    return txt
+
+def print_html_button(idd,label):
+    txt = '\n'.join([
+        '<div class="panel-group col-xs-12 col-sm-12 col-md-12">',
+        '  <form class="form-horizontal" role="form" onsubmit="return false;">',
+        '    <div class="form-group text-center">\n'
+    ])
+    txt+='      <button id="dummy_'+idd+'" class="btn btn-primary btn-lg" data-checked="true" disabled>'+label+'</button>\n'
+    txt+= '\n'.join([
+        '    </div>',
+        '  </form>',
+        '</div>'
+    ])
+    return txt
 
 
 if __name__ == '__main__':

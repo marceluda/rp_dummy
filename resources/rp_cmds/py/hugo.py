@@ -261,12 +261,20 @@ dm.add( fpga_reg(name='slow_out3'          , index= 16, rw=False, nbits=12,signe
 dm.add( fpga_reg(name='slow_out4'          , index= 17, rw=False, nbits=12,signed=False) )
 dm.add( fpga_reg(name='oscA'               , index= 18, rw=False, nbits=14,signed=True ) )
 dm.add( fpga_reg(name='oscB'               , index= 19, rw=False, nbits=14,signed=True ) )
-dm.add( fpga_reg(name='cnt_clk'            , index= 20, rw=False, nbits=32,signed=False) )
-dm.add( fpga_reg(name='cnt_clk2'           , index= 21, rw=False, nbits=32,signed=False) )
-dm.add( fpga_reg(name='read_ctrl'          , index= 22, rw=True , nbits= 3,signed=False) )
-dm.add( fpga_reg(name='aux_A'              , index= 23, rw=True , nbits=14,signed=True ) )
-dm.add( fpga_reg(name='aux_B'              , index= 24, rw=True , nbits=14,signed=True ) )
+dm.add( fpga_reg(name='comboA'             , index= 20, rw=True , nbits= 4,signed=False) )
+dm.add( fpga_reg(name='comboB'             , index= 21, rw=True , nbits= 4,signed=False) )
+dm.add( fpga_reg(name='numberA'            , index= 22, rw=True , nbits=14,signed=True ) )
+dm.add( fpga_reg(name='numberB'            , index= 23, rw=True , nbits=14,signed=True ) )
+dm.add( fpga_reg(name='checkboxA'          , index= 24, rw=True , nbits= 1,signed=False) )
+dm.add( fpga_reg(name='checkboxB'          , index= 25, rw=True , nbits= 1,signed=False) )
+dm.add( fpga_reg(name='buttonA'            , index= 26, rw=True , nbits= 1,signed=False) )
+dm.add( fpga_reg(name='buttonB'            , index= 27, rw=True , nbits= 1,signed=False) )
+dm.add( fpga_reg(name='monitorA'           , index= 28, rw=False, nbits=14,signed=True ) )
+dm.add( fpga_reg(name='monitorB'           , index= 29, rw=False, nbits=14,signed=True ) )
+dm.add( fpga_reg(name='read_ctrl'          , index= 30, rw=True , nbits= 3,signed=False) )
 # [REGSET DOCK END]
+
+
 
 
 

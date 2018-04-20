@@ -10,7 +10,8 @@ dummy/target_dbg/
 dummy/target_rld/
 dummy/fpga/out/
 dummy/fpga/.srcs/
-
+assets
+_etc.md
 
 # Compiled source #
 ###################
