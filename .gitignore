@@ -12,6 +12,7 @@ dummy/fpga/out/
 dummy/fpga/.srcs/
 assets
 _etc.md
+dummy_lolo/
 
 # Compiled source #
 ###################

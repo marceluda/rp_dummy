@@ -31,7 +31,7 @@ if __name__ == '__main__':
             print('reg not found')
     elif len(sys.argv)==3:
         if sys.argv[1] in dm.names() and is_int(sys.argv[2]):
-            li[sys.argv[1]].val(int(sys.argv[2]))
+            dm[sys.argv[1]].val(int(sys.argv[2]))
             dm.show(sys.argv[1])
     else:
         for i in sys.argv[1:]:

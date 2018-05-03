@@ -24,23 +24,31 @@ do_py      = False
 if '__file__' in globals():
     scriptFolder = os.path.dirname(os.path.realpath(__file__))
 else:
-    scriptFolder = 'rp_dummy/resources'
+    scriptFolder = 'rp_dummy/dummy'
 
 
-folder = os.path.sep.join(scriptFolder.split(os.path.sep)[:-1]) # + os.path.sep + AppName
+folder = scriptFolder
 
 # Save original working directory for later
 cwd = os.getcwd()
 
 # Change to configuration folder
 os.chdir(folder)
+
+AppName = folder.split( os.sep )[-1]
+if not AppName[0:6]=='dummy_':
+    print('not dummy_NAME folder')
+    exit(1)
+
+
 print('Working folder: '+folder)
+print('App Name      : '+AppName)
+
 
 
 #%%
 
 
-AppName = 'dummy'
 
 if __name__ == '__main__':
 
@@ -49,8 +57,6 @@ if __name__ == '__main__':
                 description='Configure the Dummy app files to ease the Web Browser <--> C controller <--> FPGA registers comunication'
             )
 
-    parser.add_argument("AppName", type=str,
-                        help="Name of the application folder")
     parser.add_argument("-v", "--do-verilog", dest='do_verilog', action="store_true",
                         help="configure verilog files")
     parser.add_argument("-m", "--do-main"   , dest='do_main'   , action="store_true",
@@ -62,93 +68,20 @@ if __name__ == '__main__':
     parser.add_argument("-a", "--all"       ,  dest='do_all'   , action="store_true",
                         help="configure all the files")
 
-    parser.add_argument("-n", "--create-new" ,  dest='new'     , action="store_true",
-                        help="Create new AppName folder if does not exist")
-
-    parser.add_argument("-c", "--config-file" ,  dest='config', default=os.path.join(folder,'config.ini') ,type=str,
-                        help="Read configuration from this file")
-
     args = parser.parse_args()
-
-    AppName = args.AppName
-
-    if not os.path.isdir(  os.path.join(folder,AppName) ):
-        if args.new:
-            print('Creating folder: '+ AppName)
-            os.system('cp -a dummy '+args.AppName)
-        else:
-            print('"{:s}" is not a folder or does not exists'.format(args.AppName))
-            exit(1)
-
-
+    
     if args.do_all:
         args.do_verilog = True
-        args.do_main     = True
+        args.do_main    = True
         args.do_html    = True
         args.do_py      = True
 
-
-    if args.new:
-        #print(args.config.read())
-        config = configparser.ConfigParser()
-        if folder in args.config:
-            config_file = args.config
-        else:
-            config_file = os.path.join(cwd,args.config)
-
-        config.read(config_file)
-        print('Reading configuration from: '+ config_file )
-        #print(config.sections())
-
-
-        txt_control=[]
-        txt_monitor=[]
-
-        print('paste this in config_tool.py file:\ngrp="dummy"')
-        for section in config.sections():
-            if section == 'general':
-                print('PENDING: configure genfun and pids')
-                continue
-            c_type  = config.get(section,'type')
-            c_label = config.get(section,'label')
-            if c_type=='combo' or c_type=='number' or c_type=='monitor':
-                c_nbits = config.getint(section,'bits_number')
-            else:
-                c_nbits = 1
-
-            if c_type=='number' or c_type=='monitor':
-                c_signed = config.getboolean(section,'signed')
-            else:
-                c_signed = False
-
-            if c_type=='combo':
-                txt_control.append( print_html_combo(    section,c_label,c_nbits) )
-            if c_type=='number':
-                txt_control.append( print_html_number(   section,c_label,c_nbits,c_signed) )
-            if c_type=='checkbox':
-                txt_control.append( print_html_checkbox( section,c_label) )
-            if c_type=='button':
-                txt_control.append( print_html_button( section,c_label) )
-            print('f.add( name="'+section+'"               , group=grp , val=    0, rw='+ ('False' if c_type=='monitor' else 'True')+
-                         ',  nbits='+str(c_nbits)+
-                         ', min_val=      '+( str(-2**(c_nbits-1)) if c_signed else '0' )+
-                         ', max_val=      '+( str(2**(c_nbits-1)-1) if c_signed else str(2**c_nbits-1))+
-                         ', fpga_update='+('False' if c_type=='monitor' else 'True')+
-                         ' , signed='+str(c_signed)+
-                         ' , desc="Added automatically by script" )')
-
-            #print(c_type,c_label)
-            #print(c_nbits,c_signed)
-
-        update_html_controls(os.path.join(folder,AppName,'index.html'),
-                             'Dummy panel controls',
-                             txt='\n'.join(txt_control)
-                             )
-        print('After updating config_tool.py, run it with -a option for '+ AppName)
+    if not ( args.do_verilog or args.do_main or args.do_html or args.do_py ):
+        print('nothing to do')
+        parser.print_help()
         exit(0)
 
-
-
+print('\n')
 #%%
 
 f = fpga_registers()
@@ -183,17 +116,9 @@ f.add( name="oscA"               , group=grp , val=    0, rw=False,  nbits=14, m
 f.add( name="oscB"               , group=grp , val=    0, rw=False,  nbits=14, min_val=      -8192, max_val=       8191, fpga_update=True , signed=True , desc="signal for Oscilloscope Channel B" )
 
 
-# Automated add
-f.add( name="comboA"               , group=grp , val=    0, rw=True,  nbits=4, min_val=      0, max_val=      15, fpga_update=True , signed=False , desc="Added automatically by script" )
-f.add( name="comboB"               , group=grp , val=    0, rw=True,  nbits=4, min_val=      0, max_val=      15, fpga_update=True , signed=False , desc="Added automatically by script" )
-f.add( name="numberA"               , group=grp , val=    0, rw=True,  nbits=14, min_val=      -8192, max_val=      8191, fpga_update=True , signed=True , desc="Added automatically by script" )
-f.add( name="numberB"               , group=grp , val=    0, rw=True,  nbits=14, min_val=      -8192, max_val=      8191, fpga_update=True , signed=True , desc="Added automatically by script" )
-f.add( name="checkboxA"               , group=grp , val=    0, rw=True,  nbits=1, min_val=      0, max_val=      1, fpga_update=True , signed=False , desc="Added automatically by script" )
-f.add( name="checkboxB"               , group=grp , val=    0, rw=True,  nbits=1, min_val=      0, max_val=      1, fpga_update=True , signed=False , desc="Added automatically by script" )
-f.add( name="buttonA"               , group=grp , val=    0, rw=True,  nbits=1, min_val=      0, max_val=      1, fpga_update=True , signed=False , desc="Added automatically by script" )
-f.add( name="buttonB"               , group=grp , val=    0, rw=True,  nbits=1, min_val=      0, max_val=      1, fpga_update=True , signed=False , desc="Added automatically by script" )
-f.add( name="monitorA"               , group=grp , val=    0, rw=False,  nbits=14, min_val=      -8192, max_val=      8191, fpga_update=False , signed=True , desc="Added automatically by script" )
-f.add( name="monitorB"               , group=grp , val=    0, rw=False,  nbits=14, min_val=      -8192, max_val=      8191, fpga_update=False , signed=True , desc="Added automatically by script" )
+# Automated added registers
+
+
 
 #grp='aux_signals'
 #f.add( name="cnt_clk"            , group=grp , val=    0, rw=False,  nbits=32, min_val=          0, max_val= 4294967295, fpga_update=False, signed=False, desc="Clock count" )
@@ -217,7 +142,9 @@ for i in ['osc_ctrl','in1','in2','out1','out2']:
 
 if __name__ == '__main__' and args.do_verilog:
     print('do_verilog')
-    f.update_verilog_files(folder,AppName)
+    f.update_verilog_files(folder)
+    print('\n')
+
 
 
 #%%
@@ -272,7 +199,6 @@ m["dummy_osc2_filt_off"].fpga_reg="osc_ctrl"
 
 r=f["osc_ctrl"]; r.c_update='(((int)params[{:s}].value)<<1) + ((int)params[{:s}].value)'.format( m["dummy_osc2_filt_off"].cdef , m["dummy_osc1_filt_off"].cdef )
 
-
 m.fix_c_update(f)
 
 
@@ -281,7 +207,9 @@ m.fix_c_update(f)
 
 if __name__ == '__main__' and args.do_main:
     print('do_main')
-    m.update_c_files(folder,AppName,f)
+    m.update_c_files(folder,f)
+    print('\n')
+
 
 #%%
 
@@ -292,35 +220,37 @@ for i in m:
 
 
 
-h.guess_control_type(AppName+'/fpga/rtl/dummy.v')
+h.guess_control_type()
 
 # Print control type
 # h.print_control_type()
 
-h['dummy_osc_raw_mode'   ].type = 'button'
-h['dummy_osc_lockin_mode'].type = 'button'
+h['dummy_osc_raw_mode'   ].type   = 'button'
+h['dummy_osc_lockin_mode'].type   = 'button'
 
-h['dummy_oscA_sw'].type         = 'select'
-h['dummy_oscB_sw'].type         = 'select'
-h['dummy_trig_sw'].type         = 'select'
-h['dummy_out1_sw'].type         = 'select'
-h['dummy_out2_sw'].type         = 'select'
-h['dummy_slow_out3_sw'].type    = 'select'
-h['dummy_slow_out4_sw'].type    = 'select'
+h['dummy_oscA_sw'        ].type    = 'select'
+h['dummy_oscB_sw'        ].type    = 'select'
+h['dummy_trig_sw'        ].type    = 'select'
+h['dummy_out1_sw'        ].type    = 'select'
+h['dummy_out2_sw'        ].type    = 'select'
+h['dummy_slow_out3_sw'   ].type    = 'select'
+h['dummy_slow_out4_sw'   ].type    = 'select'
 
-h['dummy_comboA'].type          = 'select'
-h['dummy_comboB'].type          = 'select'
-
+# Automated added HTML controllers
 
 
 
 
-h.auto_set_controls(AppName+'/fpga/rtl/dummy.v','dummy')
+for r in h:
+    print('    '+r.name.ljust(25)+' is of type '+r.type)
+
+
+h.auto_set_controls('fpga/rtl/dummy.v','dummy')
 
 
 
-h['dummy_osc1_filt_off'].control.text='Ch1'
-h['dummy_osc2_filt_off'].control.text='Ch2'
+h['dummy_osc1_filt_off'   ].control.text='Ch1'
+h['dummy_osc2_filt_off'   ].control.text='Ch2'
 h['dummy_osc_raw_mode'    ].control.text = 'Raw&nbsp;Mode'
 h['dummy_osc_lockin_mode' ].control.text = 'R|Phase&nbsp;Mode'
 
@@ -329,12 +259,17 @@ h['dummy_osc_lockin_mode' ].control.text = 'R|Phase&nbsp;Mode'
 h['dummy_oscA_sw'].control.enable = [True]*30 + [False]*2
 h['dummy_oscB_sw'].control.enable = [True]*30 + [False]*2
 
+
+# Automatic configuration of HTML controllers
+
+
+
 h.set_global_configs()
 
 if __name__ == '__main__' and args.do_html:
     print('do_html')
-    h.update_html_files(folder,AppName)
-
+    h.update_html_files(folder)
+    print('\n')
 
 #%%
 
@@ -346,6 +281,7 @@ f.set_py_global_config()
 if __name__ == '__main__' and args.do_py:
     print('do_py')
     f.update_python_files(folder)
+    print('\n')
 
 
 if __name__ == '__main__':

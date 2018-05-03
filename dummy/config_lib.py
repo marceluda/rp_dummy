@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3 -B
 # -*- coding: utf-8 -*-
 
 from numpy import unique,ceil
@@ -91,8 +91,9 @@ class fpga_registers():
         self.names.append(name)
         self.len = len(self.names)
 
-    def update_verilog_files(self,folder,AppName):
-        fpga_mod_fn = AppName+'/fpga/rtl/dummy.v'
+    def update_verilog_files(self,folder):
+        fpga_mod_fn = os.path.join('fpga','rtl','dummy.v')
+        print('Updating verilog file: '+fpga_mod_fn)
         if not os.path.isdir(folder):
             raise ValueError('"folder" variable should be the source code folder path.')
         os.chdir(folder)
@@ -100,6 +101,7 @@ class fpga_registers():
                        txt=[fpga_defs(self),fpga_reg_write(self)+fpga_reg_read(self)])
 
     def set_py_global_config(self):
+        print('set_py_global_config(): configuration of python scripts for remote comunication')
         self.py_global_config=[]
         self.py_global_config.append(
                 html_global_config( regex_start = ' *# *\[REGSET DOCK\] *',
@@ -108,10 +110,11 @@ class fpga_registers():
                 )
 
     def update_python_files(self,folder):
+        print('update_python_files()')
         if not os.path.isdir(folder):
             raise ValueError('"folder" variable should be the source code folder path.')
         os.chdir(folder)
-        update_py('resources/rp_cmds/py/hugo.py',self.py_global_config)
+        update_py('py/hugo.py',self.py_global_config)
 
     def print_hugo(self,ret=False):
         txt=''
@@ -194,6 +197,7 @@ class main_registers():
             i+=1
 
     def fix_c_update(self,f):
+        print('fix_c_update(): Completes C code for FPGA comunication')
         for r in [ y for y in filter(lambda x: ( x.c_update==None and x.fpga_reg!=None) , self) ]:
             r.c_update='(float)g_dummy_reg->{:20s}'.format(r.fpga_reg)
         for r in f:
@@ -252,32 +256,32 @@ class main_registers():
         self.data[-1].index=self.data[-1].i+self.num_base
         self.data[-1].cdef=self.data[-1].name.upper()
 
-    def update_c_files(self,folder,AppName,f):
+    def update_c_files(self,folder,f):
         if not os.path.isdir(folder):
             raise ValueError('"folder" variable should be the App folder path.')
         os.chdir(folder)
-        if not os.path.isdir(AppName):
-            raise ValueError('"AppName" variable should be the source code folder path.')
+        #if not os.path.isdir(AppName):
+        #    raise ValueError('"AppName" variable should be the source code folder path.')
 
-        filename=AppName+os.sep+'src'+os.sep+'dummy.c'
+        filename = os.path.join('src','dummy.c')
         update_main(filename , dock = ['PARAMSUPDATE'      , 'FPGAUPDATE'],
                                txt  = [main_update_params(self), main_update_fpga(f)])
 
-        filename=AppName+os.sep+'src'+os.sep+'fpga_dummy.c'
+        filename = os.path.join('src','fpga_dummy.c')
         update_main(filename , dock = ['FPGARESET'],
                                txt  = [main_fpga_regs_reset(f)])
 
 
-        filename=AppName+os.sep+'src'+os.sep+'fpga_dummy.h'
+        filename = os.path.join('src','fpga_dummy.h')
 
         update_main(filename , dock = ['FPGAREG'],
                                txt  = [main_fpga_regs_def(f)])
 
-        filename=AppName+os.sep+'src'+os.sep+'main.c'
+        filename = os.path.join('src','main.c')
         update_main(filename , dock = ['MAINDEF'],
                                txt  = [main_def(self)])
 
-        filename=AppName+os.sep+'src/main.h'
+        filename = os.path.join('src','main.h')
         update_main(filename , dock = ['MAINDEFH'],
                                txt  = [main_defh(self)])
 
@@ -358,20 +362,26 @@ class html_registers():
             self.len = len(self.names)
         self.data[-1].index=self.data[-1].i+self.num_base
 
-    def guess_control_type(self,filename):
+    def guess_control_type(self):
+        print('guess_control_type(): Automatic guessing of HTML control type from reg name')
         for r in self:
             if r.ro:
                 r.type='none'
+                # print('    '+ r.name + ' is monitor (read only)')
             else:
                 if r.name[-3:]=='_sw' or r.max==15 or r.max==7:
                     r.type='select'
+                    # print('    '+ r.name + ' is combo/select')
                 elif r.max==1:
                     r.type='checkbox'
+                    # print('    '+ r.name + ' is checkbox (can also be a button switch)')
                 else:
                     r.type='number'
+                    # print('    '+ r.name + ' is a raw number control')
             r.control=None
 
     def auto_set_controls(self,filename,AppName):
+        print('auto_set_controls(): automatic configuration of HTML controllers')
         # load controls for number inputs
         for i in [ y.name for y in filter( lambda x: x.type=='number' , self) ]:
             self[i].control = input_number(idd=self[i])
@@ -401,16 +411,17 @@ class html_registers():
         for r in self:
             print(txt.format("'"+r.name+"'",r.type))
 
-    def update_html_files(self,folder,AppName):
-        filename=AppName + os.sep + 'index.html'
+    def update_html_files(self,folder):
+        filename='index.html'
         if not os.path.isdir(folder):
             raise ValueError('"folder" variable should be the source code folder path.')
         if not os.path.isfile(filename):
-            raise ValueError('"filename" should an existing file.')
+            raise ValueError('"filename" should be an existing file.')
         os.chdir(folder)
         update_html(filename,self)
 
     def set_global_configs(self):
+        print('set_global_configs(): Configuration of HTML+JS controls')
         self.html_global_configs=[]
 
         # config_params_txts  ***********************************************
@@ -908,7 +919,7 @@ def update_main(filename,dock,txt):
     tnow=datetime.now().strftime("%Y%m%d_%H%M%S")
     tmp=filename.split('.')
     tmp[-2]+='_'+tnow
-    fn3='.'.join(tmp)
+    fn3='.'.join(tmp)+'.bak'
 
     os.rename(fn1,fn3)
     os.rename(fn2,fn1)
@@ -941,7 +952,7 @@ def replace_pattern(filename,pattern,txt):
     tnow=datetime.now().strftime("%Y%m%d_%H%M%S_p")
     tmp=filename.split('.')
     tmp[-2]+='_'+tnow
-    fn3='.'.join(tmp)
+    fn3='.'.join(tmp)+'.bak'
 
     os.rename(fn1,fn3)
     os.rename(fn2,fn1)
@@ -1190,7 +1201,7 @@ def update_html(filename,h):
     tnow=datetime.now().strftime("%Y%m%d_%H%M%S")
     tmp=filename.split('.')
     tmp[-2]+='_'+tnow
-    fn3='.'.join(tmp)
+    fn3='.'.join(tmp)+'.bak'
 
     os.rename(fn1,fn3)
     os.rename(fn2,fn1)
@@ -1223,7 +1234,7 @@ def update_py(filename,h):
     tnow=datetime.now().strftime("%Y%m%d_%H%M%S")
     tmp=filename.split('.')
     tmp[-2]+='_'+tnow
-    fn3='.'.join(tmp)
+    fn3='.'.join(tmp)+'.bak'
 
     os.rename(fn1,fn3)
     os.rename(fn2,fn1)
@@ -1254,7 +1265,7 @@ def update_html_controls(filename,dock,txt):
                 if out=='':
                     output.write(line)
     tnow=datetime.now().strftime("%Y%m%d_%H%M%S")
-    os.rename(filename,filename.replace('.v','_'+tnow+'.v'))
+    os.rename(filename,filename.replace('.v','_'+tnow+'.bak'))
     os.rename(filename.replace('.html','_.html'),filename)
 
 

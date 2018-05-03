@@ -1,22 +1,8 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company:
-// Engineer:
-//
-// Create Date: 08.02.2017 17:17:16
-// Design Name:
-// Module Name: lock
-// Project Name:
-// Target Devices:
-// Tool Versions:
-// Description:
-//
-// Dependencies:
-//
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-//
+//                                                                              //
+// This parts are automatic set definitions                                     //
+//                                                                              //
 //////////////////////////////////////////////////////////////////////////////////
 
 //(* dont_touch = "true" *)
@@ -55,68 +41,236 @@ module dummy(
 
 
     // [WIREREG DOCK]
-    // aux_signals --------------------------
+    // dummy --------------------------
+    reg                  checkboxA,checkboxB,buttonA,buttonB;
     reg         [ 3-1:0] read_ctrl;
-    wire        [32-1:0] cnt_clk,cnt_clk2;
-    
+    reg         [ 4-1:0] comboA,comboB;
+    reg  signed [14-1:0] numberA,numberB;
+    wire signed [14-1:0] monitorA,monitorB;
+    wire signed [27-1:0] monitorC,monitorD;
+
     // inout --------------------------
     wire        [12-1:0] slow_out1,slow_out2,slow_out3,slow_out4;
     wire signed [14-1:0] oscA,oscB;
-    
-    // mix --------------------------
-    reg  signed [14-1:0] aux_A,aux_B;
-    
+
     // outputs --------------------------
     reg         [ 4-1:0] out1_sw,out2_sw,slow_out1_sw,slow_out2_sw,slow_out3_sw,slow_out4_sw;
-    
+
     // scope --------------------------
     reg         [ 5-1:0] oscA_sw,oscB_sw;
     reg         [ 8-1:0] trig_sw;
-    
+
     // [WIREREG DOCK END]
 
+    wire signed [14-1:0] slow_out1_14,slow_out2_14,slow_out3_14,slow_out4_14 ;
+    wire        [16-1:0] slow_out1_au,slow_out2_au,slow_out3_au,slow_out4_au ;
+    wire        [24-1:0] slow_out1_aux,slow_out2_aux,slow_out3_aux,slow_out4_aux ;
+
+    //////////////////////////////////////////////////////////////////////////////////
+    //                                                                              //
+    // Start writting your modules HERE                                             //
+    //                                                                              //
+    //////////////////////////////////////////////////////////////////////////////////
 
 
-    reg  signed [28-1:0] X_28_reg,Y_28_reg,F1_28_reg,F2_28_reg,F3_28_reg,sqX_28_reg,sqY_28_reg,sqF_28_reg;
-    reg  signed [14-1:0] error_reg,ctrl_A_reg,ctrl_B_reg;
-    reg         [50-1:0] cnt,cnt_reg;
+    // Useful bus cables:
+    //   in1       --> 14 bits signed bus [-8192:8191] , ADC from input 1
+    //   in2       --> 14 bits signed bus [-8192:8191] , ADC from input 2
+    //   monitorA  --> 14 bits signed bus [-8192:8191]  output monitor for web
+    //   monitorB  --> 14 bits signed bus [-8192:8191]  output monitor for web
+    //   monitorC  --> 27 bits signed bus               output monitor for web
+    //   monitorD  --> 27 bits signed bus               output monitor for web
 
 
-    always @(posedge clk) begin
-        if(rst) begin
-            X_28_reg    <=  28'b0;
-            Y_28_reg    <=  28'b0;
-            F1_28_reg   <=  28'b0;
-            F2_28_reg   <=  28'b0;
-            F3_28_reg   <=  28'b0;
-            sqX_28_reg  <=  28'b0;
-            sqY_28_reg  <=  28'b0;
-            sqF_28_reg  <=  28'b0;
-            error_reg   <=  14'b0;
-            ctrl_A_reg  <=  14'b0;
-            ctrl_B_reg  <=  14'b0;
-            cnt         <=  50'b0;
-            cnt_reg     <=  50'b0;
-        end
-        else begin
-            X_28_reg    <=  28'b0;
-            Y_28_reg    <=  28'b0;
-            F1_28_reg   <=  28'b0;
-            F2_28_reg   <=  28'b0;
-            F3_28_reg   <=  28'b0;
-            sqX_28_reg  <=  28'b0;
-            sqY_28_reg  <=  28'b0;
-            sqF_28_reg  <=  28'b0;
-            error_reg   <=  14'b0;
-            ctrl_A_reg  <=  14'b0;
-            ctrl_B_reg  <=  14'b0;
-            cnt         <=  50'b0;
-            cnt_reg     <=  50'b0;
-        end
-    end
+    // -----------------------------------------------------------------------------------------
+    // First of all, ALWAYS, write down cable definitions
+    // -----------------------------------------------------------------------------------------
 
 
 
+
+
+
+
+
+
+
+
+
+    
+
+
+    // -----------------------------------------------------------------------------------------
+    // NOW CONNECT CABLES AND MODULES
+    // -----------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+    //////////////////////////////////////////////////////////////////////////////////
+    //                                                                              //
+    // The next lines are for already defined controls                              //
+    // Use it to change cables that goes to Oscilloscope or Outputs                 //
+    //                                                                              //
+    //////////////////////////////////////////////////////////////////////////////////
+
+
+    // -----------------------------------------------------------------------------------------
+    // Oscilloscope INPUT channels
+    // -----------------------------------------------------------------------------------------
+
+    // Input Channel 1 : OscA
+    muxer_reg5  #(.RES(14)) i_muxer5_scope1 (
+        // input
+        .clk(clk), .rst(rst),
+        .sel  ( oscA_sw ), // select cable
+        .in0  ( 14'b0     ),
+        .in1  ( in1       ),
+        .in2  ( in2       ),
+        .in3  ( out_hp    ),
+        .in4  ( out_lp    ),
+        .in5  ( suma_ins  ),
+        .in6  ( amp2      ),
+        .in7  ( square14  ),
+        .in8  ( out_signal),
+        .in9  ( mult14    ),
+        .in10 ( 14'b0     ),
+        .in11 ( 14'b0     ),
+        .in12 ( 14'b0     ),
+        .in13 ( 14'b0     ),
+        .in14 ( 14'b0     ),
+        .in15 ( 14'b0     ),
+        .in16 ( 14'b0     ),
+        .in17 ( 14'b0     ),
+        .in18 ( 14'b0     ),
+        .in19 ( 14'b0     ),
+        .in20 ( 14'b0     ),
+        .in21 ( 14'b0     ),
+        .in22 ( 14'b0     ),
+        .in23 ( 14'b0     ),
+        .in24 ( 14'b0     ),
+        .in25 ( 14'b0     ),
+        .in26 ( 14'b0     ),
+        .in27 ( 14'b0     ),
+        .in28 ( 14'b0     ),
+        .in29 ( 14'b0     ),
+        .in30 ( 14'b0     ),
+        .in31 ( 14'b0     ),
+
+        // output
+        .out ( oscA  )
+    );
+
+    // Input Channel 2 : OscB
+    muxer_reg5  #(.RES(14)) i_muxer5_scope2 (
+        // input
+        .clk(clk), .rst(rst),
+        .sel  ( oscB_sw ), // select cable
+        .in0  ( 14'b0     ),
+        .in1  ( in1       ),
+        .in2  ( in2       ),
+        .in3  ( out_hp    ),
+        .in4  ( out_lp    ),
+        .in5  ( suma_ins  ),
+        .in6  ( amp2      ),
+        .in7  ( square14  ),
+        .in8  ( out_signal),
+        .in9  ( mult14    ),
+        .in10 ( 14'b0     ),
+        .in11 ( 14'b0     ),
+        .in12 ( 14'b0     ),
+        .in13 ( 14'b0     ),
+        .in14 ( 14'b0     ),
+        .in15 ( 14'b0     ),
+        .in16 ( 14'b0     ),
+        .in17 ( 14'b0     ),
+        .in18 ( 14'b0     ),
+        .in19 ( 14'b0     ),
+        .in20 ( 14'b0     ),
+        .in21 ( 14'b0     ),
+        .in22 ( 14'b0     ),
+        .in23 ( 14'b0     ),
+        .in24 ( 14'b0     ),
+        .in25 ( 14'b0     ),
+        .in26 ( 14'b0     ),
+        .in27 ( 14'b0     ),
+        .in28 ( 14'b0     ),
+        .in29 ( 14'b0     ),
+        .in30 ( 14'b0     ),
+        .in31 ( 14'b0     ),
+
+        // output
+        .out ( oscB  )
+    );
+
+    assign osc1 = oscA;
+    assign osc2 = oscB;
+
+    // -----------------------------------------------------------------------------------------
+    // Fast OUTPUTs selector (for RF signals)
+    // -----------------------------------------------------------------------------------------
+
+    // Output OUT1
+    muxer4  #(.RES(14)) out1_sw_m (
+        // input
+        .sel  ( out1_sw           ), // select cable
+        .in0  ( 14'b0     ),
+        .in1  ( in1       ),
+        .in2  ( in2       ),
+        .in3  ( out_hp    ),
+        .in4  ( out_lp    ),
+        .in5  ( suma_ins  ),
+        .in6  ( amp2      ),
+        .in7  ( square14  ),
+        .in8  ( out_signal),
+        .in9  ( mult14    ),
+        .in10 ( 14'b0     ),
+        .in11 ( 14'b0     ),
+        .in12 ( 14'b0     ),
+        .in13 ( 14'b0     ),
+        .in14 ( 14'b0     ),
+        .in15 ( 14'b0     ),
+        // output
+        .out ( out1   )
+    );
+
+    // Output OUT2
+    muxer4  #(.RES(14)) out2_sw_m (
+        // input
+        .sel  ( out2_sw          ), // select cable
+        .in0  ( 14'b0     ),
+        .in1  ( in1       ),
+        .in2  ( in2       ),
+        .in3  ( out_hp    ),
+        .in4  ( out_lp    ),
+        .in5  ( suma_ins  ),
+        .in6  ( amp2      ),
+        .in7  ( square14  ),
+        .in8  ( out_signal),
+        .in9  ( mult14    ),
+        .in10 ( 14'b0     ),
+        .in11 ( 14'b0     ),
+        .in12 ( 14'b0     ),
+        .in13 ( 14'b0     ),
+        .in14 ( 14'b0     ),
+        .in15 ( 14'b0     ),
+
+        // output
+        .out ( out2  )
+    );
+
+
+    // -----------------------------------------------------------------------------------------
+    // Slow OUTPUTs selectors (for expansion pins)
+    // -----------------------------------------------------------------------------------------
 
     // Configuration for slow_outputs
     always @(posedge clk)
@@ -132,153 +286,6 @@ module dummy(
         pwm_cfg_c  <= pwm_cfg_c_w ;
         pwm_cfg_d  <= pwm_cfg_d_w ;
     end
-
-    wire signed [14-1:0] slow_out1_14,slow_out2_14,slow_out3_14,slow_out4_14 ;
-    wire        [16-1:0] slow_out1_au,slow_out2_au,slow_out3_au,slow_out4_au ;
-    wire        [24-1:0] slow_out1_aux,slow_out2_aux,slow_out3_aux,slow_out4_aux ;
-
-
-   // Slow DACs decoders
-    aDACdecoder i_aDACdecoder_a (  .clk(clk), .rst(rst), .in(slow_out1),  .out(pwm_cfg_a_w)  );
-    aDACdecoder i_aDACdecoder_b (  .clk(clk), .rst(rst), .in(slow_out2),  .out(pwm_cfg_b_w)  );
-    aDACdecoder i_aDACdecoder_c (  .clk(clk), .rst(rst), .in(slow_out3),  .out(pwm_cfg_c_w)  );
-    aDACdecoder i_aDACdecoder_d (  .clk(clk), .rst(rst), .in(slow_out4),  .out(pwm_cfg_d_w)  );
-
-
-
-
-
-    // Muxers  *********************************************************
-
-    // Scopes outputs *************
-    muxer_reg5  #(.RES(14)) i_muxer5_scope1 (
-        // input
-        .clk(clk), .rst(rst),
-        .sel  ( oscA_sw ), // select cable
-        .in0  ( 14'b0 ),
-        .in1  ( in1     ),   .in2  ( in2     ),
-        .in3  ( 14'b0  ),
-        .in4  ( 14'b0  ),   .in5  ( 14'b0  ),
-        .in6  ( 14'b0  ),   .in7  ( 14'b0  ),
-        .in8  ( 14'b0 ),   .in9  ( 14'b0 ),
-        .in10 ( 14'b0 ),    .in11 ( 14'b0  ),
-        .in12 ( 14'b0 ),   .in13 ( 14'b0 ),
-        .in14 ( 14'b0 ),    .in15 ( 14'b0 ),   .in16 ( 14'b0  ),
-        .in17 ( 14'b0  ),   .in18 ( 14'b0  ), .in19 ( 14'b0 ),
-        .in20 ( 14'b0 ),   .in21 ( 14'b0 ),
-        .in22 ( 14'b0      ),   .in23 ( 14'b0    ),
-        .in24 ( 14'b0     ),   .in25 ( 14'b0   ),  .in26 ( 14'b0   ),
-        .in27 ( 14'b0    ),   .in28 ( 14'b0  ),  .in29 ( 14'b0  ),
-        .in30 ( 14'b0 ), // in30
-        .in31 ( 14'b0 ), // in31
-        // output
-        .out ( oscA  )
-    );
-
-    muxer_reg5  #(.RES(14)) i_muxer5_scope2 (
-        // input
-        .clk(clk), .rst(rst),
-        .sel  ( oscB_sw ), // select cable
-        .in0  ( 14'b0 ),
-        .in1  ( in1     ),   .in2  ( in2     ),
-        .in3  ( 14'b0  ),
-        .in4  ( 14'b0  ),   .in5  ( 14'b0  ),
-        .in6  ( 14'b0  ),   .in7  ( 14'b0  ),
-        .in8  ( 14'b0 ),   .in9  ( 14'b0 ),
-        .in10 ( 14'b0 ),    .in11 ( 14'b0  ),
-        .in12 ( 14'b0 ),   .in13 ( 14'b0 ),
-        .in14 ( 14'b0 ),    .in15 ( 14'b0 ),   .in16 ( 14'b0  ),
-        .in17 ( 14'b0  ),   .in18 ( 14'b0  ), .in19 ( 14'b0 ),
-        .in20 ( 14'b0 ),   .in21 ( 14'b0 ),
-        .in22 ( 14'b0      ),   .in23 ( 14'b0    ),
-        .in24 ( 14'b0     ),   .in25 ( 14'b0   ),  .in26 ( 14'b0   ),
-        .in27 ( 14'b0    ),   .in28 ( 14'b0  ),  .in29 ( 14'b0  ),
-        .in30 ( 14'b0 ), // in30
-        .in31 ( 14'b0 ), // in31
-        // output
-        .out ( oscB  )
-    );
-
-    assign osc1 = oscA;
-    assign osc2 = oscB;
-
-
-    //  External Trigger  selection ******************
-
-    //assign trigger          = trig_time ? ramp_trig : external_trigger ;
-    // items=['Pin','Ramp floor','Ramp ceil','harmonic mod.','Square mod.','Out of lock','Param. change'],
-
-    assign  trigger_signals = {  1'b0   ,
-                                 1'b0      ,
-                                 1'b0       ,
-                                 1'b0       ,
-                                 1'b0     ,
-                                 1'b0    ,
-                                 1'b0   ,
-                                 external_trigger
-                              } ;
-
-    trigger_input  #(.R(8),.N(3)) i_trigger_input (
-        // input
-        .clk(clk), .rst(rst),
-        .trig_in ( trigger_signals ),
-        .trig_sel( trig_sw         ),
-        // output
-        .trig_tick(trigger)
-    ) ;
-
-
-    // Fast DAC outputs *************
-
-    muxer4  #(.RES(14)) out1_sw_m (
-        // input
-        .sel  ( out1_sw           ), // select cable
-        .in0  ( 14'b0             ), // in0
-        .in1  ( in1               ), // in1
-        .in2  ( in2               ), // in1-in2
-        .in3  ( 14'b0 ), // in3
-        .in4  ( 14'b0           ), // in4
-        .in5  ( 14'b0            ), // in5
-        .in6  ( 14'b0            ), // in6
-        .in7  ( 14'b0            ), // in7
-        .in8  ( 14'b0            ), // in8
-        .in9  ( 14'b0           ), // in9
-        .in10 ( 14'b0           ), // in10
-        .in11 ( 14'b0          ), // in11
-        .in12 ( 14'b0            ), // in12
-        .in13 ( 14'b0            ), // in13
-        .in14 ( 14'b0             ), // in14
-        .in15 ( 14'b0             ), // in15
-
-        // output
-        .out ( out1   )
-    );
-
-
-    muxer4  #(.RES(14)) out2_sw_m (
-        // input
-        .sel  ( out2_sw          ), // select cable
-        .in0  ( 14'b0             ), // in0
-        .in1  ( in1               ), // in1
-        .in2  ( in2               ), // in1-in2
-        .in3  ( 14'b0 ), // in3
-        .in4  ( 14'b0           ), // in4
-        .in5  ( 14'b0            ), // in5
-        .in6  ( 14'b0            ), // in6
-        .in7  ( 14'b0            ), // in7
-        .in8  ( 14'b0           ), // in8
-        .in9  ( 14'b0           ), // in9
-        .in10 ( 14'b0            ), // in10
-        .in11 ( 14'b0          ), // in11
-        .in12 ( 14'b0            ), // in12
-        .in13 ( 14'b0            ), // in13
-        .in14 ( 14'b0             ), // in14
-        .in15 ( 14'b0             ), // in15
-        // output
-        .out ( out2  )
-    );
-
-
 
     // Slow DACs outputs *************
     // map to 0 - 1.8 V
@@ -303,12 +310,6 @@ module dummy(
 
 
 
-
-    /*
-    assign slow_out1 = 12'b0;
-    assign slow_out2 = 12'b0;
-    assign slow_out4 = 12'b0;
-    */
     /* DISABLED BY LOLO -- Reapir
     muxer4  #(.RES(14)) slow_out1_sw_m (
         // input
@@ -392,7 +393,7 @@ module dummy(
         .in0  ( 14'b10000000000000),
         .in1  ( in1               ), // in1
         .in2  ( in2               ), // in1-in2
-        .in3  ( 14'b0 ), // in3
+        .in3  ( 14'b0             ), // in3
         .in4  ( 14'b0           ), // in4
         .in5  ( 14'b0            ), // in5
         .in6  ( 14'b0            ), // in6
@@ -409,15 +410,52 @@ module dummy(
         .out ( slow_out4_14  )
     );
 
+    // Slow DACs decoders
+    aDACdecoder i_aDACdecoder_a (  .clk(clk), .rst(rst), .in(slow_out1),  .out(pwm_cfg_a_w)  );
+    aDACdecoder i_aDACdecoder_b (  .clk(clk), .rst(rst), .in(slow_out2),  .out(pwm_cfg_b_w)  );
+    aDACdecoder i_aDACdecoder_c (  .clk(clk), .rst(rst), .in(slow_out3),  .out(pwm_cfg_c_w)  );
+    aDACdecoder i_aDACdecoder_d (  .clk(clk), .rst(rst), .in(slow_out4),  .out(pwm_cfg_d_w)  );
+
+
+    // -----------------------------------------------------------------------------------------
+    // External Trigger  selection
+    // -----------------------------------------------------------------------------------------
+
+    assign  trigger_signals = {  1'b0   ,
+                                 1'b0   ,
+                                 1'b0   ,
+                                 1'b0   ,
+                                 1'b0   ,
+                                 1'b0   ,
+                                 1'b0   ,
+                                 external_trigger
+                              } ;
+
+    trigger_input  #(.R(8),.N(3)) i_trigger_input (
+        // input
+        .clk(clk), .rst(rst),
+        .trig_in ( trigger_signals ),
+        .trig_sel( trig_sw         ),
+        // output
+        .trig_tick(trigger)
+    ) ;
+
+
+
+
+
+    // -----------------------------------------------------------------------------------------
+    // Registers and wire comunications with CPU memory
+    // -----------------------------------------------------------------------------------------
 
 
     // [FPGA MEMORY DOCK]
     //---------------------------------------------------------------------------------
     //
     //  System bus connection
-    
+
     // SO --> MEMORIA --> FPGA
-    
+
     always @(posedge clk)
     if (rst) begin
         oscA_sw                <=   5'd1     ; // switch for muxer oscA
@@ -430,9 +468,15 @@ module dummy(
         slow_out2_sw           <=   4'd0     ; // switch for muxer slow_out2
         slow_out3_sw           <=   4'd0     ; // switch for muxer slow_out3
         slow_out4_sw           <=   4'd0     ; // switch for muxer slow_out4
+        comboA                 <=   4'd0     ; // Added automatically by script
+        comboB                 <=   4'd0     ; // Added automatically by script
+        numberA                <=  14'd0     ; // Added automatically by script
+        numberB                <=  14'd0     ; // Added automatically by script
+        checkboxA              <=   1'd0     ; // Added automatically by script
+        checkboxB              <=   1'd0     ; // Added automatically by script
+        buttonA                <=   1'd0     ; // Added automatically by script
+        buttonB                <=   1'd0     ; // Added automatically by script
         read_ctrl              <=   3'd0     ; // [unused,start_clk,Freeze]
-        aux_A                  <=  14'd0     ; // auxiliar value of 14 bits
-        aux_B                  <=  14'd0     ; // auxiliar value of 14 bits
     end else begin
         if (sys_wen) begin
             if (sys_addr[19:0]==20'h00000)  oscA_sw               <=  sys_wdata[ 5-1: 0] ; // switch for muxer oscA
@@ -455,25 +499,33 @@ module dummy(
           //if (sys_addr[19:0]==20'h00044)  slow_out4             <=  sys_wdata[12-1: 0] ; // signal for RP slow DAC 4
           //if (sys_addr[19:0]==20'h00048)  oscA                  <=  sys_wdata[14-1: 0] ; // signal for Oscilloscope Channel A
           //if (sys_addr[19:0]==20'h0004C)  oscB                  <=  sys_wdata[14-1: 0] ; // signal for Oscilloscope Channel B
-          //if (sys_addr[19:0]==20'h00050)  cnt_clk               <=  sys_wdata[32-1: 0] ; // Clock count
-          //if (sys_addr[19:0]==20'h00054)  cnt_clk2              <=  sys_wdata[32-1: 0] ; // Clock count
-            if (sys_addr[19:0]==20'h00058)  read_ctrl             <=  sys_wdata[ 3-1: 0] ; // [unused,start_clk,Freeze]
-            if (sys_addr[19:0]==20'h0005C)  aux_A                 <=  sys_wdata[14-1: 0] ; // auxiliar value of 14 bits
-            if (sys_addr[19:0]==20'h00060)  aux_B                 <=  sys_wdata[14-1: 0] ; // auxiliar value of 14 bits
+            if (sys_addr[19:0]==20'h00050)  comboA                <=  sys_wdata[ 4-1: 0] ; // Added automatically by script
+            if (sys_addr[19:0]==20'h00054)  comboB                <=  sys_wdata[ 4-1: 0] ; // Added automatically by script
+            if (sys_addr[19:0]==20'h00058)  numberA               <=  sys_wdata[14-1: 0] ; // Added automatically by script
+            if (sys_addr[19:0]==20'h0005C)  numberB               <=  sys_wdata[14-1: 0] ; // Added automatically by script
+            if (sys_addr[19:0]==20'h00060)  checkboxA             <= |sys_wdata[32-1: 0] ; // Added automatically by script
+            if (sys_addr[19:0]==20'h00064)  checkboxB             <= |sys_wdata[32-1: 0] ; // Added automatically by script
+            if (sys_addr[19:0]==20'h00068)  buttonA               <= |sys_wdata[32-1: 0] ; // Added automatically by script
+            if (sys_addr[19:0]==20'h0006C)  buttonB               <= |sys_wdata[32-1: 0] ; // Added automatically by script
+          //if (sys_addr[19:0]==20'h00070)  monitorA              <=  sys_wdata[14-1: 0] ; // Added automatically by script
+          //if (sys_addr[19:0]==20'h00074)  monitorB              <=  sys_wdata[14-1: 0] ; // Added automatically by script
+          //if (sys_addr[19:0]==20'h00078)  monitorC              <=  sys_wdata[27-1: 0] ; // Added automatically by script
+          //if (sys_addr[19:0]==20'h0007C)  monitorD              <=  sys_wdata[27-1: 0] ; // Added automatically by script
+            if (sys_addr[19:0]==20'h00080)  read_ctrl             <=  sys_wdata[ 3-1: 0] ; // [unused,start_clk,Freeze]
         end
     end
     //---------------------------------------------------------------------------------
     // FPGA --> MEMORIA --> SO
     wire sys_en;
     assign sys_en = sys_wen | sys_ren;
-    
+
     always @(posedge clk, posedge rst)
     if (rst) begin
         sys_err <= 1'b0  ;
         sys_ack <= 1'b0  ;
     end else begin
         sys_err <= 1'b0 ;
-        
+
         casez (sys_addr[19:0])
             20'h00000 : begin sys_ack <= sys_en;  sys_rdata <= {  27'b0                   ,          oscA_sw  }; end // switch for muxer oscA
             20'h00004 : begin sys_ack <= sys_en;  sys_rdata <= {  27'b0                   ,          oscB_sw  }; end // switch for muxer oscB
@@ -495,11 +547,19 @@ module dummy(
             20'h00044 : begin sys_ack <= sys_en;  sys_rdata <= {  20'b0                   ,        slow_out4  }; end // signal for RP slow DAC 4
             20'h00048 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{oscA[13]}}          ,             oscA  }; end // signal for Oscilloscope Channel A
             20'h0004C : begin sys_ack <= sys_en;  sys_rdata <= {  {18{oscB[13]}}          ,             oscB  }; end // signal for Oscilloscope Channel B
-            20'h00050 : begin sys_ack <= sys_en;  sys_rdata <=                                       cnt_clk   ; end // Clock count
-            20'h00054 : begin sys_ack <= sys_en;  sys_rdata <=                                      cnt_clk2   ; end // Clock count
-            20'h00058 : begin sys_ack <= sys_en;  sys_rdata <= {  29'b0                   ,        read_ctrl  }; end // [unused,start_clk,Freeze]
-            20'h0005C : begin sys_ack <= sys_en;  sys_rdata <= {  {18{aux_A[13]}}         ,            aux_A  }; end // auxiliar value of 14 bits
-            20'h00060 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{aux_B[13]}}         ,            aux_B  }; end // auxiliar value of 14 bits
+            20'h00050 : begin sys_ack <= sys_en;  sys_rdata <= {  28'b0                   ,           comboA  }; end // Added automatically by script
+            20'h00054 : begin sys_ack <= sys_en;  sys_rdata <= {  28'b0                   ,           comboB  }; end // Added automatically by script
+            20'h00058 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{numberA[13]}}       ,          numberA  }; end // Added automatically by script
+            20'h0005C : begin sys_ack <= sys_en;  sys_rdata <= {  {18{numberB[13]}}       ,          numberB  }; end // Added automatically by script
+            20'h00060 : begin sys_ack <= sys_en;  sys_rdata <= {  31'b0                   ,        checkboxA  }; end // Added automatically by script
+            20'h00064 : begin sys_ack <= sys_en;  sys_rdata <= {  31'b0                   ,        checkboxB  }; end // Added automatically by script
+            20'h00068 : begin sys_ack <= sys_en;  sys_rdata <= {  31'b0                   ,          buttonA  }; end // Added automatically by script
+            20'h0006C : begin sys_ack <= sys_en;  sys_rdata <= {  31'b0                   ,          buttonB  }; end // Added automatically by script
+            20'h00070 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{monitorA[13]}}      ,         monitorA  }; end // Added automatically by script
+            20'h00074 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{monitorB[13]}}      ,         monitorB  }; end // Added automatically by script
+            20'h00078 : begin sys_ack <= sys_en;  sys_rdata <= {  { 5{monitorC[26]}}      ,         monitorC  }; end // Added automatically by script
+            20'h0007C : begin sys_ack <= sys_en;  sys_rdata <= {  { 5{monitorD[26]}}      ,         monitorD  }; end // Added automatically by script
+            20'h00080 : begin sys_ack <= sys_en;  sys_rdata <= {  29'b0                   ,        read_ctrl  }; end // [unused,start_clk,Freeze]
             default   : begin sys_ack <= sys_en;  sys_rdata <=  32'h0        ; end
         endcase
     end

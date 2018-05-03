@@ -765,8 +765,8 @@ class red_pitaya_lock():
 
 
 
-if __name__ == '__main__':    
-
+if __name__ == '__main__':
+    
     rp=red_pitaya_lock(RP_addr='10.0.32.207',RP_port=2022,filename='/home/lolo/Dropbox/Doctorado/datos_labo/lolo/test.npz')
 
 

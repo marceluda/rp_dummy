@@ -1,5 +1,5 @@
 /**
- * @brief Red Pitaya LOCK FPGA controller.
+ * @brief Red Pitaya DUMMY FPGA controller.
  *
  * @Author Marcelo Luda <marceluda@gmail.com>
  *
@@ -29,7 +29,7 @@
  * This module initializes and provides for other SW modules the access to the
  * FPGA PID module.
  *
- * This module maps physical address of the LOCK core to the logical address,
+ * This module maps physical address of the DUMMY core to the logical address,
  * which can be used in the GNU/Linux user-space. To achieve this DUMMY_BASE_ADDR
  * from CPU memory space is translated automatically to logical address with the
  * function mmap().
@@ -37,7 +37,7 @@
  * When this module is no longer needed fpga_dummy_exit() should be called.
  */
 
-/** The FPGA register structure (defined in fpga_lock.h) */
+/** The FPGA register structure (defined in fpga_dummy.h) */
 dummy_reg_t *g_dummy_reg     = NULL;
 
 /** The memory file descriptor used to mmap() the FPGA space */
@@ -74,7 +74,7 @@ int __dummy_cleanup_mem(void)
 
 // [FPGARESET DOCK]
 /** Reset all DUMMY */
-void reset_locks(void)
+void reset_dummy(void)
 {
     if (g_dummy_reg) {
         g_dummy_reg->oscA_sw              =      1;
@@ -113,7 +113,7 @@ void reset_locks(void)
  *
  * This function opens memory device (/dev/mem) and maps physical memory address
  * DUMMY_BASE_ADDR (of length DUMMY_BASE_SIZE) to logical addresses. It initializes
- * the pointer g_dummy_reg to point to FPGA LOCK.
+ * the pointer g_dummy_reg to point to FPGA DUMMY.
  * If function fails FPGA variables must not be used.
  *
  * @retval 0  Success
@@ -151,11 +151,11 @@ int fpga_dummy_init(void)
         return -1;
     }
 
-    /* Set FPGA LOCK module pointers to correct values. */
+    /* Set FPGA DUMMY module pointers to correct values. */
     g_dummy_reg = page_ptr + page_off;
 
     /* Reset all controllers */
-    //reset_locks();
+    //reset_dummy();
 
     return 0;
 }
@@ -166,14 +166,14 @@ int fpga_dummy_init(void)
  * @brief Cleans up FPGA PID module internals.
  *
  * This function closes the memory file descriptor, unmaps the FPGA memory space
- * and cleans also all other internal things from FPGA LOCK module.
+ * and cleans also all other internal things from FPGA DUMMY module.
  * @retval 0 Success
  * @retval -1 Failure
  */
 int fpga_dummy_exit(void)
 {
     /* Reset all controllers */
-    //reset_locks();
+    //reset_dummy();
 
     return __dummy_cleanup_mem();
 }

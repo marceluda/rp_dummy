@@ -9,7 +9,15 @@
 ################################################################################
 
 #export TOOLCHAIN_PATH=/opt/linaro/gcc-linaro-4.9-2015.02-3-x86_64_arm-linux-gnueabihf
-export TOOLCHAIN_PATH=/opt/linaro/gcc-linaro-4.9-2014.11-x86_64_arm-linux-gnueabihf/
+
+if [ -d "/opt/linaro/gcc-linaro-4.9-2014.11-x86_64_arm-linux-gnueabihf" ]; then
+  export TOOLCHAIN_PATH=/opt/linaro/gcc-linaro-4.9-2014.11-x86_64_arm-linux-gnueabihf/
+fi
+
+if [ -d "/opt/linaro/gcc-linaro-4.9-2015.02-3-x86_64_arm-linux-gnueabihf" ]; then
+  export TOOLCHAIN_PATH=/opt/linaro/gcc-linaro-4.9-2015.02-3-x86_64_arm-linux-gnueabihf/
+fi
+
 export PATH=$PATH:$TOOLCHAIN_PATH/bin
 export CROSS_COMPILE=arm-linux-gnueabihf-
 
@@ -27,4 +35,3 @@ export BR2_DL_DIR=dl
 
 #GIT_COMMIT_SHORT=`git rev-parse --short HEAD`
 #make REVISION=$GIT_COMMIT_SHORT
-

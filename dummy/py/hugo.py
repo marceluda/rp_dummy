@@ -288,6 +288,12 @@ dm.add( fpga_reg(name='read_ctrl'          , index= 30, rw=True , nbits= 3,signe
 
 
 
+
+
+
+
+
+
 #%%
 
 if __name__ == '__main__':

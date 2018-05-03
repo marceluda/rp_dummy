@@ -75,38 +75,16 @@ read_verilog                      $path_rtl/red_pitaya_pwm.sv
 read_verilog                      $path_rtl/red_pitaya_scope.v
 read_verilog                      $path_rtl/red_pitaya_top.v
 
-read_verilog                      $path_rtl/dummy.v
-read_verilog                      $path_rtl/dummy/aDACdecoder.v
-read_verilog                      $path_rtl/dummy/LP_filter.v
-read_verilog                      $path_rtl/dummy/LP_filter2.v
-#read_verilog                      $path_rtl/dummy/LP_filter2_pipe.v
-read_verilog                      $path_rtl/dummy/LP_filter3.v
-#read_verilog                      $path_rtl/dummy/LP_filter3_pipe.v
-read_verilog                      $path_rtl/dummy/mult_dsp_14.v
-read_verilog                      $path_rtl/dummy/sq_mult.v
-read_verilog                      $path_rtl/dummy/muxer3.v
-read_verilog                      $path_rtl/dummy/muxer4.v
-read_verilog                      $path_rtl/dummy/muxer5.v
-read_verilog                      $path_rtl/dummy/muxer_reg3.v
 
-read_verilog                      $path_rtl/dummy/muxer_reg4.v
-read_verilog                      $path_rtl/dummy/muxer_reg5.v
-#read_verilog                      $path_rtl/dummy/gen_mod.v
-read_verilog                      $path_rtl/dummy/gen_mod2.v
-read_verilog                      $path_rtl/dummy/gen_ramp.v
-read_verilog                      $path_rtl/dummy/gen_ramp_relock.v
-read_verilog                      $path_rtl/dummy/lock_ctrl.v
-read_verilog                      $path_rtl/dummy/lock_pid_block.v
-read_verilog                      $path_rtl/dummy/slope9.v
-read_verilog                      $path_rtl/dummy/sat14.v
-read_verilog                      $path_rtl/dummy/satprotect.v
-#read_verilog                      $path_rtl/dummy/UniversalCounter.v
-read_verilog                      $path_rtl/dummy/debounce.v
-read_verilog                      $path_rtl/dummy/trigger_input.v
-read_verilog                      $path_rtl/dummy/jump_control.v
-#read_verilog                      $path_rtl/dummy/sum_2N.v
-read_verilog                      $path_rtl/dummy/sum_2N2.v
-read_verilog                      $path_rtl/dummy/pipe_mult.v
+# Automatically added dummy modules
+
+
+
+
+
+
+# read_verilog                      $path_rtl/dummy.v
+
 
 
 
@@ -121,9 +99,8 @@ read_xdc                          $path_sdc/red_pitaya.xdc
 ################################################################################
 
 #synth_design -top red_pitaya_top
-#synth_design -top red_pitaya_top -flatten_hierarchy none -bufg 16 -keep_equivalent_registers
-
-synth_design -top red_pitaya_top -flatten_hierarchy none -bufg 16 -keep_equivalent_registers -fanout_limit 100
+synth_design -top red_pitaya_top -flatten_hierarchy none -bufg 16 -keep_equivalent_registers
+#synth_design -top red_pitaya_top -flatten_hierarchy none -bufg 16 -keep_equivalent_registers -fanout_limit 100
 
 
 #synth_design -top red_pitaya_top \

@@ -57,37 +57,13 @@ add_files                         $path_rtl/red_pitaya_pwm.sv
 add_files                         $path_rtl/red_pitaya_scope.v
 add_files                         $path_rtl/red_pitaya_top.v
 
-add_files                      $path_rtl/lock.v
-add_files                      $path_rtl/lock/aDACdecoder.v
-add_files                      $path_rtl/lock/LP_filter.v
-add_files                      $path_rtl/lock/LP_filter2.v
-#add_files                      $path_rtl/lock/LP_filter2_pipe.v
-add_files                      $path_rtl/lock/LP_filter3.v
-#add_files                      $path_rtl/lock/LP_filter3_pipe.v
-add_files                      $path_rtl/lock/mult_dsp_14.v
-add_files                      $path_rtl/lock/sq_mult.v
-add_files                      $path_rtl/lock/muxer3.v
-add_files                      $path_rtl/lock/muxer4.v
-add_files                      $path_rtl/lock/muxer5.v
-add_files                      $path_rtl/lock/muxer_reg3.v
-add_files                      $path_rtl/lock/muxer_reg4.v
-add_files                      $path_rtl/lock/muxer_reg5.v
-#add_files                      $path_rtl/lock/gen_mod.v
-add_files                      $path_rtl/lock/gen_mod2.v
-add_files                      $path_rtl/lock/gen_ramp.v
-add_files                      $path_rtl/lock/gen_ramp_relock.v
-add_files                      $path_rtl/lock/lock_ctrl.v
-add_files                      $path_rtl/lock/lock_pid_block.v
-add_files                      $path_rtl/lock/slope9.v
-add_files                      $path_rtl/lock/sat14.v
-add_files                      $path_rtl/lock/satprotect.v
-#add_files                      $path_rtl/lock/UniversalCounter.v
-add_files                      $path_rtl/lock/trigger_input.v
-add_files                      $path_rtl/lock/jump_control.v
-#add_files                      $path_rtl/lock/sum_2N.v
-add_files                      $path_rtl/lock/sum_2N2.v
-add_files                      $path_rtl/lock/pipe_mult.v
-add_files                      $path_rtl/lock/debounce.v
+# Automatically added dummy modules
+
+
+
+
+# add_files                      $path_rtl/dummy.v
+
 
 
 add_files -fileset constrs_1      $path_sdc/red_pitaya.xdc
