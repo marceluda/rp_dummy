@@ -153,7 +153,7 @@ if __name__ == '__main__':
 
     if not os.path.isdir(  os.path.join(folder,AppName) ):
         print('Creating folder: '+ AppName)
-        os.system('cp -a dummy '+AppName)
+        os.system('cp -a dummy ' + AppName)
     else:
         print('Destiny folder already exist.')
         exit(1)
