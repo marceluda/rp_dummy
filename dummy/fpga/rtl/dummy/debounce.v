@@ -1,13 +1,32 @@
 //////////////////////////////////////////////////////////////////////////////////
 //
 //
-//  Machine state thats puts in value on db_level output only when that value
-//  lasted for a while.
+//  Maquina de estados que implementa un módulo de debounce:
+//  Ante un cambio en la entrada, el cambio es reflejado en la salida
+//  sólo sí se mantiene el nuevo valor por mas de un tiempo T determinado
 //
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-// Listing 6.2
+
+/* Descripción de funcionamiento
+
+Cuando in=0 y de pronto pasa a valer in=1 :
+si el n=1 perdura por más de 2**N0 ticks de reloj ( 2**N0 * 8 ns ) 
+  - se establece la salida db_level=1 
+  - se envía por un único tick de reloj un pulso de 1 en db_tick
+
+Cuando in=1 y de pronto pasa a valer in=0 :
+si el n=0 perdura por más de 2**N1 ticks de reloj ( 2**N1 * 8 ns ) 
+  - se establece la salida db_level=0 
+  
+Esto permite configurar tiempos de espera para la subida y la bajada diferentes.
+
+N0 y N1 son parámetros fijados en tiempo de compilación y no cambian una ves implementado el circuito.
+
+*/
+
+
 module debounce #(parameter N0=7 , N1=4)
    (
     input wire clk, reset,

@@ -2,7 +2,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 // 
 // 
-// Scanning module with ramp shape. Outputs triangular ramp. Echa  value last for ramp_step clock ticks 
+// Scanning module with ramp shape. Outputs triangular ramp. Each  value last for ramp_step clock ticks 
 // before changing to the next value.
 // Outputs two signals, with a amplitud relation set by ramp_B_factor
 // 

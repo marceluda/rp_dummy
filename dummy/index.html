@@ -1352,7 +1352,7 @@
             var time_raw =pos.x;
             var level_raw=pos.y;
 
-            var time_val  = Math.round(  time_raw  *( 10**( (params.local.time_units-2)*3 ) )/8e-9) ;
+            var time_val  = Math.round(  time_raw  *( Math.pow(10, (params.local.time_units-2)*3 ) )/8e-9) ;
             var level_val = params.local.dummy_osc_raw_mode==0 ? Math.round(level_raw*8192) : level_raw ;
 
             var max_time_val = 2*(params.local.dummy_ramp_hig_lim-params.local.dummy_ramp_low_lim)*(params.local.dummy_ramp_step+1) ;
@@ -1502,11 +1502,11 @@
       txt=" OFF ";
     }else{
       oom = Math.floor(Math.log10(period)/3);
-      val = period/10**(3*oom);
+      val = period/Math.pow(10,3*oom);
       txt = "<small><b>&tau;&nbsp;=&nbsp;" + val.toFixed(2) + "&nbsp;" + units[oom.toString()] + "s</b>";
 
       oom  = Math.floor(Math.log10(1/period)/3);
-      val  = (1/period)/10**(3*oom);
+      val  = (1/period)/Math.pow(10,3*oom);
       txt += " <br> <b>f&nbsp;=&nbsp;" + val.toFixed(2) + "&nbsp;" + units[oom.toString()] + "Hz</b></small>";
     }
 
@@ -1545,6 +1545,7 @@
 
   function lock_pidA_update(){
     // Get inputs text values
+    /* DISABLED BY LOLO
     lock_pidA_sp_arr = $("#dummy_pidA_sp" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
     lock_pidA_kp_arr = $("#dummy_pidA_kp" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
     lock_pidA_ki_arr = $("#dummy_pidA_ki" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
@@ -1597,27 +1598,27 @@
       txt='<div class="col-xs-12" ><small><b>OFF</b></small></div>';
     }else{
       oom = Math.floor(Math.log10(tau)/3);
-      val = tau/10**(3*oom);
+      val = tau/Math.pow(10,3*oom);
       txt = '<div class="col-xs-12 col-md-6" ><small><b>&tau;&nbsp;=&nbsp;' + val.toPrecision(3) + '&nbsp;' + units[oom.toString()] + 's</b></small></div>';
 
       oom  = Math.floor(Math.log10(1/tau)/3);
-      val  = (1/tau)/10**(3*oom);
+      val  = (1/tau)/Math.pow(10,3*oom);
       //txt += '<br class="visible-xs visible-sm">';
       txt += '<div class="col-xs-12 col-md-6" ><small><b>f&nbsp;=&nbsp;' + val.toPrecision(3) + '&nbsp;' + units[oom.toString()] + 'Hz</b></small></div>';
     }
     $('#dummy_pidA_ki_text').html( txt   );
 
     // Derivative part
-    tau=8e-9 * 2**(parseInt($('#dummy_pidA_DSR').val())-6) * Math.abs(pidA_kd*60) ;
+    tau=8e-9 * Math.pow(2,parseInt($('#dummy_pidA_DSR').val())-6) * Math.abs(pidA_kd*60) ;
     if ( pidA_kd === 0 ){
       txt='<div class="col-xs-12" ><small><b>OFF</b></small></div>';
     }else{
       oom = Math.floor(Math.log10(tau)/3);
-      val = tau/10**(3*oom);
+      val = tau/Math.pow(10,3*oom);
       txt = '<div class="col-xs-12 col-md-6" ><small><b>&tau;&nbsp;=&nbsp;' + val.toPrecision(3) + '&nbsp;' + units[oom.toString()] + 's</b></small></div>';
 
       oom  = Math.floor(Math.log10(1/tau)/3);
-      val  = (1/tau)/10**(3*oom);
+      val  = (1/tau)/Math.pow(10,3*oom);
       //txt += '<br class="visible-xs visible-sm">';
       txt += '<div class="col-xs-12 col-md-6" ><small><b>f&nbsp;=&nbsp;' + val.toPrecision(3) + '&nbsp;' + units[oom.toString()] + 'Hz</b></small></div>';
     }
@@ -1629,7 +1630,7 @@
       txt="0";
     }else{
       oom = Math.min( 0 , Math.ceil(Math.log10(mult)/3) );
-      val = Math.sign(pidA_kp)*mult/(10**(3*oom));
+      val = Math.sign(pidA_kp)*mult/(Math.pow(10,3*oom));
       txt = "&nbsp;" + val.toFixed(3) + "&nbsp;" + magni[oom.toString()] ;
     }
 
@@ -1638,10 +1639,12 @@
     // set - point
     setpoint=Math.round(pidA_sp / 8191*1000*100 )/100 ;
     $('#dummy_pidA_sp_text').html( "<small><b>"+setpoint.toFixed(2)+"&nbsp;mV</b></small>"   );
-
+    */
+    return 0;
   }
 
   function lock_pidB_update(){
+    /* DISABLED BY LOLO
     // Get inputs text values
     lock_pidB_sp_arr = $("#dummy_pidB_sp" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
     lock_pidB_kp_arr = $("#dummy_pidB_kp" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
@@ -1695,27 +1698,27 @@
       txt='<div class="col-xs-12" ><small><b>OFF</b></small></div>';
     }else{
       oom = Math.floor(Math.log10(tau)/3);
-      val = tau/10**(3*oom);
+      val = tau/Math.pow(10,3*oom);
       txt = '<div class="col-xs-12 col-md-6" ><small><b>&tau;&nbsp;=&nbsp;' + val.toPrecision(3) + '&nbsp;' + units[oom.toString()] + 's</b></small></div>';
 
       oom  = Math.floor(Math.log10(1/tau)/3);
-      val  = (1/tau)/10**(3*oom);
+      val  = (1/tau)/Math.pow(10,3*oom);
       //txt += '<br class="visible-xs visible-sm">';
       txt += '<div class="col-xs-12 col-md-6" ><small><b>f&nbsp;=&nbsp;' + val.toPrecision(3) + '&nbsp;' + units[oom.toString()] + 'Hz</b></small></div>';
     }
     $('#dummy_pidB_ki_text').html( txt   );
 
     // Derivative part
-    tau=8e-9 * 2**(parseInt($('#dummy_pidB_DSR').val())-6) * Math.abs(pidA_kd*60) ;
+    tau=8e-9 * Math.pow(2,parseInt($('#dummy_pidB_DSR').val())-6) * Math.abs(pidA_kd*60) ;
     if ( pidB_kd === 0 ){
       txt='<div class="col-xs-12" ><small><b>OFF</b></small></div>';
     }else{
       oom = Math.floor(Math.log10(tau)/3);
-      val = tau/10**(3*oom);
+      val = tau/Math.pow(10,3*oom);
       txt = '<div class="col-xs-12 col-md-6" ><small><b>f&nbsp;=&nbsp;' + val.toPrecision(3) + '&nbsp;' + units[oom.toString()] + 's</b></small></div>';
 
       oom  = Math.floor(Math.log10(1/tau)/3);
-      val  = (1/tau)/10**(3*oom);
+      val  = (1/tau)/Math.pow(10,3*oom);
       //txt += '<br class="visible-xs visible-sm">';
       txt += '<div class="col-xs-12 col-md-6" ><small><b>f&nbsp;=&nbsp;' + val.toPrecision(3) + '&nbsp;' + units[oom.toString()] + 'Hz</b></small></div>';
     }
@@ -1727,7 +1730,7 @@
       txt="0";
     }else{
       oom = Math.min( 0 , Math.ceil(Math.log10(mult)/3) );
-      val = Math.sign(pidB_kp)*mult/(10**(3*oom));
+      val = Math.sign(pidB_kp)*mult/(Math.pow(10,3*oom));
       txt = "&nbsp;" + val.toFixed(3) + "&nbsp;" + magni[oom.toString()] ;
     }
 
@@ -1736,10 +1739,12 @@
     // set - point
     setpoint=Math.round(pidB_sp / 8191*1000*100 )/100 ;
     $('#dummy_pidB_sp_text').html( "<small><b>"+setpoint.toFixed(2)+"&nbsp;mV</b></small>"   );
-
+    */
+    return 0;
   }
 
   function lock_modulation_update() {
+    /* DISABLED BY LOLO
     lock_gen_mod_phase_arr    = $("#dummy_gen_mod_phase"    ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
     lock_gen_mod_phase_sq_arr = $("#dummy_gen_mod_phase_sq" ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
     lock_gen_mod_hp_arr       = $("#dummy_gen_mod_hp"       ).val().trim().split(' ').filter( function(n,i){ return n!=="" } );
@@ -1811,11 +1816,11 @@
       txt=" OFF ";
     }else{
       oom = Math.floor(Math.log10(hp_period)/3);
-      val = hp_period/10**(3*oom);
+      val = hp_period/Math.pow(10,3*oom);
       txt = "<small><b>&tau;&nbsp;=&nbsp;" + val.toFixed(3) + "&nbsp;" + units[oom.toString()] + "s</b>";
 
       oom  = Math.floor(Math.log10(1/hp_period)/3);
-      val  = (1/hp_period)/10**(3*oom);
+      val  = (1/hp_period)/Math.pow(10,3*oom);
       txt += " <br> <b>f&nbsp;=&nbsp;" + val.toFixed(3) + "&nbsp;" + units[oom.toString()] + "Hz</b></small>";
     }
 
@@ -1824,11 +1829,11 @@
     sqp_period=(mod_sqp+1)*8e-9*2;
     if ( mod_sqp > 0 ){
       oom = Math.floor(Math.log10(sqp_period)/3);
-      val = sqp_period/10**(3*oom);
+      val = sqp_period/Math.pow(10,3*oom);
       txt = "<small><b>&tau;&nbsp;=&nbsp;" + val.toFixed(3) + "&nbsp;" + units[oom.toString()] + "s</b>";
 
       oom  = Math.floor(Math.log10(1/sqp_period)/3);
-      val  = (1/sqp_period)/10**(3*oom);
+      val  = (1/sqp_period)/Math.pow(10,3*oom);
       txt += " <br> <b>f&nbsp;=&nbsp;" + val.toFixed(3) + "&nbsp;" + units[oom.toString()] + "Hz</b></small>";
     }
 
@@ -1883,7 +1888,7 @@
       txt=" OFF ";
     }else{
       oom = Math.floor(Math.log10(timeval)/3);
-      val = timeval/10**(3*oom);
+      val = timeval/Math.pow(10,3*oom);
       txt = "<b>T&nbsp;=&nbsp;" + val.toFixed(3) + "&nbsp;" + units[oom.toString()] + "s</b>";
     }
 
@@ -1932,7 +1937,7 @@
 
   function format_oom(num,unit="&nbsp;",pre=3){
       var oom = num==0 ? 0 : Math.floor(  Math.log10(Math.abs(num))/3) ;
-      var val = num/10**(3*oom);
+      var val = num/Math.pow(10,3*oom);
       pre=Math.max(2,pre);
       var txt = val.toPrecision(pre)+"&nbsp;"+units[oom.toString()] + unit;
       return txt;
@@ -1950,9 +1955,9 @@
 
     var valr = 0;
     if(signed)
-        valr = Math.abs(val)/(2**(nbits-1))*100;
+        valr = Math.abs(val)/(Math.pow(2,nbits-1))*100;
     else
-        valr = Math.abs(val)/(2**nbits)*100;
+        valr = Math.abs(val)/Math.pow(2,nbits)*100;
 
     bar.css('width', valr+'%').attr('aria-valuenow', valr);
 

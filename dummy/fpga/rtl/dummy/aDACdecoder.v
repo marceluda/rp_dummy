@@ -1,9 +1,27 @@
 //////////////////////////////////////////////////////////////////////////////////
 //
-// This moduel generates the pattern to configure PWM slow DAC outputs
+// Codifica los valores unsigned int de 12 bits de la entrada (in) en bits de 
+// control para los PWM en la salida (out)
 //
 //////////////////////////////////////////////////////////////////////////////////
 
+
+
+/* Descripción:
+
+El módulo de PWM corre un contador desde 1 a 156 con un reloj de base de 250 MHz. El valor asignado para el PWM es 
+comparado con el contador para determinar si la salida es HIGH o LOW, determinando el dutty cycle con una frecuencia
+de salida de 250 MHz / 156 ~= 1.6 MHz. 
+
+Los valores de entrada útiles son:
+
+in    0 --> 2496  int
+
+Valores mayores resultaran en una salida igual a la de in=2496.
+
+Detalle más extenso en inglés abajo.
+
+*/
 
 /* Description for help:
 
@@ -57,10 +75,20 @@ module aDACdecoder
 endmodule
 
 /*
-aDACdecoder i_aDACdecoder (
+
+Ejemplo de instanciación
+
+aDACdecoder i_aDACdecoder_NAME (
   .clk(adc_clk), .rst(adc_rstn),
-  .in(dat14),
-  .out(pwm_cfg_a)
+  // inputs
+  .in(  INPUT  ),
+  // outputs
+  .out( OUTPUT )
 );
+
+
+aDACdecoder i_aDACdecoder_NAME (.clk(adc_clk),.rst(adc_rstn),.in( INPUT ),.out( OUTPUT ) );
+
+
 */
 

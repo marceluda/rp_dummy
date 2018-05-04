@@ -1,16 +1,60 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 //
-// Modulation generator.
-// Creates harmonic functions of 2520 data length. You can choose how many clock
-// ticks last each data value with hp input.
-//
-// Creates square signals, whose half period is set by using sqp input.
+// Generador de modulaciones armónicas
+// Crea funciones seno y coseno definidas con 2520 valores por periodo.
+//     Para el reloj estandar de 125 MHz, las funciones generadas tener 
+//     frecuencias entre ~50 KHz y 3 Hz
+// 
+// Crea funciones cuadradas en cuadratura.
+//     Para el reloj estandar de 125 MHz, las funciones generadas tener 
+//     frecuencias entre ~31 MHz y 14 mHz
 //
 //////////////////////////////////////////////////////////////////////////////////
 
+
+/* Descripcion
+
+Salidas:
+    sin_ref: Salida sinusoidal de referencia
+    cos_ref: Salida cosenoidal de referencia
+    cos_1f : Salida cosenoidal desfasada respecto a cos_ref en phase*2*pi/2520
+    cos_2f : Salida cosenoidal desfasada respecto a cos_ref y con el doble de frecuencia
+    cos_3f : Salida cosenoidal desfasada respecto a cos_ref y con el triple de frecuencia
+    
+    sq_ref : Salida cuadrada de referencia
+    sq_quad: Salida cuadrada de referencia en cuadratura respecto a sq_ref
+    sq_phas: Salida cuadrada desfasada respecto a sq_ref según phase_sq
+
+Entradas:
+    phase   : Control de fase para las funciones harmónicas
+    phase_sq: Control de fase para las funciones cuadradas
+    hp      : "harmonic period", control del periodo/frecuencia para las funciones harmónicas
+    sqp     : "square period", control de periodo para funciones cuadradas
+
+
+Las funciones armónicas están compuestas por valores 2520 valores que van de -4096 a 4096, en un bus de 14 bits.
+Las funciones cuadradas son de 1 bit (1 o 0 a la salida).
+Las funciones armónicas cumplen con las relaciones de ortogonalidad de Fourier para phase=0.
+Las funciones cudradas tienen la relación de cuadratura bien definida para valores de sqp IMPARES
+
+Frecuencia / Periodo de las funciones armónicas de referencia:
+    periodo base            Tb = 2520 * 8 ns  = 20.16 us
+    frecuencia base         Fb = 1/Tb        ~= 49.6 kHz
+    periodo de operación     T = Tb * ( hp + 1 )                   con hp 0--> 16383
+    frecuencia de operación  F = Fb / ( hp + 1 )
+
+Frecuencia / Periodo de las funciones cuadradas de referencia:
+    periodo de operación     T = 8 ns * ( 2 + 2 * sqp )            con sqp 1 --> 4294967295
+    frecuencia de operación  F = 1/T  = 125 MHz / ( 2 + 2 * sqp )
+
+Cuando sqp==0 las funciones cuadradas de referencia están a la misma frecuencia y en fase
+con las funciones armónicas de referencia.
+
+*/
+
 //(* keep_hierarchy = "yes" *)
-module gen_mod2
+module gen_mod
 (
     input clk,rst,
     input           [12-1:0] phase,    // Phase control
@@ -24,17 +68,9 @@ module gen_mod2
     output                   harmonic_trig, square_trig
 );
     // Addr for memory slots
-    //ERASE wire [12-1:0] r_addr,r_addr2,r_addr3;
-    //ERASE wire [12-1:0] r_addr2;
-
-    //ERASE assign r_addr2 = 12'd0;//ERASE
-
-    //ERASE  wire [13-1:0] r_addrp;
 
     reg  [12-1:0] phase_b;
     wire          cnt_next_zero;
-
-    //ERASE  assign phase_b = phase==12'b0 ? 12'd2519 :  phase[12-1:0] - 12'b1 ;
 
     // sq divisor
     reg  sq_ref_r;
@@ -130,7 +166,6 @@ module gen_mod2
 
 
     // counter is synchronized with gen_ramp signal 
-    //ERASE assign cntu_next = (cnt>12'd2518 ) ? 13'b0  : cnt+tau_tick ;
 
     // read address engine *****************************************************************
     // for sin and cos:  cnt , r_addr
@@ -164,10 +199,7 @@ module gen_mod2
                 phase_b  <= 12'd2519 ;
             else
                 phase_b  <= phase[12-1:0] - 12'b1 ;
-            /*if (  (quad_bit==2'b11)&(cnt==10'd000)&tau_tick  )
-                cnt_next_zero <= 1'b1;
-            else
-                cnt_next_zero <= 1'b0;*/
+
         end
 
     assign quad_add       = (cnt==10'd629 & quad_bit==2'b00 ) |
@@ -218,8 +250,6 @@ module gen_mod2
                             quad_add1    ? cnt1             :
                             quad_bit1[0] ? cnt1 - tau_tick  :  cnt1 + tau_tick  ;
 
-    // ERASE assign cnt1_next      =
-
     // ************************* *****************************************************************
 
 
@@ -249,7 +279,6 @@ module gen_mod2
                             (cnt2==9'd314 & quad_bit2==2'b10 ) |
                             (cnt2==9'd000 & quad_bit2==2'b11 )   ;
 
-    //assign quad_bit2_next = quad_add2 ? quad_bit2 + tau_tick : quad_bit2 ;
     assign quad_bit2_next = ( cntu == phase_b ) ? 2'b00  : quad_bit2 + (tau_tick&quad_add2) ;
 
     assign cnt2_next      = ( cntu == phase_b ) /*| ( cnt_next_zero & phase==12'b0 ) */? 10'b0   :
@@ -287,7 +316,6 @@ module gen_mod2
                             (cnt3==8'd209 & quad_bit3==2'b10 ) |
                             (cnt3==8'd000 & quad_bit3==2'b11 )   ;
 
-    //assign quad_bit3_next = quad_add3 ? quad_bit3 + tau_tick : quad_bit3 ;
     assign quad_bit3_next = ( cntu == phase_b ) ? 2'b00  : quad_bit3 + (tau_tick&quad_add3) ;
 
     assign cnt3_next      = ( cntu == phase_b ) /*| ( cnt_next_zero & phase==12'b0 )*/ ? 8'b0   :
@@ -296,19 +324,7 @@ module gen_mod2
 
     // ************************* *****************************************************************
 
-    //assign r_addr   = cnt  ;
-    //assign r_addr1  = cnt1 ;
-    //assign r_addr2  = cnt2 ;
-    //assign r_addr3  = cnt3 ;
 
-    /*
-    assign cos_ref  = quad_bit[1]^quad_bit[0] ?  $signed(-memory_cos_r[r_addr]) : memory_cos_r[r_addr] ;
-    assign sin_ref  =  quad_bit[1]   ?  $signed(-memory_sin_r[r_addr]) : memory_sin_r[r_addr] ;
-
-    assign sin_1f   =  quad_bit1[1]   ?  $signed(-memory_sin_r[r_addr1]) : memory_sin_r[r_addr1] ;
-    assign sin_2f   =  quad_bit2[1]   ?  $signed(-memory_sin2_r[r_addr2]) : memory_sin2_r[r_addr2] ;
-    assign sin_3f   =  quad_bit3[1]   ?  $signed(-memory_sin3_r[r_addr3]) : memory_sin3_r[r_addr3] ;
-    */
 
     assign cos_ref  =  quad_bit[1]^quad_bit[0] ?  $signed(-memory_cos_r[cnt]) : memory_cos_r[cnt] ;
     assign sin_ref  =  quad_bit[1]             ?  $signed(-memory_sin_r[cnt]) : memory_sin_r[cnt] ;
@@ -371,7 +387,6 @@ module gen_mod2
 
     assign square_trig = clksq_equal_sqp & sq_ref ;
 
-    //assign test = sqp_half ;
 
 endmodule
 
@@ -426,5 +441,32 @@ endmodule
     * sq functions work separately from harmonic functions
     * sqp sets the clk ticks number of half period of sq_ref
     * period [#ticks] = (sqp+1)*2
+
+*/
+
+
+/* Ejemplo de instanciación:
+
+    gen_mod  i_gen_mod_NAME (
+      .clk( CLOCK ) , .rst( RESET ) ,
+       // inputs
+      .phase        ( 12'b0  ),  // phase
+      .phase_sq     ( 32'b0  ),  // phase
+      .hp           ( 14'b0  ),  // harmonic period
+      .sqp          ( 32'b0  ),  // harmonic period
+      
+      // output
+      .sin_ref       (       ),  // sinus
+      .cos_1f        (       ),  // sinus with phase
+      .cos_2f        (       ),  // sinus with phase and 2f
+      .cos_3f        (       ),  // sinus with phase and 3f
+      .cos_ref       (       ),  // cosinus
+      .sq_ref        (       ),  // square
+      .sq_quad       (       ),  // square
+      .sq_phas       (       ),  // square with phase
+      .harmonic_trig (       ), // harmonic trigger
+      .square_trig   (       )  // square trigger
+    );
+
 
 */

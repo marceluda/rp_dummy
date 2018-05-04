@@ -1,3 +1,17 @@
+//////////////////////////////////////////////////////////////////////////////////
+//
+// Multiplicador de 14 bits con signo
+//
+// Fue generado con software de Xilinx para que implemente los DSP internos de 
+// la FPGA en la creación del multiplicador, mejorando su performance
+//
+// Ejemplo de instanciacion:
+//
+//  mult_dsp_14  i_mult_dps_NAME (.CLK(clk), .A(  NUMERO_A ) , .B( NUMERO_B ), .P( SALIDA ));
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
 // Copyright 1986-2015 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2015.2 (lin64) Build 1266856 Fri Jun 26 16:35:25 MDT 2015
