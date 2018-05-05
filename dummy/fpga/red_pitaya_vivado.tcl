@@ -79,6 +79,7 @@ read_verilog                      $path_rtl/red_pitaya_top.v
 # Automatically added dummy modules
 
 
+# End of automatic part
 
 
 

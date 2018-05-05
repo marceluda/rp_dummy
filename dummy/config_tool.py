@@ -7,6 +7,8 @@ import enum
 from datetime import datetime
 import re
 import argparse
+from glob import glob
+import fileinput
 
 from config_lib import *
 
@@ -15,11 +17,6 @@ import configparser
 
 #%%
 
-
-do_verilog = False
-do_main    = False
-do_html    = False
-do_py      = False
 
 if '__file__' in globals():
     scriptFolder = os.path.dirname(os.path.realpath(__file__))
@@ -65,16 +62,19 @@ if __name__ == '__main__':
                         help="configure web HTML index file")
     parser.add_argument("-p", "--do-python" ,  dest='do_py'    , action="store_true",
                         help="configure HTML index file")
+    parser.add_argument("-t", "--do-tcl" ,  dest='do_tcl'    , action="store_true",
+                        help="configure TCL configuration file")
     parser.add_argument("-a", "--all"       ,  dest='do_all'   , action="store_true",
                         help="configure all the files")
 
     args = parser.parse_args()
-    
+
     if args.do_all:
         args.do_verilog = True
         args.do_main    = True
         args.do_html    = True
         args.do_py      = True
+        args.do_tcl     = True
 
     if not ( args.do_verilog or args.do_main or args.do_html or args.do_py ):
         print('nothing to do')
@@ -282,6 +282,28 @@ if __name__ == '__main__' and args.do_py:
     print('do_py')
     f.update_python_files(folder)
     print('\n')
+
+if __name__ == '__main__' and args.do_tcl:
+    print('do_tcl')
+
+    tag = ( '# Automatically added dummy modules', '# End of automatic part')
+    txt1 = '\n'
+    txt2 = '\n'
+    for vfile in [ y.replace('fpga/rtl','$path_rtl') for y in glob('fpga/rtl/dummy/*.v') ]:
+        txt1 += 'read_verilog'.ljust(34) + vfile + '\n'
+        txt2 += 'add_files'.ljust(34) + vfile + '\n'
+    print('Writting file: fpga/red_pitaya_vivado.tcl')
+    update_file_match(
+        filename='fpga/red_pitaya_vivado.tcl',
+        tag=tag,
+        txt=txt1)
+    print('Writting file: fpga/red_pitaya_vivado_project.tcl')
+    update_file_match(
+        filename='fpga/red_pitaya_vivado_project.tcl',
+        tag=tag,
+        txt=txt2)
+    print('\n')
+
 
 
 if __name__ == '__main__':

@@ -6,7 +6,7 @@ import os
 import enum
 from datetime import datetime
 import re
-
+import fileinput
 
 #%% auxiliar
 
@@ -1345,6 +1345,23 @@ def print_html_button(idd,label):
         '</div>'
     ])
     return txt
+
+
+def update_file_match(filename, tag=('start_tag','stop_tag'), txt=''):
+    """Updates file replacing matched tag"""
+    write_file = True
+    for line in fileinput.input( files=(filename) ,backup='_'+datetime.now().strftime("%Y%m%d_%H%M%S")+'.bak',inplace=True) :
+        line = line.rstrip()
+        if bool(re.match(tag[0],line)):
+            line += '\n'
+            line += txt+'\n'
+            print(line)
+            write_file = False
+            continue
+        if bool(re.match(tag[1],line)):
+            write_file = True
+        if write_file:
+            print(line)
 
 
 if __name__ == '__main__':

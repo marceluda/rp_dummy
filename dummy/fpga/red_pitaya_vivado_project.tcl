@@ -61,6 +61,9 @@ add_files                         $path_rtl/red_pitaya_top.v
 
 
 
+# End of automatic part
+
+
 
 # add_files                      $path_rtl/dummy.v
 
