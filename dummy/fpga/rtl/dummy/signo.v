@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 //
-// Protección contra saturación.
+// Función de Signo
 //
 // Extrae el signo del número de la entrada in
 //
