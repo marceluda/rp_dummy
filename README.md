@@ -7,8 +7,8 @@ of community applications for Red Pitaya Project.
 
 # Begin a new project
 
-To start a new project you just need to run the new_project.py script. This script reads 
-a config fila and creates a new dummy folder with added HTML controllers, already mapped 
+To start a new project you just need to run the new_project.py script. This script reads
+a config fila and creates a new dummy folder with added HTML controllers, already mapped
 to FPGA Verilog registers.
 
 `./new_project.py [-c CONFIG] [-u] AppName`
@@ -111,3 +111,7 @@ Then, you can run the upload command inside the project folder
 make upload
 ```
 
+
+# Other Resources:
+
+  - [Write MicroSD card for Red Pitaya](http://redpitaya.readthedocs.io/en/latest/quickStart/SDcard/SDcard.html)
