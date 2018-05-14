@@ -14,8 +14,8 @@ module sum_2N
 (
 	input  clk, rst, 
 	input  wire signed  [R-1  :0] in,   // input val
-        output reg  signed  [R+N-1:0] sum,  // sum  val
-        output reg  signed  [R-1  :0] mean, // mean val
+	output reg  signed  [R+N-1:0] sum,  // sum  val
+	output reg  signed  [R-1  :0] mean, // mean val
 	output wire                   tick  // output tick
 );
 
@@ -75,3 +75,20 @@ assign tick = (cnt=={N{1'b0}}) ;
 
 
 endmodule
+
+
+/*
+Ejemplo de instanciación:
+
+sum_2N #( .R(14), .N(4) ) i_sum_2N_NAME ( 
+	.clk(clk), .rst(rst), 
+	// inputs
+	in    ( INPUT_BUS ), // Bus de entrada
+	// outputs
+	.sum  (  SUMA     ),   // Suma de 10000 valores de entrada de INPUT_BUS
+	.mean ( PROMEDIO  ),   // Promedio de 10000 valores de entrada de INPUT_BUS
+	.tick (           )    // Vale 1 cuando se actualiza la salida
+)
+
+*/
+

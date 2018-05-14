@@ -114,7 +114,7 @@ endmodule
 
 Ejemplos de instanciación:
 
-filtro_pasaaltos #(.R(14),.TAU_OFFSET(14)) i_filtro_pasaaltos_NAME (
+filtro_pasaaltos #(.R(14),.TAU_OFFSET(0)) i_filtro_pasaaltos_NAME (
     .clk(clk), .rst(rst), 
     // inputs
     .tau( 14'd12   ), 
@@ -124,7 +124,7 @@ filtro_pasaaltos #(.R(14),.TAU_OFFSET(14)) i_filtro_pasaaltos_NAME (
     .out(  OUT     ) 
 );
 
-filtro_pasaaltos #(.R(14),.TAU_OFFSET(14)) i_filtro_pasaaltos_NAME (.clk(clk),.rst(rst), .tau( 14'd12   ), .dis( 1'b0 ), .in(  IN  ),.out(  OUT  ) );
+filtro_pasaaltos #(.R(14),.TAU_OFFSET(0)) i_filtro_pasaaltos_NAME (.clk(clk),.rst(rst), .tau( 14'd12   ), .dis( 1'b0 ), .in(  IN  ),.out(  OUT  ) );
 
 filtro_pasaaltos i_filtro_pasaaltos_NAME (.clk(clk),.rst(rst), .tau( 14'd12   ), .dis( 1'b0 ), .in(  IN  ),.out(  OUT  ) );
 
