@@ -10,7 +10,8 @@ import fileinput
 
 from glob import glob
 
-#%%
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Useful functions
 
 def print_html_monitor(idd,label):
     txt='\n'.join([
@@ -103,7 +104,9 @@ def print_html_button(idd,label):
 
 
 
-#%%
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Parse arguments
+
 
 if '__file__' in globals():
     scriptFolder = os.path.dirname(os.path.realpath(__file__))
@@ -122,8 +125,8 @@ os.chdir(folder)
 print('Working folder: '+folder)
 
 
-#%%
-
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Parse arguments
 
 AppName = 'dummy'
 
@@ -169,6 +172,8 @@ if __name__ == '__main__':
 
     #print(config.sections())
 
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    # Reading config file
 
     txt_control=[]
     txt_monitor=[]
@@ -225,6 +230,8 @@ if __name__ == '__main__':
                      ', signed='+str(c_signed).rjust(6)+
                      ', desc="Added automatically by script" )')
 
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    # Update HTML5
 
     html_file = os.path.join(folder,AppName,'index.html')
 
@@ -270,9 +277,14 @@ if __name__ == '__main__':
             line = re.sub(i[0], i[1], line.rstrip())
         print(line)
 
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    # Update FPGA fpga.conf
 
     with open( os.path.join(AppName,'fpga.conf'), 'w') as fpga_file:
         fpga_file.write('/opt/redpitaya/www/apps/'+AppName+'/red_pitaya.bit\n')
+
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    # Update INFO
 
     with open( os.path.join(AppName,'info','info.json'), 'w') as info_file:
         info_file.write('{\n')
@@ -281,6 +293,9 @@ if __name__ == '__main__':
         info_file.write('    "revision": "REVISION",\n')
         info_file.write('    "description": "A toolkit application testing and learnning FPGA Verilog programming for RedPitaya. Includes several already-made modules."\n')
         info_file.write('}')
+
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    # Create SETTINGS
 
     if args.update_rp or ( not os.path.isfile('_settings.env') ):
         with open( '_settings.env', 'w') as sett_file:
@@ -294,6 +309,9 @@ if __name__ == '__main__':
             sett_file.write('\n')
 
     print('After updating config_tool.py, run it with -a option for '+ AppName)
+
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    # Update CONFIG config_tool.py
 
     configtool_file = os.path.join(folder,AppName,'config_tool.py')
     for line in fileinput.input( files=(configtool_file),backup='_'+datetime.now().strftime("%Y%m%d_%H%M%S")+'.bak',inplace=True) :
@@ -318,6 +336,9 @@ if __name__ == '__main__':
 
         print(line)
 
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    # Update TCL config
+
     tcl_files = ( os.path.join(folder,AppName,'fpga','red_pitaya_vivado.tcl') , os.path.join(folder,AppName,'fpga','red_pitaya_vivado_project.tcl') )
     for line in fileinput.input( files=tcl_files ,backup='_'+datetime.now().strftime("%Y%m%d_%H%M%S")+'.bak',inplace=True) :
         line = line.rstrip()
@@ -333,16 +354,23 @@ if __name__ == '__main__':
             line += '\n'
         print(line)
 
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    # Update ICONS
+
 
     #os.system('rm ./'+AppName+'/info/icon.png')
     os.system("""mogrify  -font FreeSans-Negrita -pointsize 20 -draw "gravity south ; fill black  text 0,12 '"""+AppName[6:]+"""' ; fill white  text 1,11 '"""+AppName[6:]+"""' "  ./"""+AppName+"""/info/icon.png""")
     os.system("""mogrify  -font FreeSans-Negrita -pointsize 20 -draw "gravity south ; fill black  text 0,12 '"""+AppName[6:]+"""' ; fill white  text 1,11 '"""+AppName[6:]+"""' "  ./"""+AppName+"""/info/icon_DEBUG.png""")
     os.system("""mogrify  -font FreeSans-Negrita -pointsize 20 -draw "gravity south ; fill black  text 0,12 '"""+AppName[6:]+"""' ; fill white  text 1,11 '"""+AppName[6:]+"""' "  ./"""+AppName+"""/info/icon_RELOAD.png""")
 
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    # Run  config_tool.py -a
 
     print('\n\nRunning first configuration: ./'+AppName+'/config_tool.py -a \n')
     os.system('./'+AppName+'/config_tool.py -a ')
-
+    
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    # Clean bak files
     print('\n\nCleanning temp files .bak')
     os.system("find "+AppName+" -type f  | grep '\\.bak$'  | xargs rm ")
 

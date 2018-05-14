@@ -97,7 +97,7 @@ module dummy(
 
 
 
-    
+
 
 
     // -----------------------------------------------------------------------------------------
@@ -135,13 +135,13 @@ module dummy(
         .in0  ( 14'b0     ),
         .in1  ( in1       ),
         .in2  ( in2       ),
-        .in3  ( out_hp    ),
-        .in4  ( out_lp    ),
-        .in5  ( suma_ins  ),
-        .in6  ( amp2      ),
-        .in7  ( square14  ),
-        .in8  ( out_signal),
-        .in9  ( mult14    ),
+        .in3  ( 14'b0     ),
+        .in4  ( 14'b0     ),
+        .in5  ( 14'b0     ),
+        .in6  ( 14'b0     ),
+        .in7  ( 14'b0     ),
+        .in8  ( 14'b0     ),
+        .in9  ( 14'b0     ),
         .in10 ( 14'b0     ),
         .in11 ( 14'b0     ),
         .in12 ( 14'b0     ),
@@ -177,13 +177,13 @@ module dummy(
         .in0  ( 14'b0     ),
         .in1  ( in1       ),
         .in2  ( in2       ),
-        .in3  ( out_hp    ),
-        .in4  ( out_lp    ),
-        .in5  ( suma_ins  ),
-        .in6  ( amp2      ),
-        .in7  ( square14  ),
-        .in8  ( out_signal),
-        .in9  ( mult14    ),
+        .in3  ( 14'b0     ),
+        .in4  ( 14'b0     ),
+        .in5  ( 14'b0     ),
+        .in6  ( 14'b0     ),
+        .in7  ( 14'b0     ),
+        .in8  ( 14'b0     ),
+        .in9  ( 14'b0     ),
         .in10 ( 14'b0     ),
         .in11 ( 14'b0     ),
         .in12 ( 14'b0     ),
@@ -225,13 +225,13 @@ module dummy(
         .in0  ( 14'b0     ),
         .in1  ( in1       ),
         .in2  ( in2       ),
-        .in3  ( out_hp    ),
-        .in4  ( out_lp    ),
-        .in5  ( suma_ins  ),
-        .in6  ( amp2      ),
-        .in7  ( square14  ),
-        .in8  ( out_signal),
-        .in9  ( mult14    ),
+        .in3  ( 14'b0     ),
+        .in4  ( 14'b0     ),
+        .in5  ( 14'b0     ),
+        .in6  ( 14'b0     ),
+        .in7  ( 14'b0     ),
+        .in8  ( 14'b0     ),
+        .in9  ( 14'b0     ),
         .in10 ( 14'b0     ),
         .in11 ( 14'b0     ),
         .in12 ( 14'b0     ),
@@ -249,20 +249,20 @@ module dummy(
         .in0  ( 14'b0     ),
         .in1  ( in1       ),
         .in2  ( in2       ),
-        .in3  ( out_hp    ),
-        .in4  ( out_lp    ),
-        .in5  ( suma_ins  ),
-        .in6  ( amp2      ),
-        .in7  ( square14  ),
-        .in8  ( out_signal),
-        .in9  ( mult14    ),
+        .in3  ( 14'b0     ),
+        .in4  ( 14'b0     ),
+        .in5  ( 14'b0     ),
+        .in6  ( 14'b0     ),
+        .in7  ( 14'b0     ),
+        .in8  ( 14'b0     ),
+        .in9  ( 14'b0     ),
+        .in10 ( 14'b0     ),
         .in10 ( 14'b0     ),
         .in11 ( 14'b0     ),
         .in12 ( 14'b0     ),
         .in13 ( 14'b0     ),
         .in14 ( 14'b0     ),
         .in15 ( 14'b0     ),
-
         // output
         .out ( out2  )
     );
@@ -368,17 +368,17 @@ module dummy(
         .in0  ( 14'b10000000000000),
         .in1  ( in1               ), // in1
         .in2  ( in2               ), // in1-in2
-        .in3  ( 14'b0 ), // in3
-        .in4  ( 14'b0           ), // in4
-        .in5  ( 14'b0            ), // in5
-        .in6  ( 14'b0            ), // in6
-        .in7  ( 14'b0            ), // in7
-        .in8  ( 14'b0            ), // in8
-        .in9  ( 14'b0           ), // in9
-        .in10 ( 14'b0            ), // in10
-        .in11 ( 14'b0          ), // in11
-        .in12 ( 14'b0            ), // in12
-        .in13 ( 14'b0            ), // in13
+        .in3  ( 14'b0             ), // in3
+        .in4  ( 14'b0             ), // in4
+        .in5  ( 14'b0             ), // in5
+        .in6  ( 14'b0             ), // in6
+        .in7  ( 14'b0             ), // in7
+        .in8  ( 14'b0             ), // in8
+        .in9  ( 14'b0             ), // in9
+        .in10 ( 14'b0             ), // in10
+        .in11 ( 14'b0             ), // in11
+        .in12 ( 14'b0             ), // in12
+        .in13 ( 14'b0             ), // in13
         .in14 ( 14'b0             ), // in14
         .in15 ( 14'b0             ), // in15
         // output
@@ -394,16 +394,16 @@ module dummy(
         .in1  ( in1               ), // in1
         .in2  ( in2               ), // in1-in2
         .in3  ( 14'b0             ), // in3
-        .in4  ( 14'b0           ), // in4
-        .in5  ( 14'b0            ), // in5
-        .in6  ( 14'b0            ), // in6
-        .in7  ( 14'b0            ), // in7
-        .in8  ( 14'b0           ), // in8
-        .in9  ( 14'b0           ), // in9
-        .in10 ( 14'b0            ), // in10
-        .in11 ( 14'b0          ), // in11
-        .in12 ( 14'b0            ), // in12
-        .in13 ( 14'b0            ), // in13
+        .in4  ( 14'b0             ), // in4
+        .in5  ( 14'b0             ), // in5
+        .in6  ( 14'b0             ), // in6
+        .in7  ( 14'b0             ), // in7
+        .in8  ( 14'b0             ), // in8
+        .in9  ( 14'b0             ), // in9
+        .in10 ( 14'b0             ), // in10
+        .in11 ( 14'b0             ), // in11
+        .in12 ( 14'b0             ), // in12
+        .in13 ( 14'b0             ), // in13
         .in14 ( 14'b0             ), // in14
         .in15 ( 14'b0             ), // in15
         // output

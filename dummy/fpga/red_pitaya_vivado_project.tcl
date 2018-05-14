@@ -57,6 +57,9 @@ add_files                         $path_rtl/red_pitaya_pwm.sv
 add_files                         $path_rtl/red_pitaya_scope.v
 add_files                         $path_rtl/red_pitaya_top.v
 
+add_files                         $path_rtl/dummy.v
+
+
 # Automatically added dummy modules
 
 

@@ -76,6 +76,8 @@ read_verilog                      $path_rtl/red_pitaya_scope.v
 read_verilog                      $path_rtl/red_pitaya_top.v
 
 
+read_verilog                      $path_rtl/dummy.v
+
 # Automatically added dummy modules
 
 

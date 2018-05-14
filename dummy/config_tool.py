@@ -15,7 +15,8 @@ from config_lib import *
 import configparser
 
 
-#%%
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Process arguments
 
 
 if '__file__' in globals():
@@ -43,8 +44,8 @@ print('App Name      : '+AppName)
 
 
 
-#%%
-
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Process arguments
 
 
 if __name__ == '__main__':
@@ -82,7 +83,12 @@ if __name__ == '__main__':
         exit(0)
 
 print('\n')
-#%%
+
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Process FPGA registers
+
+
 
 f = fpga_registers()
 
@@ -147,8 +153,8 @@ if __name__ == '__main__' and args.do_verilog:
 
 
 
-#%%
-
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Process C code for MAIN
 
 m = main_registers(num_base=81)
 
@@ -211,7 +217,9 @@ if __name__ == '__main__' and args.do_main:
     print('\n')
 
 
-#%%
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Process HTML controls
+
 
 h = html_registers(num_base=81)
 
@@ -271,8 +279,8 @@ if __name__ == '__main__' and args.do_html:
     h.update_html_files(folder)
     print('\n')
 
-#%%
-
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Process Python scripts
 
 
 f.set_py_global_config()
@@ -282,6 +290,9 @@ if __name__ == '__main__' and args.do_py:
     print('do_py')
     f.update_python_files(folder)
     print('\n')
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Re-write TCL scripts
 
 if __name__ == '__main__' and args.do_tcl:
     print('do_tcl')
