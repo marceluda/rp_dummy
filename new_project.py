@@ -368,6 +368,15 @@ if __name__ == '__main__':
 
     print('\n\nRunning first configuration: ./'+AppName+'/config_tool.py -a \n')
     os.system('./'+AppName+'/config_tool.py -a ')
+
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    # Update upload script
+
+    upload_file = os.path.join(folder,AppName,'upload_app.sh')
+    for line in fileinput.input( files=(upload_file),backup='_'+datetime.now().strftime("%Y%m%d_%H%M%S")+'.bak',inplace=True) :
+        for i in rep:
+            line = re.sub('APP="dummy"', 'APP="'+AppName+'"', line.rstrip())
+        print(line)
     
     #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     # Clean bak files

@@ -785,7 +785,7 @@ def update_verilog(filename,dock,txt):
                 if out=='':
                     output.write(line)
     tnow=datetime.now().strftime("%Y%m%d_%H%M%S")
-    os.rename(filename,filename.replace('.v','_'+tnow+'.v'))
+    os.rename(filename,filename.replace('.v','_'+tnow+'.v.bak'))
     os.rename(filename.replace('.v','_.v'),filename)
 
 
