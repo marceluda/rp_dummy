@@ -208,7 +208,7 @@ if __name__ == '__main__':
 
         if c_type=='combo':
             txt_control.append( print_html_combo(    section,c_label,c_nbits) )
-            ctrls.append( {'name': section, 'htype': 'select', 'label': c_label, 'nbits': c_nbits} )
+            ctrls.append( {'name': section, 'htype': 'select', 'label': c_label, 'nbits': c_nbits, 'signed': c_signed} )
         elif c_type=='number':
             txt_control.append( print_html_number(   section,c_label,c_nbits,c_signed) )
             ctrls.append( {'name': section, 'htype': 'number', 'label': c_label, 'nbits': c_nbits , 'signed': c_signed} )
@@ -354,6 +354,25 @@ if __name__ == '__main__':
             line += '\n'
         print(line)
 
+
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    # Update dummy.v help comments
+
+    dummyv_file = os.path.join(folder,AppName,'fpga','rtl','dummy.v')
+    for line in fileinput.input( files=(dummyv_file),backup='_'+datetime.now().strftime("%Y%m%d_%H%M%S")+'.bak',inplace=True) :
+        line = line.rstrip()
+        if bool(re.match('\s*// \[DOCK_FOR_ADDED_REGS\]',line)):
+            line = '\n'
+            for y in ctrls:
+                line += '    //   '+y['name'].ljust(10)+'--> {:2d} bits {:s}signed bus ({:>10d} --> {:<10d}) \n'.format(
+                        y['nbits'],
+                        '  ' if y['signed'] else 'un'  ,
+                        - 2**(y['nbits']-1) if y['signed'] else 0 ,
+                        2**(y['nbits']-1)-1 if y['signed'] else 2**y['nbits']-1
+                        )
+            line += '\n'
+        print(line)
+
     #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     # Update ICONS
 
@@ -377,7 +396,7 @@ if __name__ == '__main__':
         for i in rep:
             line = re.sub('APP="dummy"', 'APP="'+AppName+'"', line.rstrip())
         print(line)
-    
+
     #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     # Clean bak files
     print('\n\nCleanning temp files .bak')

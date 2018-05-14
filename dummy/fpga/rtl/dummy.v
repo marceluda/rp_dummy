@@ -73,14 +73,13 @@ module dummy(
     //////////////////////////////////////////////////////////////////////////////////
 
 
-    // Useful bus cables:
-    //   in1       --> 14 bits signed bus [-8192:8191] , ADC from input 1
-    //   in2       --> 14 bits signed bus [-8192:8191] , ADC from input 2
-    //   monitorA  --> 14 bits signed bus [-8192:8191]  output monitor for web
-    //   monitorB  --> 14 bits signed bus [-8192:8191]  output monitor for web
-    //   monitorC  --> 27 bits signed bus               output monitor for web
-    //   monitorD  --> 27 bits signed bus               output monitor for web
+    // Useful bus input wires :
+    //   in1       --> 14 bits   signed bus (     -8192 --> 8191      ) , ADC from input 1
+    //   in2       --> 14 bits   signed bus (     -8192 --> 8191      ) , ADC from input 2
+    // [DOCK_FOR_ADDED_REGS]
 
+
+    // For output signals, configure the out1_sw_m and out2_sw_m multiplexers below
 
     // -----------------------------------------------------------------------------------------
     // First of all, ALWAYS, write down cable definitions
