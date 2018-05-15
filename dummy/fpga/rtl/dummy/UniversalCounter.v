@@ -32,7 +32,7 @@ module UniversalCounter
 #(parameter N=8)
 (
 	input wire clk, reset, en, up, syn_clr , load,
-	input wire [N-1:0] d, 
+	input wire [N-1:0] d,
 	output wire max_tick, min_tick,
 	output wire [N-1:0] q
 );
@@ -61,7 +61,7 @@ begin
 		if (up&en)
 			r_next = r_reg + 1;
 		else if ((~up)&en)
-			r_next = r_reg - 1;	
+			r_next = r_reg - 1;
 		else
 			r_next = r_reg;
 end
@@ -75,11 +75,11 @@ assign min_tick = (r_reg==0);
 endmodule
 
 
-/* 
+/*
 Instantiation example:
 
-UniversalCounter #( .N(14) ) i_UniversalCounter_NAME ( 
-	.clk(clk), .reset(rst), 
+UniversalCounter #( .N(14) ) i_UniversalCounter_NAME (
+	.clk(clk), .reset(rst),
 	// inputs
 	.en     (             1'b1 ), // 1 es enable / encendido
 	.up     (             1'b1 ), // 1 es sumar, 0 es restar
@@ -90,6 +90,5 @@ UniversalCounter #( .N(14) ) i_UniversalCounter_NAME (
 	.q       (  SALIDA ),   // Salida del contador
 	.max_tick(         ),   // Señal de máximo
 	.min_tick(         )    // Señal de mínimo
-)
+);
 */
-

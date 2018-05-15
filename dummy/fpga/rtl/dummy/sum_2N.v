@@ -12,7 +12,7 @@
 module sum_2N
 #(parameter R=8 , N=3)
 (
-	input  clk, rst, 
+	input  clk, rst,
 	input  wire signed  [R-1  :0] in,   // input val
 	output reg  signed  [R+N-1:0] sum,  // sum  val
 	output reg  signed  [R-1  :0] mean, // mean val
@@ -21,7 +21,7 @@ module sum_2N
 
 //signal declaration
 reg        [N-1  :0] cnt;
-reg        [N-1  :0] cnt_next; 
+reg        [N-1  :0] cnt_next;
 
 reg signed [R-1  :0] mean_next;
 reg signed [R+N-1:0] summ, summ_next, sum_next;
@@ -39,7 +39,7 @@ always @(posedge clk)
                 mean          <=  {R{1'b0}} ;
                 summ          <=  {R+N{1'b0}} ;
                 sum           <=  {R+N{1'b0}} ;
-                
+
         end
 	else begin
 		cnt           <=   cnt_next;
@@ -51,7 +51,7 @@ always @(posedge clk)
 
 assign state = &cnt ;
 
-// next-state logic 
+// next-state logic
 always @*
 begin
         if(state==1'b0) begin
@@ -80,15 +80,14 @@ endmodule
 /*
 Ejemplo de instanciación:
 
-sum_2N #( .R(14), .N(4) ) i_sum_2N_NAME ( 
-	.clk(clk), .rst(rst), 
+sum_2N #( .R(14), .N(4) ) i_sum_2N_NAME (
+	.clk(clk), .rst(rst),
 	// inputs
 	.in    ( INPUT_BUS ), // Bus de entrada
 	// outputs
 	.sum  (  SUMA     ),   // Suma de 10000 valores de entrada de INPUT_BUS
 	.mean ( PROMEDIO  ),   // Promedio de 10000 valores de entrada de INPUT_BUS
 	.tick (           )    // Vale 1 cuando se actualiza la salida
-)
+);
 
 */
-
