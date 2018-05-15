@@ -1,5 +1,6 @@
 ---
-title: Dummy System for Red Pitaya
+title: Dummy System para Red Pitaya
+subtitle: Aplicacion vacía para facilitar la programacion FPGA
 description: Aplicacion vacía para facilitar la programacion FPGA
 layout: page
 mathjax: true
@@ -11,3 +12,14 @@ mathjax: true
 </div>
 
 ## Curso
+
+Esta página por lo pronto solo contiene información útil para el curso
+de [EEOF-TOPFOT](https://eeoftopfot2018.wordpress.com/) de FPGA.
+
+La información útil para el curso se encuentra en:
+
+<center>
+<a href="https://marceluda.github.io/rp_dummy/EEOF2018" class="btn btn-primary btn-lg" role="button">
+EEOF 2018
+</a>
+</center>
