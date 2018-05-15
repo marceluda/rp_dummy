@@ -81,10 +81,10 @@ Instantiation example:
 UniversalCounter #( .N(14) ) i_UniversalCounter_NAME ( 
 	.clk(clk), .reset(rst), 
 	// inputs
-	en      (             1'b1 ), // 1 es enable / encendido
-	up      (             1'b1 ), // 1 es sumar, 0 es restar
-	syn_clr (             1'b0 ), // 1 es resetear el contador
-	load    (             1'b0 ), // 1 es cargar el valor de entrada d en la memoria interna
+	.en     (             1'b1 ), // 1 es enable / encendido
+	.up     (             1'b1 ), // 1 es sumar, 0 es restar
+	.syn_clr(             1'b0 ), // 1 es resetear el contador
+	.load   (             1'b0 ), // 1 es cargar el valor de entrada d en la memoria interna
 	.d      ( BUS_VALOR_INICIO ), // BUS de entrada para inicializar un valor
 	// outputs
 	.q       (  SALIDA ),   // Salida del contador
