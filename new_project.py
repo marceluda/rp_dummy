@@ -398,10 +398,10 @@ if __name__ == '__main__':
         print(line)
 
     #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    # Clean bak files
+    # Clean bak files and bkp ini file
     print('\n\nCleanning temp files .bak')
     os.system("find "+AppName+" -type f  | grep '\\.bak$'  | xargs rm ")
-
+    os.system('cp ' + config_file +' ./'+ AppName+'/info/')
     exit(0)
 
 

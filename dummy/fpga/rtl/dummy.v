@@ -73,7 +73,7 @@ module dummy(
     //////////////////////////////////////////////////////////////////////////////////
 
 
-    // Useful bus input wires :
+    // Useful bus wires already defined :
     //   in1       --> 14 bits   signed bus (     -8192 --> 8191      ) , ADC from input 1
     //   in2       --> 14 bits   signed bus (     -8192 --> 8191      ) , ADC from input 2
     // [DOCK_FOR_ADDED_REGS]
