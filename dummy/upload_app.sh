@@ -3,6 +3,33 @@
 APP="dummy"
 
 
+
+# A POSIX variable
+OPTIND=1         # Reset in case getopts has been used previously in the shell.
+
+# Initialize our own variables:
+port_number=22
+
+while getopts "p:h?" opt; do
+    case "$opt" in
+    p)  port_number=$OPTARG
+        echo "port_number: $port_number"
+        ;;
+    h|\?)
+        echo "${0} [-p port_number] rp-XXXXXX.local "
+        exit 0
+        ;;
+
+    esac
+done
+
+shift $((OPTIND-1))
+
+[ "${1:-}" = "--" ] && shift
+
+# echo "port_number=$port_number, RP_address='$1', Leftovers: $@"
+
+
 # exit when any command fails
 set -e
 
@@ -30,11 +57,11 @@ fi
 if [[ $LANG = *"es_"* ]]; then
   trap 'echo "
   El comando \"${last_command}\"  falló con el código de ERROR: $?.
-  "' EXIT
+  "' ERR
 else
   trap 'echo "
   \"${last_command}\" command filed with exit code $?.
-  "' EXIT
+  "' ERR
 fi
 
 txt=( "RedPitaya hostname: "
@@ -67,15 +94,17 @@ echo "$APP"
 
 # rp-xxxxxx.local
 
-RPOPTS="-l root -p 22 "
-RPSCP="-P 22 "
+RPOPTS="-l root -p ${port_number} "
+RPSCP="-P ${port_number} "
 CONTROLLERHF="controllerhf.so"
 
 
 txt=( "\nIf the SSH key is not in the Red Pitaya, we upload it. \n"
       "\nSi la llave SSH no está subida a la Red Pitaya, la subimos \n")
 echo -e ${txt[$L]}
-ssh-copy-id -p 22 -i ${HOME}/.ssh/id_rsa.pub root@${RPIP}
+
+echo "ssh-copy-id -p ${port_number} -i ${HOME}/.ssh/id_rsa.pub root@${RPIP}"
+ssh-copy-id -p ${port_number} -i ${HOME}/.ssh/id_rsa.pub root@${RPIP}
 
 txt=( "\nIn the future, you will not need to type the root password again for remote login \n"
       "\nEn el futuro no necesitarás tipear nuevamente la clave SSH para root. \n")
@@ -100,4 +129,3 @@ echo "http://${RPIP}/${APP}"
 
 echo -e "\n\n"
 
-echo ""
