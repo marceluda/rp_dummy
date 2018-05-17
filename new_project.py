@@ -372,7 +372,24 @@ if __name__ == '__main__':
                         )
             line += '\n'
         print(line)
-
+    
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    # Update red_pitaya_top.v
+    topv_file = os.path.join(folder,AppName,'fpga','rtl','red_pitaya_top.v')
+    for line in fileinput.input( files=(topv_file),backup='_'+datetime.now().strftime("%Y%m%d_%H%M%S")+'.bak',inplace=True) :
+        line = line.rstrip()
+        if not include_genfun:
+            if bool(re.match('\s*/\*\s*include_genfun disabled by LOLO\s\*/',line)):
+                line = '/* include_genfun disabled by LOLO '
+            if bool(re.match('\s*/\* include_genfun enable',line)):
+                line = '/* include_genfun enable'
+        if not include_pids:
+            if bool(re.match('\s*/\*\sinclude_pids disabled by LOLO\s\*/',line)):
+                line = '/* include_pids disabled by LOLO '
+            if bool(re.match('\s*/\* include_pids enable',line)):
+                line = '/* include_pids enable */'
+        print(line)
+    
     #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     # Update ICONS
 

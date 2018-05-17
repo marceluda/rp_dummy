@@ -480,7 +480,7 @@ red_pitaya_scope i_scope (
 //  DAC arbitrary signal generator
 
 
-/*  disabled by LOLO */
+/* include_genfun disabled by LOLO */
 
 red_pitaya_asg i_asg (
    // DAC
@@ -503,7 +503,7 @@ red_pitaya_asg i_asg (
 );
 /* */
 
-/*
+/* include_genfun enable
 assign sys_rdata[2*32+:32] = 32'h0;
 assign sys_err  [2       ] =  1'b0;
 assign sys_ack  [2       ] =  1'b1;
@@ -516,7 +516,8 @@ assign trig_asg_out = 1'b0 ;
 //---------------------------------------------------------------------------------
 //  MIMO PID controller
 
-/*  disabled by LOLO  */
+/* include_pids disabled by LOLO */
+
 red_pitaya_pid i_pid (
    // signals
   .clk_i           (  adc_clk                    ),  // clock
@@ -537,7 +538,7 @@ red_pitaya_pid i_pid (
 );
 /* */
 
-/*
+/* include_pids enable
 assign sys_rdata[3*32+:32] = 32'h0;
 assign sys_err  [3       ] =  1'b0;
 assign sys_ack  [3       ] =  1'b1;
