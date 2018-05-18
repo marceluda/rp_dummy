@@ -18,11 +18,11 @@ def is_int(s):
         return False
 
 
-from hugo import osc,li
+from hugo import osc,dm
 
-if __name__ == '__main__':    
+if __name__ == '__main__':
     # Memory sectors to send
-    
+
     if len(sys.argv)<2:
         osc.show()
     elif len(sys.argv)==2:
@@ -38,4 +38,3 @@ if __name__ == '__main__':
         for i in sys.argv[1:]:
             if i in osc.names():
                 osc.show(i)
-

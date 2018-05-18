@@ -298,7 +298,7 @@ dm.add( fpga_reg(name='read_ctrl'          , index= 30, rw=True , nbits= 3,signe
 
 if __name__ == '__main__':
 
-    li.show()
+    dm.show()
     #print('---------')
 
     #print(osc.get_curves(True))
@@ -311,6 +311,6 @@ if __name__ == '__main__':
 
     if False:
         max([len(y.name) for y in f])
-        ss="li.add( fpga_reg(name={:<21s}, index={:>3d}, rw={:<5s}, nbits={:>2d},signed={:<5s}) )"
+        ss="dm.add( fpga_reg(name={:<21s}, index={:>3d}, rw={:<5s}, nbits={:>2d},signed={:<5s}) )"
         for r in f:
             print(ss.format( "'"+r.name+"'", r.index, str(r.rw) , r.nbits ,  str(r.signed) ))
