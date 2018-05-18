@@ -23,7 +23,7 @@ def is_int(s):
         return False
 
 
-from hugo import osc,li
+from hugo import osc,dm
 
 
 parser = argparse.ArgumentParser()
@@ -42,5 +42,3 @@ if __name__ == '__main__':
         sys.stdout.buffer.write(outbuff)
     else:
         print(outbuff)
-
-

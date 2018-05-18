@@ -24,7 +24,7 @@ def preexec_function():
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 
-from hugo import osc,li
+from hugo import osc,dm
 
 
 # Function to handle nice close with CTRL+C
