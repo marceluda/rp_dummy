@@ -19,7 +19,7 @@ de [EEOF-TOPFOT](https://eeoftopfot2018.wordpress.com/) de FPGA.
 La información útil para el curso se encuentra en:
 
 <center>
-<a href="https://marceluda.github.io/rp_dummy/EEOF2018" class="btn btn-primary btn-lg" role="button">
+<a href="/rp_dummy/EEOF2018" class="btn btn-primary btn-lg" role="button">
 EEOF 2018
 </a>
 </center>
