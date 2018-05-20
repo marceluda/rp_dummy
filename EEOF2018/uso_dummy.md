@@ -166,3 +166,13 @@ de Xilinx Vivado, se debe ingresar a la carpeta `fpga` y desde allí ejecutar:
 cd fpga/
 LANG=C make project
 ```
+
+### Limpiar la carpeta para re-compilar
+
+Si se va a volver a compilar / sintetizar código luego de un cambio es
+necesario limpiar los binarios. Esto se puede hacer desde la carpeta
+`dummy_NOMBRE` con el comando:
+
+```bash
+make clean
+```
