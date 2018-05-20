@@ -61,17 +61,17 @@ nc_cmd = ['nc '+args.server+' '+args.port]
 if __name__ == '__main__':
     # Function for nice kill
     killer = GracefulKiller()
-    
+
     # Memory sectors to send
     memcodes=[]
-    
+
     if len(sys.argv)>1:
         for i in args.params:
             memcodes.append(li[i].addr)
     else:
         eprint("Usage: ... ")
         eprint(" ")
-        numkeys=[y.ljust(20) for y in li.names()]
+        numkeys=[y.ljust(20) for y in dm.names()]
         for i in range(int(len(numkeys)/5+1)):
             print(', '.join(numkeys[i*5:(i+1)*5]))
         eprint("")
@@ -79,47 +79,47 @@ if __name__ == '__main__':
         eprint("nc -l -p 6000 | pv -b >  $( date +%Y%m%d_%H%M%S ).bin ")
         eprint("")
         exit()
-    
+
     # Store first time
     t0=time()
-    
+
     struct_str='!f'
     C=[]
     for i in args.params:
         struct_str+='l'
         C.append(0)
     ss=struct.Struct(struct_str)
-    
+
     # NetCat proccess to send data to server
     process = subprocess.Popen(nc_cmd, shell=True, stdin=subprocess.PIPE,stdout=subprocess.PIPE,preexec_fn = preexec_function)
-    
+
     txt=(('Columns: '+','.join(args.params)+'\n'+'timestamp {:>20f}\n'.format(t0)).ljust(99)+'\n').encode('ascii')
-    
+
     process.stdin.write(txt)
     process.stdin.flush()
-    
+
     # Open memory
     with open("/dev/mem", "r+b") as f:
       mm = mmap.mmap(f.fileno(), 512, offset=0x40600000)
-      
+
       txt2=[]
       for i in li:
           addr=i.addr
           A=int.from_bytes(mm[addr:addr+4], byteorder='little', signed=True)
           txt2.append( '"{:s}": {:f}'.format(i.name,A) )
       process.stdin.write( (  ('params={'+',\n'.join(txt2) +'\n}\n').ljust(3399)+'\n' ).encode('ascii') )
-      process.stdin.flush() 
-      li.start_clk()
+      process.stdin.flush()
+      dm.start_clk()
       print(t0)
       tl=time()
       if args.timeout <= 0:
           while True:
               if (time()-tl>Dtime):
-                  li.freeze()
+                  dm.freeze()
                   for i,addr in enumerate(memcodes):
                       C[i]=int.from_bytes(mm[addr:addr+4], byteorder='little', signed=True)
                   #sys.stdout.buffer.write( ss.pack(time()-t0, *C )  )
-                  li.unfreeze()
+                  dm.unfreeze()
                   process.stdin.write( ss.pack(time()-t0, *C ) )
                   process.stdin.flush()
               sleep(Dtime2)
@@ -128,20 +128,20 @@ if __name__ == '__main__':
       else:
           while True:
               if (time()-tl>Dtime):
-                  li.freeze()
+                  dm.freeze()
                   for i,addr in enumerate(memcodes):
                       C[i]=int.from_bytes(mm[addr:addr+4], byteorder='little', signed=True)
                   #sys.stdout.buffer.write( ss.pack(time()-t0, *C )  )
-                  li.unfreeze()
+                  dm.unfreeze()
                   process.stdin.write( ss.pack(time()-t0, *C ) )
                   process.stdin.flush()
               sleep(Dtime2)
               if (time()-tl>args.timeout):
                   break
               if killer.kill_now:
-                  break            
+                  break
     # End code
-    
+
     print("Program finished")
     print('')
     print("pack string: '{:s}'".format(struct_str))
@@ -153,11 +153,11 @@ if __name__ == '__main__':
 
 #from numpy import *
 #import matplotlib.pyplot as plt
- 
+
 #import struct
- 
+
 #fn='/home/lolo/tmp/borrar/archivo2.txt'
- 
+
 #cs=struct.calcsize('!fhhh')
 #dd=[]
 #with open(fn,'rb') as f:
@@ -166,9 +166,9 @@ if __name__ == '__main__':
     #while fc:
         #dd.append(struct.unpack('!fhhh',fc))
         #fc=f.read(cs)
- 
+
 #dd=array(dd)
- 
+
 #t=array(dd)[:,0]  ;  a=array(dd)[:,1]  ;  b=array(dd)[:,2] ; c=array(dd)[:,3]
- 
+
 #plt.plot(t,a,t,b,t,c)
