@@ -13,13 +13,24 @@ from time import sleep
 import time
 
 from datetime import datetime
-import subprocess
+#import subprocess
+import platform
+import paramiko
+import getpass
+import socket
 
 #os.chdir('/home/lolo/Dropbox/Doctorado/herramientas/RedPitaya/scope+lock/v0.15/scope+lock/resources/RP_py')
 
-from read_dump import read_dump
+#from read_dump import read_dump
 
 
+
+BLUE='\033[34m'
+RED='\033[31m'
+NORMAL='\033[0m'
+
+
+#%%
 ## This are some auxilliary functions
 
 def smooth(x, window_len=11, window='hanning'):
@@ -155,8 +166,7 @@ class red_pitaya_control():
         Loads all the avaible keys values for the memory slot of red_pitaya_control
         """
         self.parent.log('rp.'+self.name+'.load(): '+self.cmd )
-        result = self.parent.run(self.cmd)
-        for rta in result.stdout.decode().strip().split('\n'):
+        for rta in self.parent.ssh_cmd(self.cmd).strip().split('\n'):
             self.data[ rta.strip().split(':')[0].strip() ] = int(rta.strip().split(':')[1].strip())
         self.keys  = list(self.data.keys())
         #self.upload_changes = False
@@ -180,8 +190,8 @@ class red_pitaya_control():
         """
         if par in self.keys:
             self.parent.log('rp.'+self.name+'.get(par='+par+'): '+self.cmd+' '+par )
-            result = self.parent.run(self.cmd+' '+par)
-            for rta in result.stdout.decode().strip().split('\n'):
+            result = self.parent.ssh_cmd(self.cmd+' '+par)
+            for rta in result.strip().split('\n'):
                 self.data[ rta.strip().split(':')[0].strip() ] = int(rta.strip().split(':')[1].strip())
             #self.upload_changes = False
             #setattr(self,par,self.data[par])
@@ -198,7 +208,7 @@ class red_pitaya_control():
         """
         if par in self.keys:
             self.parent.log('rp.'+self.name+'.set(par='+par+',val='+str(val)+'): '+self.cmd+' '+par+' '+str(val) )
-            result = self.parent.run(self.cmd+' '+par+' '+str(val))
+            result = self.parent.ssh_cmd(self.cmd+' '+par+' '+str(val))
             for rta in result.stdout.decode().strip().split('\n'):
                 self.data[ rta.strip().split(':')[0].strip() ] = int(rta.strip().split(':')[1].strip())
             #self.upload_changes = False
@@ -208,10 +218,12 @@ class red_pitaya_control():
             print(self.name+'.set('+par+','+str(val)+')')
             return self.data[par]
 
+###################################################################################
 
-class red_pitaya_lock():
+
+class red_pitaya_app():
     """
-    This class is used to control RedPitaya (RP) scope+lock app using memory registers
+    This class is used to control RedPitaya (RP) dummys app using memory registers
     from the RP itself. The object lets you set and load regs, control oscilloscope and lock,
     load plots from oscilloscope, stream regs values to binary files in localhost,
     plot loaded data and keep log of all the activity.
@@ -248,45 +260,183 @@ class red_pitaya_lock():
         rp.stop_streaming()    # Stops a long time length streaming
         
     """
-    def __init__(self,RP_addr,RP_port=22,filename=None):
-        if filename==None:
-            filename = pwd()+'/'+now()+'.npz'
-        self.filename   = filename
-        self.dir        = os.path.dirname(filename)
-        self.today      = datetime.now().strftime("%Y%m%d")
-        self.RP_addr    = RP_addr
-        self.RP_port    = RP_port
-        self.ssh        = 'ssh '+str(RP_addr)+' -l root ' + ('-p {:d} '.format(RP_port) if is_int(RP_port) else '')
+    
+
+    def __init__(self,AppName,host,port=22,password='',user='root',key_path='',filename=None):
+        self.filename       = filename
+        self.AppName        = AppName
+        self.host           = host
+        self.port           = port
+        self.password       = password if len(password)>0 else 'root'
+        self.user           = user
+        self.connected      = False
+        self.rw             = False
+        self.ssh            = paramiko.SSHClient()
+        self.path           = os.getcwd()
+        self.key_path       = key_path if len(key_path)>0 else 'pass' if len(password)>0 else ''
+        self.linux          = True if platform.system()=='Linux' else False
+        self.home           = os.environ['HOME'] if platform.system()=='Linux' else os.environ['USERPROFILE']
+        self.verbose        = True
+        if not self.filename==None:
+            self.dir            = os.path.dirname(filename)
+        else:
+            self.dir            = os.getcwd()
+        self.today          = datetime.now().strftime("%Y%m%d")
         self.log_db     = []
         self.data       = []
-        self.allan      = []
-        self.osc        = red_pitaya_control(cmd='/root/py/osc.py' ,name='osc' ,parent=self)
-        self.lock       = red_pitaya_control(cmd='/root/py/lock.py',name='lock',parent=self)
-        self.oscA_sw    = ['0', 'in1', 'in2', 'error', 'ctrl_A', 'ctrl_B', 'Scan A', 'scan_B', 'pidA_in', 'pidB_in', 'PID A out', 'PID B out', 'sin_ref', 'cos_ref', 'sin_1f', 'sin_2f', 'sin_3f', 'sq_ref', 'sq_quad', 'sq_phas', "{1'b0,sq_ref_b,12'b0}", 'signal_i', 'Xo', 'Yo', 'F1', 'F2', 'F3', 'sqx', 'sqy', 'sqf', '0', '0']
-        self.oscB_sw    = ['0', 'in1', 'in2', 'error', 'ctrl_A', 'ctrl_B', 'Scan A', 'scan_B', 'pidA_in', 'pidB_in', 'PID A out', 'PID B out', 'sin_ref', 'cos_ref', 'sin_1f', 'sin_2f', 'sin_3f', 'sq_ref', 'sq_quad', 'sq_phas', "{1'b0,sq_ref_b,12'b0}", 'signal_i', 'Xo', 'Yo', 'F1', 'F2', 'F3', 'sqx', 'sqy', 'sqf', '0', '0']
+        self.osc        = red_pitaya_control(cmd='/opt/redpitaya/www/apps/'+ self.AppName +'/py/osc.py' ,name='osc' ,parent=self)
+        self.app        = red_pitaya_control(cmd='/opt/redpitaya/www/apps/'+ self.AppName +'/py/dummy.py',name=AppName,parent=self)
+        self.oscA_sw    = [ 'ch'+str(y) for y in range(32) ]
+        self.oscB_sw    = [ 'ch'+str(y) for y in range(32) ]
         self.newfig     = True
         self.check_connection()
         self.osc.load()
-        self.lock.load()
+        self.app.load()
         self.stream     = False
+        paramiko.util.log_to_file('ssh_session.log')
+    
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.ssh.close()
+        self.active = False
+        for i in [exc_type, exc_value, traceback]:
+            if not i==None:
+                print(repr(i))
+        #print('exit')
+    
+    def __del__(self):
+        self.ssh.close()
+        #print('del')
+        
+    def __enter__(self):
+        return self
+    
+    
+    def resolve_dns(self):
+        try:
+            addr    = socket.gethostbyname(self.host)
+            self.ip = addr
+            return True
+        except Exception as e:
+            return False
+    
+    def check_tcp_connection(self):
+        with socket.socket() as s:
+            try:
+                s.connect((self.host, self.port))
+                return True
+            except Exception as e:
+                return False
+    
+    def try_local_key(self):
+        if not os.path.isfile('key'):
+            return False
+        key_path = os.path.join(os.getcwd(),'key')
+        try:
+            self.ssh.connect(hostname=self.host,port=self.port,username=self.user, key_filename=key_path)
+            self.key_path = key_path
+            return True
+        except Exception as e:
+            print('could not connect with local key:'+ repr(e) )
+            return False
+    
+    def try_user_key(self):
+        for i in ['id_rsa','id_dsa']:
+            key_path = os.path.join(os.environ['HOME'], '.ssh', i)
+            if os.path.isfile(key_path):
+                try:
+                    self.ssh.connect(hostname=self.host,port=self.port,username=self.user, key_filename=key_path)
+                    self.key_path = key_path
+                    return True
+                except Exception as e:
+                    print('could not connect with user key('+i+'):'+ repr(e) )
+        return False
+    
+    def try_pass(self):
+        try:
+            self.ssh.connect(hostname=self.host,port=self.port,username=self.user,password=self.password)
+            self.key_path = 'pass'
+            return True
+        except Exception as e:
+            print('could not connect with password:'+ repr(e))
+            return False
+    
+    def try_keypath(self):
+        try:
+            self.ssh.connect(hostname=self.host,port=self.port,username=self.user, key_filename=self.key_path)
+        except Exception as e:
+            print('could not connect with key('+self.key_path+'):'+ repr(e) )
+    
+    def ssh_connect(self):
+        # globals()['__file__']
+        if self.connected:
+            return True
+        self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        self.connected = True
+        if self.key_path=='' and ( self.try_user_key() or self.try_local_key() or  self.try_pass()):
+            print('looking for auth method')
+            return(True)
+        elif self.key_path=='pass' and self.try_pass():
+            print('auth method: pass')
+            return(True)
+        elif os.path.isfile(self.key_path) and self.try_keypath():
+            print('auth method: key: '+self.key_path)
+            return(True)
+        else:
+            self.connected = False
+            return(False)
+    
+    def create_local_key(self):
+        if os.path.isfile('key'):
+            print('Already exists key file.')
+            return False
+        try:
+            private_key = paramiko.RSAKey.generate(bits=2048)
+            private_key.write_private_key_file('key')
+            print('key file "key" was created')
+        except Exception as e:
+            print('could not create key:'+ repr(e) )
+            return False
+        
+        with open("key.pub", 'w') as f:
+            f.write("{:s} {:s}".format(private_key.get_name(), private_key.get_base64()) )
+            f.write(" Generated automatically for lock-in+pid app")
+            print('public key file "key.pub" was created')
+        return True
+    
+    def ssh_cmd(self,cmd):
+        if not self.ssh_connect():
+            print('Could not connect trought ssh')
+            return False
+        if not self.rw:
+            self.ssh.exec_command('rw')
+        if self.verbose:
+            print('Remote Command: '+RED+cmd+NORMAL)
+        stdin,stdout,stderr = self.ssh.exec_command(cmd)
+        return ''.join(stdout.readlines())
+    
+    def ssh_close(self):
+        self.ssh.close()
+        self.connected = False
     
     def check_connection(self):
         """
         Checks that localhost can connect to RP throught SSH and gets some usefull info
         """
+        if self.connected:
+            return True
+        else:
+            return False
         self.info={}
-        result = self.run('uname -a')
-        if result.returncode == 0:
-            self.info['RP kernel'] = result.stdout.decode().strip()
-            result = self.run('echo $SSH_CONNECTION')
-            myIP, myPort, rpIP, rpPort = result.stdout.decode().strip().split(' ')
-            self.info['myIP']   = myIP
-            self.info['myPort'] = myPort
-            self.info['rpIP']   = rpIP
-            self.info['rpPort'] = rpPort
+        result = self.ssh_cmd('uname -a')
+        self.info['RP kernel'] = result.strip()
+        myIP, myPort, rpIP, rpPort = self.ssh_cmd('echo $SSH_CONNECTION').strip().split(' ')
+        self.info['myIP']   = myIP
+        self.info['myPort'] = myPort
+        self.info['rpIP']   = rpIP
+        self.info['rpPort'] = rpPort
     
     def __repr__(self):
-        txt='red_pitaya_lock: \n'
+        txt='red_pitaya_dummy: \n'
         for i in 'filename RP_addr ssh'.split(' '):
             txt+='rp.{:<15s}: {:s}\n'.format(i, str(getattr(self,i )) )
         txt+='rp.{:<15s}: [{:>3d}]'.format('log_db', len(self.log_db) )
@@ -395,24 +545,24 @@ class red_pitaya_lock():
             rp.print_data()
             
         """
-        cmd='/root/py/osc_get_ch.py'
-        result = self.run(cmd)
+        cmd='/opt/redpitaya/www/apps/'+ self.AppName +'/py/osc_get_ch.py' 
+        result = self.ssh_cmd(cmd)
         self.log('rp.get_curv(): '+cmd+' | '+log)
-        ind=[ int(y.strip().split(',')[0]) for y in result.stdout.decode().strip().split('\n') ]
-        ch1=[ int(y.strip().split(',')[1]) for y in result.stdout.decode().strip().split('\n') ]
-        ch2=[ int(y.strip().split(',')[2]) for y in result.stdout.decode().strip().split('\n') ]
+        ind=[ int(y.strip().split(',')[0]) for y in result.strip().split('\n') ]
+        ch1=[ int(y.strip().split(',')[1]) for y in result.strip().split('\n') ]
+        ch2=[ int(y.strip().split(',')[2]) for y in result.strip().split('\n') ]
         self.osc.load()
-        self.lock.load()
+        self.app.load()
         num=len(self.data)
         self.data.append( [num, datetime.now().timestamp(), {
                            'i'  : ind,
                            'ch1': ch1,
                            'ch2': ch2,
-                           'ch1_name': self.oscA_sw[self.lock.oscA_sw],
-                           'ch2_name': self.oscB_sw[self.lock.oscB_sw],
+                           'ch1_name': self.oscA_sw[self.app.oscA_sw],
+                           'ch2_name': self.oscB_sw[self.app.oscB_sw],
                            'dec': self.osc.Dec,
                            'osc': self.osc.data,
-                           'lock': self.lock.data,
+                           'lock': self.app.data,
                            'log': log
                             }
                            ] )
@@ -473,7 +623,7 @@ class red_pitaya_lock():
             rp.plot()
             
         """
-        cmd='/root/py/osc_trig.py '
+        cmd='/opt/redpitaya/www/apps/'+ self.AppName +'/py/osc_trig.py '
         if trig_src in ['now', 'chAup', 'chAdown', 'chBup', 'chBdown', 'ext']:
             cmd += '--signal '+trig_src+' '
         else:
@@ -489,12 +639,12 @@ class red_pitaya_lock():
             cmd += ' --hys {:d} '.format(hys)
         cmd += ' --timeout {:d} '.format(timeout)
         self.log('fire_trig: '+cmd)
-        result = self.run(cmd)
-        if 'success' in result.stdout.decode():
+        result = self.ssh_cmd(cmd)
+        if 'success' in result:
             return True
         else:
             print('rp.fire_trig FAILED')
-            print(result.stdout.decode())
+            print(result)
             return False
             
     def export_data_csv(self,num=None):
@@ -540,126 +690,7 @@ class red_pitaya_lock():
                             self.data[n][2]['ch1'][i],
                             self.data[n][2]['ch2'][i],
                             ))
-    def get_fast_stream(self,signals='error',log='',time_len=60):
-        """
-        Fire an streaming of regs values and store it in a .bin file in local host.
-        get_fast_stream() waits until the streaming has finished to give the control back to the console.
-        
-        Usage:
-            self.get_fast_stream(log='',signals='error',time_len=60)
-        
-        signals   : A list or a space separated string of signals names that should be streamed.
-                    Each signal name should be one of self.lock.data.keys()
-        time_len  : Length in seconds of the data streaming to take.
-        
-        Each stream is saved in a .bin file in the same folder of filename. The name of the file
-        has the fire time information in format: YYYYMMDD_hhmmss.bin
-        
-        Each streaming session is saved in self.allan array in format:
-            [num , datetime , bin_filename , log_txt ]
-        
-        Example:
-            rp.get_fast_stream('error ctrl_A ctrl_B')
-            d=read_dump(rp.allan[-1][2])
-            d.plotr(start=0,end=-1,signals='error ctrl_A')
-            
-        """
-        ip=self.run('echo $SSH_CONNECTION').stdout.decode().split(' ')[0]
-        if type(signals)==str:
-            signals=signals.split(' ')
-        for i in signals:
-            if not i in self.lock.keys:
-                raise RPError('{:s} is not in self.lock.keys'.format(i))
-        name=os.path.dirname(self.filename)+'/'+now()+'.bin'
-        num=len(self.allan)
-        self.allan.append( [num, datetime.now().timestamp() , name , log ] )
-        print('Getting streaming for ['+' '.join(signals)+'], time_len={:d} sec'.format(time_len))
-        self.log('get_fast_stream(): Getting streaming for ['+' '.join(signals)+'], time_len={:d} sec'.format(time_len),silent=True)
-        self.log('get_fast_stream('+name+'):'+log,silent=True)
-        file=open(name,'a')
-        ncproc = subprocess.Popen( 'nc -l 6000'.split(' ') , shell=False , stdin=subprocess.PIPE , stdout=file , stderr=subprocess.PIPE)
-        #subprocess.Popen('nc -d -l 6000 > '+name, shell=True)
-        cmd='/root/py/data_dump.py -s '+ip+' -p 6000 -t '+str(time_len)+' --params '+' '.join(signals)
-        self.log('remote: '+cmd)
-        result = self.run(cmd)
-        ncproc.terminate()
-        ncproc.communicate()
-        file.close()
-        
-        print(result.stdout.decode())
-        
-    def start_streaming(self,signals='error',log=''):
-        """
-        Start an streaming of regs values and store it in a .bin file in local host.
-        start_streaming() gives the control back to the console inmediatly. To stop the
-        streaming you should use self.stop_streaming() .
-        
-        Usage:
-            self.start_streaming(signals='error',log='')
-        
-        signals   : A list or a space separated string of signals names that should be streamed.
-                    Each signal name should be one of self.lock.data.keys()
-        
-        Each stream is saved in a .bin file in the same folder of filename. The name of the file
-        has the fire time information in format: YYYYMMDD_hhmmss.bin
-        
-        Each streaming session is saved in self.allan array in format:
-            [num , datetime , bin_filename ]
-        
-        Example:
-            rp.start_streaming('error ctrl_A ctrl_B')
-            time.sleep(3600)
-            rp.stop_streaming()
-            d=read_dump(rp.allan[-1][2])
-            d.plotr(start=0,end=-1,signals='error ctrl_A')
-            
-        """
-        ip=self.run('echo $SSH_CONNECTION').stdout.decode().split(' ')[0]
-        if type(signals)==str:
-            signals=signals.split(' ')
-        for i in signals:
-            if not i in self.lock.keys:
-                raise RPError('{:s} is not in self.lock.keys'.format(i))
-        name=os.path.dirname(self.filename)+'/'+now()+'.bin'
-        num=len(self.allan)
-        self.allan.append( [num, datetime.now().timestamp() , name , log ] )
-        print('Getting streaming for ['+' '.join(signals)+']')
-        self.log('start_streaming(): Getting streaming for ['+' '.join(signals)+']')
-        self.log('start_streaming():'+log)
-        
-        self.file   = open(name,'a')
-        self.stream = subprocess.Popen( 'nc -l 6000'.split(' ') , shell=False , stdin=subprocess.PIPE , stdout=self.file , stderr=subprocess.PIPE)
-        #subprocess.Popen('nc -d -l 6000 > '+name, shell=True)
-        cmd='/root/py/data_dump.py -s '+ip+' -p 6000 --params '+' '.join(signals)
-        self.log('remote: '+cmd)
-        self.remote  = subprocess.Popen(self.ssh.split(' ')+[cmd], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-        #sleep(2)
-        #print('streaming started:'+self.stream.stdout.read().decode())
-    def stop_streaming(self):
-        """
-        Stops an streaming of regs values already launched.
-        See start_streaming().
-        
-        Example:
-            rp.start_streaming('error ctrl_A ctrl_B')
-            time.sleep(3600)
-            rp.stop_streaming()
-            d=read_dump(rp.allan[-1][2])
-            d.plotr(start=0,end=-1,signals='error ctrl_A')
-            
-        """
-        if self.stream==False:
-            print('Streaming never started')
-        else:
-            cmd="ps ax "
-            result = self.run(cmd)
-            for i in [ y.strip().split(' ')[0] for y in filter(lambda x: 'data_dump.py' in x, result.stdout.decode().split('\n'))  ]:
-                self.run('kill '+str(i))
-                self.log('stop_straming(): killing pid: '+str(i))
-            self.stream.terminate()
-            self.stream.communicate()
-            self.file.close()
-            self.stream=False
+    
     def plot(self,num=-1,figsize=(12,5),time=True,rel=None,same_plot=True,autotime=True):
         """
         Plot stored data taken from oscilloscope channels.
@@ -738,35 +769,35 @@ class red_pitaya_lock():
         ax2.set_xlabel(xlbl)
         plt.tight_layout()
     
-    def run(self,cmd):
-        """
-        Runs a command on RP host and returns the stdout.
-        
-        Usage:
-            self.run(cmd)
-        
-        Example:
-            root_files = rp.run('ls -l /')
-            
-        """
-        result = subprocess.run(self.ssh.split(' ')+[cmd], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-        if result.returncode == 0:
-            self.log('rp.run: '+ cmd + ' | result[{:d}]'.format(result.returncode))
-            return result
-        elif result.returncode == 1:
-            msj='Remote command ERROR [{:d}]: '.format(result.returncode)+result.stderr.decode()
-            self.log('rp.run: '+ cmd + ' | result[{:d}] | '.format(result.returncode) + msj)
-            raise SSHError(msj)
-        else:
-            msj='SSH ERROR [{:d}]: '.format(result.returncode)+result.stderr.decode()
-            self.log('rp.run: '+ cmd + ' | result[{:d}] | '.format(result.returncode) + msj)
-            raise SSHError(msj)
+    #    def run(self,cmd):
+    #        """
+    #        Runs a command on RP host and returns the stdout.
+    #        
+    #        Usage:
+    #            self.run(cmd)
+    #        
+    #        Example:
+    #            root_files = rp.run('ls -l /')
+    #            
+    #        """
+    #        result = subprocess.run(self.ssh.split(' ')+[cmd], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    #        if result.returncode == 0:
+    #            self.log('rp.run: '+ cmd + ' | result[{:d}]'.format(result.returncode))
+    #            return result
+    #        elif result.returncode == 1:
+    #            msj='Remote command ERROR [{:d}]: '.format(result.returncode)+result.stderr.decode()
+    #            self.log('rp.run: '+ cmd + ' | result[{:d}] | '.format(result.returncode) + msj)
+    #            raise SSHError(msj)
+    #        else:
+    #            msj='SSH ERROR [{:d}]: '.format(result.returncode)+result.stderr.decode()
+    #            self.log('rp.run: '+ cmd + ' | result[{:d}] | '.format(result.returncode) + msj)
+    #            raise SSHError(msj)
 
 
 
 
 if __name__ == '__main__':
     
-    rp=red_pitaya_lock(RP_addr='10.0.32.207',RP_port=2022,filename='/home/lolo/Dropbox/Doctorado/datos_labo/lolo/test.npz')
+    rp=red_pitaya_app(AppName='dummy_ejemplo',host='10.0.32.207',port=22)
 
 
