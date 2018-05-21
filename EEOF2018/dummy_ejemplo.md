@@ -47,18 +47,18 @@ Este es el código de la App de ejemplo.
 
 
 
-wire signed [14-1:0] salida_pasaaltos,salida_pasabajos ;
-wire        [24-1:0] salida_contador   ;
-wire signed [14-1:0] salida_contador14 ;
+  wire signed [14-1:0] salida_pasaaltos,salida_pasabajos ;
+  wire        [24-1:0] salida_contador   ;
+  wire signed [14-1:0] salida_contador14 ;
 
 
-wire signed [14-1:0] salida_promedio ;
-wire signed [32-1:0] salida_suma ;
+  wire signed [14-1:0] salida_promedio ;
+  wire signed [32-1:0] salida_suma ;
 
-wire signed [14-1:0] cuadrada , cuadrada_pasabajos;
+  wire signed [14-1:0] cuadrada , cuadrada_pasabajos;
 
-wire signed [15-1:0] contador_mas_A ;
-wire signed [14-1:0] contador_mas_A_sat, contador_mas_A_recortado;
+  wire signed [15-1:0] contador_mas_A ;
+  wire signed [14-1:0] contador_mas_A_sat, contador_mas_A_recortado;
 
 
 
@@ -76,88 +76,88 @@ wire signed [14-1:0] contador_mas_A_sat, contador_mas_A_recortado;
 
 
 
-// Probamos un pasaaltos
-filtro_pasaaltos #(.R(14),.TAU_OFFSET(0)) i_filtro_pasaaltos_in1 (
-.clk(clk), .rst(rst),
-// inputs
-.tau( comboA     ),
-.dis( checkboxA  ),
-.in(  in1        ),
-// outputs
-.out(  salida_pasaaltos  )
-);
+  // Probamos un pasaaltos
+  filtro_pasaaltos #(.R(14),.TAU_OFFSET(0)) i_filtro_pasaaltos_in1 (
+      .clk(clk), .rst(rst),
+      // inputs
+      .tau( comboA     ),
+      .dis( checkboxA  ),
+      .in(  in1        ),
+      // outputs
+      .out(  salida_pasaaltos  )
+  );
 
-// Probamos un pasabajos
-filtro_pasabajos #(.R(14),.TAU_OFFSET(5)) i_filtro_pasabajos_in1 (
-.clk(clk), .rst(rst),
-// inputs
-.tau( comboB   ),
-.dis( checkboxB     ),
-.in(  in1       ),
-// outputs
-.out(  salida_pasabajos     )
-);
+  // Probamos un pasabajos
+  filtro_pasabajos #(.R(14),.TAU_OFFSET(5)) i_filtro_pasabajos_in1 (
+      .clk(clk), .rst(rst),
+      // inputs
+      .tau( comboB   ),
+      .dis( checkboxB     ),
+      .in(  in1       ),
+      // outputs
+      .out(  salida_pasabajos     )
+  );
 
-assign monitorA          = salida_pasabajos ;
+  assign monitorA          = salida_pasabajos ;
 
-// Ahora un contador universal -------------------------------------
+  // Ahora un contador universal -------------------------------------
 
-UniversalCounter #( .N(24) ) i_UniversalCounter_A (
-.clk(clk), .reset(rst),
-// inputs
-.en      ( buttonA   ), // 1 es enable / encendido
-.up      ( buttonB   ), // 1 es sumar, 0 es restar
-.syn_clr ( 1'b0      ), // 1 es resetear el contador
-.load    ( checkboxA ), // 1 es cargar el valor de entrada d en la memoria interna
-.d       ( numberA   ), // BUS de entrada para inicializar un valor
-// outputs
-.q       (  salida_contador )   // Salida del contador
-);
+  UniversalCounter #( .N(24) ) i_UniversalCounter_A (
+      .clk(clk), .reset(rst),
+      // inputs
+      .en      ( buttonA   ), // 1 es enable / encendido
+      .up      ( buttonB   ), // 1 es sumar, 0 es restar
+      .syn_clr ( 1'b0      ), // 1 es resetear el contador
+      .load    ( checkboxA ), // 1 es cargar el valor de entrada d en la memoria interna
+      .d       ( numberA   ), // BUS de entrada para inicializar un valor
+      // outputs
+      .q       (  salida_contador )   // Salida del contador
+  );
 
-assign salida_contador14 = salida_contador >>> 10 ;
-assign monitorB          = salida_contador14 ;
-assign monitorD	         = { 8'b0 , salida_contador } ;
+  assign salida_contador14 = salida_contador >>> 10 ;
+  assign monitorB          = salida_contador14 ;
+  assign monitorD	         = { 8'b0 , salida_contador } ;
 
-// Al contador universal le vamos a sacar el promedio cada
-// 2**18 ticks de CLK ...
-// osea:  262144 * 8 ns = 2.09 ms
+  // Al contador universal le vamos a sacar el promedio cada
+  // 2**18 ticks de CLK ...
+  // osea:  262144 * 8 ns = 2.09 ms
 
-sum_2N #( .R(14), .N(18) ) i_sum_2N_A (
-.clk(clk), .rst(rst),
-// inputs
-.in    ( salida_contador14 ), // Bus de entrada
-// outputs
-.sum  ( salida_suma       ), // Suma de 10000 valores de entrada de INPUT_BUS
-.mean ( salida_promedio   ), // Promedio de 10000 valores de entrada de INPUT_BUS
-.tick (                   )  // Vale 1 cuando se actualiza la salida
-);
+  sum_2N #( .R(14), .N(18) ) i_sum_2N_A (
+      .clk(clk), .rst(rst),
+      // inputs
+      .in    ( salida_contador14 ), // Bus de entrada
+      // outputs
+      .sum  ( salida_suma       ), // Suma de 10000 valores de entrada de INPUT_BUS
+      .mean ( salida_promedio   ), // Promedio de 10000 valores de entrada de INPUT_BUS
+      .tick (                   )  // Vale 1 cuando se actualiza la salida
+  );
 
-assign monitorE          = { 18'b0 , salida_promedio } ;
+  assign monitorE          = { 18'b0 , salida_promedio } ;
 
-assign monitorF	         = salida_suma ;
+  assign monitorF	         = salida_suma ;
 
-// Veamos cómo obtener una cuadrada desde un contador:
+  // Veamos cómo obtener una cuadrada desde un contador:
 
-assign  cuadrada = { 2'b00 , salida_contador[23] , 11'b0  };
+  assign  cuadrada = { 2'b00 , salida_contador[23] , 11'b0  };
 
-filtro_pasabajos #(.R(14),.TAU_OFFSET(14)) i_filtro_pasabajos_cuadrada (
-.clk(clk), .rst(rst),
-// inputs
-.tau( comboB              ),
-.dis( checkboxB           ),
-.in(  cuadrada            ),
-// outputs
-.out(  cuadrada_pasabajos )
-);
+  filtro_pasabajos #(.R(14),.TAU_OFFSET(14)) i_filtro_pasabajos_cuadrada (
+      .clk(clk), .rst(rst),
+      // inputs
+      .tau( comboB              ),
+      .dis( checkboxB           ),
+      .in(  cuadrada            ),
+      // outputs
+      .out(  cuadrada_pasabajos )
+  );
 
 
-assign monitorC = numberA * numberB ;
+  assign monitorC = numberA * numberB ;
 
-assign contador_mas_A = salida_contador14 + numberA ;
+  assign contador_mas_A = salida_contador14 + numberA ;
 
-satprotect #(.Ri(15),.Ro(14)) i_satprotect ( .in( contador_mas_A ), .out( contador_mas_A_sat ) );
+  satprotect #(.Ri(15),.Ro(14)) i_satprotect ( .in( contador_mas_A ), .out( contador_mas_A_sat ) );
 
-assign contador_mas_A_recortado = contador_mas_A[13:0] ;
+  assign contador_mas_A_recortado = contador_mas_A[13:0] ;
 
 ```
 
