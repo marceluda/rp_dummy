@@ -5,7 +5,7 @@ layout: page
 mathjax: true
 ---
 
-Este es el código de la App de ejemplo.
+Este es el código de la App de ejemplo utilizada en el curso.
 
 ## Código parcial (definiciones e instanciaciones)
 
