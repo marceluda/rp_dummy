@@ -253,7 +253,7 @@ if __name__ == '__main__':
     rep = [
         ["var app_id = 'dummy';","var app_id = '"+AppName+"';"],
         ["localStorage\\.lockConfig","localStorage."+AppName+"config"],
-        ['<h2 class="page-title">Oscilloscope+Lock-in+PID</h2>','<h2 class="page-title">'+AppName.replace('_',' ')+'</h2>']
+        ['<h2 class="page-title">Oscilloscope\+Dummy</h2>','<h2 class="page-title">'+AppName.replace('_',' ')+'</h2>']
     ]
 
     tmp_mon_txt = ','.join([ 'dummy_'+y['name'] for y in filter( lambda x: x['htype']=='monitor', ctrls ) ])
@@ -372,7 +372,7 @@ if __name__ == '__main__':
                         )
             line += '\n'
         print(line)
-    
+
     #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     # Update red_pitaya_top.v
     topv_file = os.path.join(folder,AppName,'fpga','rtl','red_pitaya_top.v')
@@ -389,7 +389,7 @@ if __name__ == '__main__':
             if bool(re.match('\s*/\* include_pids enable',line)):
                 line = '/* include_pids enable */'
         print(line)
-    
+
     #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     # Update ICONS
 
