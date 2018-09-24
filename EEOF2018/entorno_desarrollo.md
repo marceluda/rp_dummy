@@ -8,7 +8,7 @@ mathjax: true
 ## Instalación del sistema operativo
 
 Para la demostración del taller en EEOF 2018 se prepararon máquinas con
-[Ubuntu MATE0(https://ubuntu-mate.org/)] 16.04 LTS.
+[Ubuntu MATE](https://ubuntu-mate.org/)] 16.04 LTS.
 
 No se describirá cómo hacer esa instalación. Pero hay muchos tutoriales web que
 explican paso a paso, ya sea para Ubuntu o para Ubuntu MATE (cualquiera es indistinto).
