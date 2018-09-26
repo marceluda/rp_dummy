@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Notas para estaciones de trabajo
+
+sudo apt install -y build-essential chromium-browser geany xtightvncviewer git libvte9
+
+sudo apt install -y libreoffice-l10n-es myspell-es aspell-es language-pack-es language-pack-es-base language-support-es
+
+
+bash ./para_topfot/Anaconda3-5.1.0-Linux-x86_64.sh -b
+$HOME/anaconda3/bin/conda install paramiko
+
+tar -xzf Xilinx/Xilinx_Vivado_SDK_Lin_2015.2_0626_1.tar.gz
+sudo Xilinx_Vivado_SDK_Lin_2015.2_0626_1/xsetup
+
+/opt/Xilinx/Vivado/2015.2/bin/vlm
+
+sudo mkdir -p /opt/linaro
+sudo chown $USER:$USER /opt/linaro
+tar -xpf ./Xilinx/gcc-linaro-4.9-2015.02-3-x86_64_arm-linux-gnueabihf.tar.xz -C /opt/linaro
