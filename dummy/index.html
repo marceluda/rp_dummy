@@ -2804,7 +2804,7 @@
     return false;
   }
 
-  function sendParams(refresh_data, force_send, single_btn) {
+  function sendParams(refresh_data, force_send, single_btn, user_editing_update) {
     if(sending || (force_send !== true && !isParamChanged())) {
       send_que = sending;
       return;
@@ -2858,7 +2858,8 @@
           plot.draw();
         }
 
-        loadParams(dresult.datasets.params);
+        if(!user_editing) loadParams(dresult.datasets.params);
+        //console.log('lock_error_offset: '+dresult.datasets.params["lock_error_offset"]);
         updateTriggerSlider();
 
         if(refresh_data && !downloading) {
