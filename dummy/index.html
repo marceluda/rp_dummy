@@ -1267,7 +1267,7 @@
         }
 
         // Increment or decrement numeric based on scroll distance
-        if (event.deltaFactor * event.deltaY > 0) {
+        if ( delta > 0) {
             if ($currVal + $inc <= $max) {
                 $this.val($currVal + $inc);
                 $currVal = $currVal + $inc;
